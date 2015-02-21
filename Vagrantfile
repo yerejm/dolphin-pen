@@ -1,33 +1,35 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby tabstop=2 expandtab shiftwidth=2 softtabstop=2 :
 
-def provision_unix(vm)
-  vm.synced_folder ".", "/vagrant", :disabled => true
+def provision_unix(cfg)
+  cfg.vm.provider "virtualbox" do |v|
+    v.cpus = 2
+    v.memory = 2048
+  end
+  cfg.vm.synced_folder ".", "/vagrant", :disabled => true
+  cfg.cache.scope = :box if Vagrant.has_plugin? "vagrant-cachier"
 end
 
-def provision_windows(vm)
-  vm.synced_folder ".", "/vagrant", :disabled => true
+def provision_windows(cfg)
+  cfg.vm.provider "virtualbox" do |v|
+    v.cpus = 2
+    v.memory = 4096
+  end
+  cfg.vm.synced_folder ".", "/vagrant", :disabled => true
+  cfg.cache.scope = :box if Vagrant.has_plugin? "vagrant-cachier"
 end
 
-def provision_osx(vm)
-  vm.synced_folder ".", "/vagrant", :disabled => true
+def provision_osx(cfg)
+  cfg.vm.provider "virtualbox" do |v|
+    v.cpus = 1
+    v.memory = 4096
+    v.customize ['modifyvm', :id, '--vram', 128]
+  end
+  cfg.ssh.insert_key = false
+  cfg.vm.synced_folder ".", "/vagrant", :disabled => true
 end
 
 Vagrant.configure("2") do |config|
-  #
-  # vagrant-cachier
-  #
-  # Install the plugin by running: vagrant plugin install vagrant-cachier
-  # More information: https://github.com/fgrehm/vagrant-cachier
-  #
-  if Vagrant.has_plugin? "vagrant-cachier"
-    config.cache.scope = :box
-  end
-
-  config.vm.provider "virtualbox" do |v|
-    v.memory = 2048
-    v.cpus = 4
-  end
 
   servers = {
     # master
@@ -47,7 +49,7 @@ Vagrant.configure("2") do |config|
     :debbuild => {
       :ip => '172.118.70.42',
       :provisioner => :provision_unix,
-      :box => 'debian77',
+      :box => 'debian78',
     },
     # windows build slave
     :winbuild => {
@@ -68,7 +70,7 @@ Vagrant.configure("2") do |config|
       cfg.vm.box = server_details[:box]
       cfg.vm.host_name = server_name.to_s
       cfg.vm.network(:private_network, ip: server_details[:ip])
-      method(server_details[:provisioner]).call(cfg.vm)
+      method(server_details[:provisioner]).call(cfg)
     end
   end
 end

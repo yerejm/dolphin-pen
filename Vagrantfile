@@ -38,6 +38,7 @@ Vagrant.configure("2") do |config|
       :provisioner => :provision_unix,
       :box => 'ubuntu1410',
       :primary => true,
+      :ports => { 8010 => 8010, 8443 => 443, 8888 => 80 },
     },
     # ubuntu build slave
     :ububuild => {
@@ -70,6 +71,9 @@ Vagrant.configure("2") do |config|
       cfg.vm.box = server_details[:box]
       cfg.vm.host_name = server_name.to_s
       cfg.vm.network(:private_network, ip: server_details[:ip])
+      (server_details[:ports] || {}).each do |host_port, guest_port|
+        cfg.vm.network "forwarded_port", guest: guest_port, host: host_port
+      end
       method(server_details[:provisioner]).call(cfg)
     end
   end

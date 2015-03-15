@@ -1,6 +1,12 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby tabstop=2 expandtab shiftwidth=2 softtabstop=2 :
 
+def provision_x(cfg)
+  cfg.vm.provider "virtualbox" do |v|
+    v.customize ['modifyvm', :id, '--vram', 256]
+    v.customize ['modifyvm', :id, '--accelerate3d', 'on']
+  end
+end
 def provision_unix(cfg)
   cfg.vm.provider "virtualbox" do |v|
     v.cpus = 2
@@ -35,7 +41,7 @@ Vagrant.configure("2") do |config|
     # master
     :master => {
       :ip => '172.118.70.40',
-      :provisioner => :provision_unix,
+      :provisioner => [:provision_unix, :provision_x],
       :box => 'ubuntu1410',
       :primary => true,
       :ports => { 8010 => 8010, 8443 => 443, 8888 => 80 },
@@ -43,25 +49,25 @@ Vagrant.configure("2") do |config|
     # ubuntu build slave
     :ububuild => {
       :ip => '172.118.70.41',
-      :provisioner => :provision_unix,
+      :provisioner => [:provision_unix],
       :box => 'ubuntu1410',
     },
     # debian build slave
     :debbuild => {
       :ip => '172.118.70.42',
-      :provisioner => :provision_unix,
+      :provisioner => [:provision_unix],
       :box => 'debian78',
     },
     # windows build slave
     :winbuild => {
       :ip => '172.118.70.43',
-      :provisioner => :provision_windows,
+      :provisioner => [:provision_windows],
       :box => 'eval-win81x64-enterprise'
     },
     # osx build slave
     :osxbuild  => {
       :ip => '172.118.70.44',
-      :provisioner => :provision_osx,
+      :provisioner => [:provision_osx],
       :box => 'osx1010-desktop'
     },
   }
@@ -74,7 +80,7 @@ Vagrant.configure("2") do |config|
       (server_details[:ports] || {}).each do |host_port, guest_port|
         cfg.vm.network "forwarded_port", guest: guest_port, host: host_port
       end
-      method(server_details[:provisioner]).call(cfg)
+      server_details[:provisioner].each { |p| method(p).call(cfg) }
     end
   end
 end

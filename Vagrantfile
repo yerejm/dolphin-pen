@@ -1,7 +1,7 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby tabstop=2 expandtab shiftwidth=2 softtabstop=2 :
 
-def provision_x(cfg)
+def provision_3d(cfg)
   cfg.vm.provider "virtualbox" do |v|
     v.customize ['modifyvm', :id, '--vram', 256]
     v.customize ['modifyvm', :id, '--accelerate3d', 'on']
@@ -27,9 +27,8 @@ end
 
 def provision_osx(cfg)
   cfg.vm.provider "virtualbox" do |v|
-    v.cpus = 1
+    v.cpus = 2
     v.memory = 4096
-    v.customize ['modifyvm', :id, '--vram', 128]
   end
   cfg.ssh.insert_key = false
   cfg.vm.synced_folder ".", "/vagrant", :disabled => true
@@ -41,7 +40,7 @@ Vagrant.configure("2") do |config|
     # master
     :master => {
       :ip => '172.118.70.40',
-      :provisioner => [:provision_unix, :provision_x],
+      :provisioner => [:provision_unix, :provision_3d],
       :box => 'ubuntu1410',
       :primary => true,
       :ports => { 8010 => 8010, 8443 => 443, 8888 => 80 },
@@ -61,13 +60,13 @@ Vagrant.configure("2") do |config|
     # windows build slave
     :winbuild => {
       :ip => '172.118.70.43',
-      :provisioner => [:provision_windows],
+      :provisioner => [:provision_windows, :provision_3d],
       :box => 'eval-win81x64-enterprise'
     },
     # osx build slave
     :osxbuild  => {
       :ip => '172.118.70.44',
-      :provisioner => [:provision_osx],
+      :provisioner => [:provision_osx, :provision_3d],
       :box => 'osx1010-desktop'
     },
   }

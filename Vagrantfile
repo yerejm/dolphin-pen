@@ -1,13 +1,36 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby tabstop=2 expandtab shiftwidth=2 softtabstop=2 :
 
-def provision_3d(cfg)
+def enable_3d(cfg)
   cfg.vm.provider "virtualbox" do |v|
     v.customize ['modifyvm', :id, '--vram', 256]
     v.customize ['modifyvm', :id, '--accelerate3d', 'on']
   end
 end
+
+def enable_root_ssh(cfg)
+  pkey_file = "#{ENV['HOME']}/.ssh/id_rsa.pub"
+  pkey = File.read(pkey_file)
+  cfg.vm.provision 'shell',
+    inline:
+      "mkdir -p ~/.ssh && " +
+      "chmod 700 ~/.ssh && " +
+      "echo '#{pkey}' > ~/.ssh/authorized_keys && " +
+      "chmod 600 ~/.ssh/authorized_keys"
+end
+
 def provision_unix(cfg)
+  cfg.vm.provider "virtualbox" do |v|
+    v.cpus = 2
+    v.memory = 1024
+  end
+  cfg.vm.synced_folder ".", "/vagrant", :disabled => true
+  cfg.cache.scope = :box if Vagrant.has_plugin? "vagrant-cachier"
+
+  enable_root_ssh(cfg)
+end
+
+def provision_windows(cfg)
   cfg.vm.provider "virtualbox" do |v|
     v.cpus = 2
     v.memory = 2048
@@ -16,22 +39,15 @@ def provision_unix(cfg)
   cfg.cache.scope = :box if Vagrant.has_plugin? "vagrant-cachier"
 end
 
-def provision_windows(cfg)
-  cfg.vm.provider "virtualbox" do |v|
-    v.cpus = 2
-    v.memory = 4096
-  end
-  cfg.vm.synced_folder ".", "/vagrant", :disabled => true
-  cfg.cache.scope = :box if Vagrant.has_plugin? "vagrant-cachier"
-end
-
 def provision_osx(cfg)
   cfg.vm.provider "virtualbox" do |v|
     v.cpus = 2
-    v.memory = 4096
+    v.memory = 2048
   end
   cfg.ssh.insert_key = false
   cfg.vm.synced_folder ".", "/vagrant", :disabled => true
+
+  enable_root_ssh(cfg)
 end
 
 Vagrant.configure("2") do |config|
@@ -40,7 +56,7 @@ Vagrant.configure("2") do |config|
     # master
     :master => {
       :ip => '172.118.70.40',
-      :provisioner => [:provision_unix, :provision_3d],
+      :provisioner => [:provision_unix, :enable_3d],
       :box => 'ubuntu1410',
       :primary => true,
       :ports => { 8010 => 8010, 8443 => 443, 8888 => 80 },
@@ -60,13 +76,13 @@ Vagrant.configure("2") do |config|
     # windows build slave
     :winbuild => {
       :ip => '172.118.70.43',
-      :provisioner => [:provision_windows, :provision_3d],
+      :provisioner => [:provision_windows, :enable_3d],
       :box => 'eval-win81x64-enterprise'
     },
     # osx build slave
     :osxbuild  => {
       :ip => '172.118.70.44',
-      :provisioner => [:provision_osx, :provision_3d],
+      :provisioner => [:provision_osx, :enable_3d],
       :box => 'osx1010-desktop'
     },
   }

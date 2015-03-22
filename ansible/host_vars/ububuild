@@ -1,0 +1,7 @@
+---
+slave_username: ubuntu
+slave_password: ubuntu
+
+buildbot_info_host: ubuntu buildslave
+buildbot_info_admin: ubuntu@ububuild.dev
+

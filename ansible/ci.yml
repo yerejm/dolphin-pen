@@ -1,0 +1,6 @@
+---
+- hosts: buildslaves
+  user: root
+  roles:
+    - common
+

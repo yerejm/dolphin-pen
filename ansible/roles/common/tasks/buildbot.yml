@@ -1,0 +1,44 @@
+---
+- name: Install buildbot-slave
+  apt: pkg={{ item }} state=installed
+  with_items:
+    - buildbot-slave
+
+- name: Add buildbot (slave) user
+  user: name=buildbot state=present shell=/bin/bash home=/home/buildbot
+
+- name: Add public key to login as buildbot
+  authorized_key: user=buildbot key="{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+- name: Add github to known_hosts
+  sudo: yes
+  sudo_user: buildbot
+  lineinfile:
+    dest: ~/.ssh/known_hosts
+    create: yes
+    state: present
+    line: "{{ lookup('pipe', 'ssh-keyscan -t rsa github.com') }}"
+    regexp: "^github\\.com"
+
+- name: Create build slave
+  sudo: yes
+  sudo_user: buildbot
+  command: buildslave create-slave . {{ master_address }} {{ slave_username }} {{ slave_password }}
+  args:
+    creates: buildbot.tac
+
+- name: Update slave host information
+  sudo: yes
+  sudo_user: buildbot
+  template: src=buildbot_info_host.j2 dest=info/host
+
+- name: Update slave admin information
+  sudo: yes
+  sudo_user: buildbot
+  template: src=buildbot_info_admin.j2 dest=info/admin
+
+- name: Enable buildslave init.d
+  template: src=etc_default_buildslave.j2 dest=/etc/default/buildslave backup=yes mode=0644
+
+- name: Start buildslave
+  service: name=buildslave state=started enabled=yes

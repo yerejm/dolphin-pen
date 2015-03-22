@@ -1,0 +1,23 @@
+---
+- name: Update apt cache
+  apt: update_cache=yes
+
+- name: Upgrade all safe packages
+  apt: upgrade=safe
+
+- name: Install base packages
+  apt: pkg={{ item }} state=installed
+  with_items:
+    - apt-transport-https
+    - sudo
+    - vim
+
+- name: Install unattended upgrades (Debian/Ubuntu only)
+  apt: pkg=unattended-upgrades state=installed
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- include: ntp.yml tags=ntp
+- include: library_dependencies.yml tags=library
+#- include: security.yml tags=security
+- include: buildbot.yml tags=buildslave
+

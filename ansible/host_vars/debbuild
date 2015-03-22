@@ -1,0 +1,7 @@
+---
+slave_username: debian
+slave_password: debian
+
+buildbot_info_host: debian buildslave
+buildbot_info_admin: debian@debbuild.dev
+

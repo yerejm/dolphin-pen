@@ -19,11 +19,22 @@ def enable_root_ssh(cfg)
       "chmod 600 ~/.ssh/authorized_keys"
 end
 
-def provision_unix(cfg)
+def slave(cfg)
   cfg.vm.provider "virtualbox" do |v|
     v.cpus = 2
     v.memory = 1024
   end
+end
+
+def master(cfg)
+  cfg.vm.provider "virtualbox" do |v|
+    v.cpus = 2
+    v.memory = 2048
+  end
+end
+
+
+def provision_unix(cfg)
   cfg.vm.synced_folder ".", "/vagrant", :disabled => true
   cfg.cache.scope = :box if Vagrant.has_plugin? "vagrant-cachier"
 
@@ -56,7 +67,7 @@ Vagrant.configure("2") do |config|
     # master
     :master => {
       :ip => '172.118.70.40',
-      :provisioner => [:provision_unix, :enable_3d],
+      :provisioner => [:provision_unix, :master, :enable_3d],
       :box => 'ubuntu1410',
       :primary => true,
       :ports => { 8010 => 8010, 8443 => 443, 8888 => 80 },
@@ -64,13 +75,13 @@ Vagrant.configure("2") do |config|
     # ubuntu build slave
     :ububuild => {
       :ip => '172.118.70.41',
-      :provisioner => [:provision_unix],
+      :provisioner => [:provision_unix, :slave],
       :box => 'ubuntu1410',
     },
     # debian build slave
     :debbuild => {
       :ip => '172.118.70.42',
-      :provisioner => [:provision_unix],
+      :provisioner => [:provision_unix, :slave],
       :box => 'debian78',
     },
     # windows build slave

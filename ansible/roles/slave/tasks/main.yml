@@ -1,0 +1,2 @@
+---
+- include: buildslave.yml tags=buildbot

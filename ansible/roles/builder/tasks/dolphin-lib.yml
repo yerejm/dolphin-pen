@@ -45,7 +45,9 @@
   hg: repo=http://hg.libsdl.org/SDL dest=~/SDL
 
 - name: Install SDL
-  shell: "./configure && make && make install"
+  shell: "./configure && make -j4 && make install"
   args:
     chdir: ~/SDL
     creates: /usr/local/include/SDL2/SDL.h
+  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Debian'
+

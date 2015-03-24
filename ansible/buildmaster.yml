@@ -1,8 +1,8 @@
 ---
-- hosts: buildslaves
+- hosts: buildmaster
   user: root
   roles:
     - common
     - builder
-    - slave
+    - master
 

@@ -1,0 +1,2 @@
+---
+- include: buildmaster.yml tags=buildbot

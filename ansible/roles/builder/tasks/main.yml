@@ -1,0 +1,3 @@
+---
+- include: dolphin-lib.yml tags=lib
+- include: buildbot.yml tags=buildbot

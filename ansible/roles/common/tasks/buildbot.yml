@@ -41,4 +41,4 @@
   template: src=etc_default_buildslave.j2 dest=/etc/default/buildslave backup=yes mode=0644
 
 - name: Start buildslave
-  service: name=buildslave state=started enabled=yes
+  service: name=buildslave state=started enabled=yes pattern=/usr/bin/buildslave

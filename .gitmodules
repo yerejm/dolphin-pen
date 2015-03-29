@@ -1,0 +1,12 @@
+[submodule "sadm"]
+	path = ansible/sadm
+	url = git@github.com:yerejm/sadm.git
+[submodule "fifoci"]
+	path = ansible/fifoci
+	url = git@github.com:yerejm/fifoci.git
+[submodule "ansible/sadm"]
+	path = ansible/sadm
+	url = git@github.com:yerejm/sadm.git
+[submodule "ansible/fifoci"]
+	path = ansible/fifoci
+	url = git@github.com:yerejm/fifoci.git

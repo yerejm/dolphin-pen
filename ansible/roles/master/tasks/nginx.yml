@@ -1,0 +1,40 @@
+---
+- name: Install nginx
+  apt: pkg={{ item }} state=present
+  with_items:
+    - nginx
+
+- name: Install nginx.conf
+  copy: src=sadm/nginx/nginx.conf dest=/etc/nginx/nginx.conf mode=0444 backup=yes
+
+- name: Specify nginx pid location
+  lineinfile: dest=/etc/nginx/nginx.conf state=present insertbefore=BOF line="pid /run/nginx.pid;"
+
+# arch default is http. ubuntu is www-data
+- name: Change nginx user
+  lineinfile: dest=/etc/nginx/nginx.conf state=present regexp="^user http;" line="user www-data;"
+
+- name: Link nginx log location
+  command: ln -s /var/log/nginx /usr/share/nginx/logs
+  args:
+    creates: /etc/nginx/logs
+
+- name: Create nginx services area
+  command: mkdir /etc/nginx/services
+  args:
+    creates: /etc/nginx/services
+
+- name: Create nginx SSL area
+  command: mkdir -p /etc/nginx/ssl
+  args:
+    creates: /etc/nginx/ssl
+
+- name: Create Self-Signed SSL certificate
+  shell: "openssl req -newkey rsa:2048 -new -nodes -x509 -days 3650 -keyout dolphin-emu.key -out dolphin-emu.pem -subj '/CN=*.dev'"
+  args:
+    chdir: /etc/nginx/ssl
+    creates: /etc/nginx/ssl/dolphin-emu.pem
+
+- name: Start nginx
+  service: name=nginx state=started enabled=yes
+

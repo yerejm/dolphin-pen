@@ -1,0 +1,18 @@
+---
+- name: Update apt cache
+  apt: update_cache=yes cache_valid_time=86400
+
+- name: Upgrade all safe packages
+  apt: upgrade=safe
+
+- name: Install base packages
+  apt: pkg={{ item }} state=present
+  with_items:
+    - apt-transport-https
+    - sudo
+    - vim
+
+- name: Install unattended upgrades (Debian/Ubuntu only)
+  apt: pkg=unattended-upgrades state=present
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+

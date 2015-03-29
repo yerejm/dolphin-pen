@@ -1,6 +1,6 @@
 ---
 - name: Install common build dependencies
-  apt: pkg={{ item }} state=installed
+  apt: pkg={{ item }} state=present
   with_items:
     - cmake
     - g++
@@ -19,7 +19,7 @@
     - mercurial # this is to install the latest SDL
 
 - name: Install debian specific build dependencies
-  apt: pkg={{ item }} state=installed
+  apt: pkg={{ item }} state=present
   with_items:
     - libwxbase2.8-dev
     - libwxgtk2.8-dev
@@ -32,7 +32,7 @@
   when: ansible_distribution == 'Debian'
 
 - name: Install ubuntu specific build dependencies
-  apt: pkg={{ item }} state=installed
+  apt: pkg={{ item }} state=present
   with_items:
     - libwxbase3.0-dev
     - libwxgtk3.0-dev

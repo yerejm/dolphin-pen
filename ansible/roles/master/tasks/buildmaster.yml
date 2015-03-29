@@ -1,28 +1,51 @@
 ---
 - name: Install buildbot-master
-  apt: pkg={{ item }} state=installed
+  apt: pkg={{ item }} state=present
   with_items:
     - buildbot
+  when: ansible_os_family == 'Debian'
 
-# - name: Create build master
-#   sudo: yes
-#   sudo_user: buildbot
-#   command: buildslave create-slave . {{ master_address }} {{ slave_username }} {{ slave_password }}
-#   args:
-#     creates: buildbot.tac
+- name: Create build master
+  sudo: yes
+  sudo_user: buildbot
+  command: buildbot create-master
+  args:
+    creates: buildbot.tac
 
-# - name: Update slave host information
-#   sudo: yes
-#   sudo_user: buildbot
-#   template: src=buildbot_info_host.j2 dest=info/host
-#
-# - name: Update slave admin information
-#   sudo: yes
-#   sudo_user: buildbot
-#   template: src=buildbot_info_admin.j2 dest=info/admin
-#
-# - name: Enable buildslave init.d
-#   template: src=etc_default_buildslave.j2 dest=/etc/default/buildslave backup=yes mode=0644
-#
-# - name: Start buildslave
-#   service: name=buildslave state=started enabled=yes pattern=/usr/bin/buildslave
+- name: Install master.cfg
+  sudo: yes
+  sudo_user: buildbot
+  copy: src=sadm/buildbot/master.cfg dest=~/master.cfg mode=0444
+
+- name: Build buildslave password file
+  sudo: yes
+  sudo_user: buildbot
+  copy: content="{{ buildslaves_passwords | to_nice_json }}" dest=~/buildslaves-passwords.json
+
+- name: Build users password file
+  sudo: yes
+  sudo_user: buildbot
+  copy: content="{{ users_passwords | to_nice_json }}" dest=~/users-passwords.json
+
+- name: Build changesource password file
+  sudo: yes
+  sudo_user: buildbot
+  copy: content={{ changesource_password }} dest=~/changesource-password.txt
+
+- name: Build webauth password file
+  sudo: yes
+  sudo_user: buildbot
+  copy: content={{ webauth_password }} dest=~/webauth-password.txt
+
+- name: Enable buildmaster init.d
+  template: src=etc_default_buildmaster.j2 dest=/etc/default/buildmaster backup=yes mode=0444
+  when: ansible_os_family == 'Debian'
+
+- name: Enable nginx proxy
+  copy: src=sadm/buildbot/buildbot.nginx dest=/etc/nginx/services/buildbot.nginx mode=0444
+  when: ansible_os_family == 'Debian'
+  notify: restart nginx
+
+- name: Start buildmaster
+  service: name=buildmaster state=started enabled=yes pattern=/usr/bin/buildbot
+

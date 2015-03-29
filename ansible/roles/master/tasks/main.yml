@@ -1,2 +1,4 @@
 ---
+- include: nginx.yml tags=nginx
 - include: buildmaster.yml tags=buildbot
+

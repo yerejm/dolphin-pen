@@ -13,10 +13,9 @@ def enable_root_ssh(cfg)
   pkey = File.read(pkey_file)
   cfg.vm.provision 'shell',
     inline:
-      "mkdir -p ~/.ssh && " +
-      "chmod 700 ~/.ssh && " +
-      "echo '#{pkey}' > ~/.ssh/authorized_keys && " +
-      "chmod 600 ~/.ssh/authorized_keys"
+      "mkdir -m 700 -p ~/.ssh && " +
+      "install -m 600 /dev/null ~/.ssh/authorized_keys && " +
+      "echo '#{pkey}' >> ~/.ssh/authorized_keys"
 end
 
 def slave(cfg)

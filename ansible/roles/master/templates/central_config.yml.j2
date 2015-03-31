@@ -1,0 +1,68 @@
+irc:
+    server: irc.freenode.net
+    port: 6667
+    ssl: false
+    nick: irrawaddy
+    channels:
+        - "#dolphin-dev"
+        - "#dolphin-test"
+    trusted_users:
+        - delroth
+
+web:
+    external_url: https://{{ central_server_name }}
+    bind: {{ central_web_host }}
+    port: {{ central_web_port }}
+
+github:
+    account:
+        login: dolphin-emu-bot
+        token: TOKEN
+    maintain:
+        - dolphin-emu/dolphin
+    notify:
+        - dolphin-emu/sadm
+        - dolphin-emu/www
+    trusted_users:
+        group: dolphin-emu/trusted-developers
+        refresh_interval: 300
+    core_users:
+        group: dolphin-emu/core-developers
+        refresh_interval: 600
+    hook_hmac_secret: SECRET
+    oauth:
+        client_id: CLIENT_ID
+        client_secret: CLIENT_SECRET
+    rebuild_command: "@dolphin-emu-bot rebuild"
+    allow_self_merge_command: "@dolphin-emu-bot allowmerge"
+    disallow_self_merge_command: "@dolphin-emu-bot disallowmerge"
+
+gcode:
+    atom_feed: https://code.google.com/feeds/p/dolphin-emu/issueupdates/basic
+    refresh_interval: 10
+
+buildbot:
+    url: https://{{ buildmaster_server_name }}
+    jobdir: /home/buildbot/pr-jobdir
+    pr_builders:
+        - pr-android
+        - pr-deb-x64
+        - pr-deb-dbg-x64
+        - pr-osx-x64
+        - pr-ubu-x64
+        - pr-ubu-noguix64
+        - pr-win-x64
+        - pr-win-dbg-x64
+        - pr-win-x86
+        - lint
+    fifoci_builders:
+        - pr-fifoci-ogl-lin-mesa
+        - pr-fifoci-ogl-lin-nv
+        - pr-fifoci-sw-lin-mesa
+
+fifoci:
+    url: https://{{ fifoci_server_name }}
+
+shortener:
+    api_key: API_KEY
+

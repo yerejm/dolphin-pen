@@ -1,0 +1,53 @@
+---
+- name: Install central dependencies
+  apt: pkg={{ item }} state=present
+  with_items:
+    - python3
+    - python3-pip
+  when: ansible_os_family == 'Debian'
+
+- name: Add central user
+  user: name=central state=present shell=/bin/bash home=/home/central
+
+- name: Add public key to login as central
+  authorized_key: user=central key="{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+- name: Install central
+  sudo: yes
+  sudo_user: central
+  copy: src=sadm/central/ dest=~/
+
+- name: Get central requirements
+  copy: src=sadm/central/requirements.txt dest=~/requirements-central.txt
+
+- name: Install central dependencies (pip requirements)
+  pip: requirements=~/requirements-central.txt executable=pip3
+
+- name: Install configuration file
+  sudo: yes
+  sudo_user: central
+  template: src="central_config.yml.j2" dest=~/config.yml
+
+- name: Stop central server status
+  sudo: yes
+  sudo_user: central
+  shell: pkill python3
+  ignore_errors: True
+
+- name: Start central
+  sudo: yes
+  sudo_user: central
+  shell: "nohup nice python3 central.py --config config.yml --no_local_logging >central.log 2>&1 &"
+
+- name: Install central reboot cron
+  cron:
+    name: "start at boot"
+    job: "nohup nice python3 /home/central/central.py --config config.yml --no_local_logging >/home/central/central.log 2>&1"
+    state: present
+    user: central
+    special_time: reboot
+
+- name: Enable nginx proxy
+  template: src=central.nginx.j2 dest=/etc/nginx/services/central.nginx mode=0444
+  when: ansible_os_family == 'Debian'
+

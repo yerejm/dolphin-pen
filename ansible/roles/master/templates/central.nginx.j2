@@ -1,0 +1,10 @@
+server {
+    listen 443 ssl;
+    server_name {{ central_server_name }};
+
+    access_log logs/central.access.log main;
+
+    location / {
+        proxy_pass http://{{ central_web_host }}:{{ central_web_port }};
+    }
+}

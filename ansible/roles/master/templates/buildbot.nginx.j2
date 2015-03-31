@@ -1,6 +1,6 @@
 server {
     listen 443 ssl;
-    server_name {{ buildmaster_url_list }};
+    server_name {{ buildmaster_server_name }};
 
     access_log logs/buildbot.access.log main;
 

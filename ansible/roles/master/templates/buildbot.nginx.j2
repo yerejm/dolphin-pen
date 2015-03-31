@@ -1,0 +1,15 @@
+server {
+    listen 443 ssl;
+    server_name {{ buildmaster_url_list }};
+
+    access_log logs/buildbot.access.log main;
+
+    location / {
+        proxy_pass http://localhost:8010;
+    }
+}
+
+server {
+    listen 80;
+    return 301 https://$host$request_uri;
+}

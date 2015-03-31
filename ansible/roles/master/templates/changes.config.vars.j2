@@ -1,0 +1,22 @@
+# Configuration variables for the Git changes detector
+
+# Path to the current script
+# Default: $(dirname "$0")
+BASE=$(dirname "$0")
+
+# Path where the HTML files for the last changes should be stored
+# Default: /srv/http/changes
+DEST={{ changes_web_location }}
+
+# Path to the Git repository clone
+# Default: $BASE/repository
+REPO=$BASE/{{ changes_dolphin_location }}
+
+# URL for linking to a changeset. Git commit hash is appended at the end
+# Default: https://github.com/dolphin-emu/dolphin/commit/
+URL={{ dolphin_repository }}/commit/
+
+# Buildbot address and credentials
+BUILDBOT_ADDR={{ buildmaster_web_host }}:{{ buildmaster_web_port }}
+BUILDBOT_CREDS={{ changes_buildmaster_user }}:{{ webauth_password }}
+

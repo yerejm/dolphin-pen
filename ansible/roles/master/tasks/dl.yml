@@ -1,9 +1,10 @@
 ---
-- name: Create dl area
-  shell: mkdir -p /srv/http/dl
+- name: Create dl web area
+  shell: mkdir -p {{ buildmaster_builds_location }} && chown buildbot:buildbot {{ buildmaster_builds_location }}
+  args:
+    creates: "{{ buildmaster_builds_location }}"
 
 - name: Enable nginx proxy
   template: src=dl.nginx.j2 dest=/etc/nginx/services/dl.nginx mode=0444
   when: ansible_os_family == 'Debian'
-  notify: restart nginx
 

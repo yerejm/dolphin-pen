@@ -1,0 +1,60 @@
+---
+- name: Add changes user
+  user: name=changes state=present shell=/bin/bash home=/home/changes
+
+- name: Add public key to login as changes
+  authorized_key: user=changes key="{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+- name: Add github to known_hosts
+  sudo: yes
+  sudo_user: changes
+  lineinfile:
+    dest: ~/.ssh/known_hosts
+    create: yes
+    state: present
+    line: "{{ lookup('pipe', 'ssh-keyscan -t rsa github.com') }}"
+    regexp: "^github\\.com"
+
+- name: Install changes
+  sudo: yes
+  sudo_user: changes
+  copy: src=sadm/changes/ dest=~/
+
+- name: Update configuration
+  sudo: yes
+  sudo_user: changes
+  template: src=changes.config.vars.j2 dest=~/config.vars
+
+# For some reason, copy does not copy the file attributes.
+- name: Fix file attributes post-copy
+  sudo: yes
+  sudo_user: changes
+  file: state=file path={{ item }} mode=0755
+  with_items:
+    - gen-pages
+    - gen-rev-infos
+    - git-what-branch
+    - send-buildbot-change
+    - update-wiki
+
+- name: Create changes web area
+  shell: mkdir -p {{ changes_web_location }} && chown changes:changes {{ changes_web_location }}
+  args:
+    creates: "{{ changes_web_location }}"
+
+- name: Enable nginx proxy
+  template: src=changes.nginx.j2 dest=/etc/nginx/services/changes.nginx mode=0444
+  when: ansible_os_family == 'Debian'
+
+- name: Create dolphin clone on which changes operates (100 revisions)
+  sudo: yes
+  sudo_user: changes
+  git: repo={{ dolphin_repository }} dest={{ changes_dolphin_location }} depth=100
+
+- name: Install changes cron
+  cron:
+    name: "check for dolphin changes"
+    job: "/home/changes/gen-pages >/dev/null"
+    state: present
+    user: changes
+

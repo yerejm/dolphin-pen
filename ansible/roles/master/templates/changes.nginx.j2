@@ -1,0 +1,11 @@
+server {
+    listen 443 ssl;
+    server_name {{ changes_server_name }};
+
+    access_log logs/changes.access.log main;
+
+    location / {
+        root {{ changes_web_location }};
+        index index.html;
+    }
+}

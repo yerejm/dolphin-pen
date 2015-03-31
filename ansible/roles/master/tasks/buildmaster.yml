@@ -1,4 +1,13 @@
 ---
+# buildmaster will attempt to change into fifoci
+# (assuming fifoci is on the same host)
+- name: Give buildmaster sudo
+  copy:
+    content: 'buildbot ALL=(ALL) NOPASSWD: ALL'
+    dest: /etc/sudoers.d/buildbot
+    mode: 0440
+    validate: 'visudo -cf %s'
+
 - name: Install buildbot-master
   apt: pkg={{ item }} state=present
   with_items:
@@ -25,7 +34,7 @@
 - name: Build users password file
   sudo: yes
   sudo_user: buildbot
-  copy: content="{{ users_passwords | to_nice_json }}" dest=~/users-passwords.json
+  copy: content="{{ buildmaster_users_passwords | to_nice_json }}" dest=~/users-passwords.json
 
 - name: Build changesource password file
   sudo: yes
@@ -44,7 +53,6 @@
 - name: Enable nginx proxy
   template: src=buildbot.nginx.j2 dest=/etc/nginx/services/buildbot.nginx mode=0444
   when: ansible_os_family == 'Debian'
-  notify: restart nginx
 
 - name: Start buildmaster
   service: name=buildmaster state=started enabled=yes pattern=/usr/bin/buildbot

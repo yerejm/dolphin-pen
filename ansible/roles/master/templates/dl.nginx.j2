@@ -1,0 +1,11 @@
+server {
+    listen 443 ssl;
+    server_name {{ dl_server_name }};
+
+    access_log logs/dl.access.log main;
+
+    location / {
+        root /srv/http/dl;
+        autoindex on;
+    }
+}

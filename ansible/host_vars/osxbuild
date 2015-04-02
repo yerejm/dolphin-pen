@@ -1,0 +1,11 @@
+---
+# Ansible user creation seems broken on OSX.
+# Assume an existing user exists.
+ansible_ssh_user: vagrant
+
+slave_username: osx
+slave_password: osx
+
+buildbot_info_host: osx buildslave
+buildbot_info_admin: osx@osxbuild.dev
+

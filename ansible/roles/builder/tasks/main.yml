@@ -1,3 +1,15 @@
 ---
-- include: dolphin-lib.yml tags=lib
 - include: buildbot.yml tags=buildbot
+  when: ansible_system == 'Linux'
+
+- include: know_github_linux.yml tags=buildbot
+  when: ansible_system == 'Linux'
+
+- include: know_github_osx.yml tags=buildbot
+  when: ansible_system == 'Darwin'
+
+- include: brew.yml tags=pkg
+  when: ansible_os_family == 'Darwin'
+
+- include: dolphin-lib.yml tags=lib
+

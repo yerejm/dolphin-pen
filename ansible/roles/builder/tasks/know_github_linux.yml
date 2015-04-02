@@ -1,0 +1,11 @@
+---
+- name: Add github to known_hosts
+  sudo: yes
+  sudo_user: buildbot
+  lineinfile:
+    dest: ~/.ssh/known_hosts
+    create: yes
+    state: present
+    line: "{{ lookup('pipe', 'ssh-keyscan -t rsa github.com') }}"
+    regexp: "^github\\.com"
+

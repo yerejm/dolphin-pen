@@ -17,6 +17,7 @@
     - libavformat-dev
     - libswscale-dev
     - mercurial # this is to install the latest SDL
+  when: ansible_os_family == 'Debian'
 
 - name: Install debian specific build dependencies
   apt: pkg={{ item }} state=present
@@ -43,11 +44,30 @@
 # with rumble-enabled conrollers.
 - name: Retrieve SDL
   hg: repo=http://hg.libsdl.org/SDL dest=~/SDL
+  when: ansible_os_family == 'Debian'
 
 - name: Install SDL
   shell: "./configure && make -j4 && make install"
   args:
     chdir: ~/SDL
     creates: /usr/local/include/SDL2/SDL.h
-  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Debian'
+  when: ansible_os_family == 'Debian'
+
+- name: Install cmake
+  homebrew: state=present name={{ item }}
+  with_items:
+    - cmake
+  when: ansible_system == 'Darwin'
+
+# REALLY install cmake
+# On darwin, the path setting of non-interactive logins does not include
+# /usr/local/bin, so cmake is not available.
+# This means that doing a real login as a user to echo the $PATH and doing the
+# same through ssh results in competely different PATH values being set.
+# Nobody seems to know of a it-just-works solution to make osx handle it
+# properly, so brute force it by linking the executable to where it can be found.
+- name: Link cmake
+  file: src=/usr/local/bin/cmake dest=/usr/bin/cmake state=link
+  sudo: yes
+  when: ansible_system == 'Darwin'
 

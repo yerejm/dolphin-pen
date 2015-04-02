@@ -1,0 +1,24 @@
+---
+- name: Install pip
+  sudo: yes
+  easy_install: name=pip
+
+- name: Check homebrew installation
+  stat: path=/usr/local/bin/brew
+  register: brew_exec
+
+- name: Get homebrew installer
+  get_url:
+    url: https://raw.githubusercontent.com/Homebrew/install/master/install
+    dest: ~/install_homebrew
+    validate_certs: no
+    sha256sum: 6d27da6196e6d9878bed9c59a79509b55c07eca3d4353d67fcf152877d59c40e
+  when: not brew_exec.stat.exists
+
+- name: Install homebrew
+  shell: "echo \"\\n\" | ruby install_homebrew"
+  when: not brew_exec.stat.exists
+
+- name: Update brew cache and upgrade
+  homebrew: update_homebrew=yes upgrade_all=yes
+

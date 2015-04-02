@@ -5,11 +5,11 @@
     - buildbot-slave
 
 - name: Create build slave
-  sudo: yes
-  sudo_user: buildbot
-  command: buildslave create-slave . {{ master_address }} {{ slave_username }} {{ slave_password }}
+  shell : buildslave create-slave . {{ master_address }} {{ slave_username }} {{ slave_password }}
   args:
     creates: buildbot.tac
+  sudo: yes
+  sudo_user: buildbot
 
 - name: Update slave host information
   sudo: yes
@@ -26,3 +26,4 @@
 
 - name: Start buildslave
   service: name=buildslave state=started enabled=yes pattern=/usr/bin/buildslave
+

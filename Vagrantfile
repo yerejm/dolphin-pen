@@ -17,6 +17,14 @@ def enable_root_ssh(cfg)
       "install -m 600 /dev/null ~/.ssh/authorized_keys && " +
       "echo '#{pkey}' >> ~/.ssh/authorized_keys"
 end
+def enable_vagrant_ssh(cfg)
+  pkey_file = "#{ENV['HOME']}/.ssh/id_rsa.pub"
+  pkey = File.read(pkey_file)
+  cfg.vm.provision 'shell',
+    privileged: false,
+    inline:
+      "echo '#{pkey}' >> ~/.ssh/authorized_keys"
+end
 
 def slave(cfg)
   cfg.vm.provider "virtualbox" do |v|
@@ -57,6 +65,7 @@ def provision_osx(cfg)
   cfg.ssh.insert_key = false
   cfg.vm.synced_folder ".", "/vagrant", :disabled => true
 
+  enable_vagrant_ssh(cfg)
   enable_root_ssh(cfg)
 end
 
@@ -93,7 +102,7 @@ Vagrant.configure("2") do |config|
     :osxbuild  => {
       :ip => '172.118.70.44',
       :provisioner => [:provision_osx, :enable_3d],
-      :box => 'osx1010-desktop'
+      :box => 'osx1010'
     },
   }
 

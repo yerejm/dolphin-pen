@@ -3,5 +3,6 @@
   when: ansible_os_family == 'Debian'
 
 - include: ntp.yml tags=ntp
+  when: ansible_os_family == 'Debian'
 #- include: security.yml tags=security
 

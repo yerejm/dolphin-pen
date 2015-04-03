@@ -1,8 +1,10 @@
 ---
+# - name: Create dl web area
+#   shell: mkdir -m 0755 -p "{{ buildmaster_builds_location }}/builds" && chown -R buildbot:buildbot {{ buildmaster_builds_location }}
+#   args:
+#     creates: "{{ buildmaster_builds_location }}/builds"
 - name: Create dl web area
-  shell: mkdir -p {{ buildmaster_builds_location }} && chown buildbot:buildbot {{ buildmaster_builds_location }}
-  args:
-    creates: "{{ buildmaster_builds_location }}"
+  file: owner=buildbot group=buildbot mode=0755 state=directory recurse=yes path="{{ buildmaster_builds_location }}/builds"
 
 - name: Enable nginx proxy
   template: src=dl.nginx.j2 dest=/etc/nginx/services/dl.nginx mode=0444

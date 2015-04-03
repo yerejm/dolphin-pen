@@ -15,9 +15,7 @@
   lineinfile: dest=/etc/nginx/nginx.conf state=present regexp="^user http;" line="user www-data;"
 
 - name: Link nginx log location
-  command: ln -s /var/log/nginx /usr/share/nginx/logs
-  args:
-    creates: /etc/nginx/logs
+  file: src=/var/log/nginx dest=/usr/share/nginx/logs state=link
 
 - name: Create nginx services area
   command: mkdir /etc/nginx/services

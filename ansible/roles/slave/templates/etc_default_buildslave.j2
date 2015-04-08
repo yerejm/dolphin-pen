@@ -6,7 +6,7 @@ SLAVE_RUNNER=/usr/bin/buildslave
 
 SLAVE_ENABLED[1]=1                                    # 1-enabled, 0-disabled
 SLAVE_NAME[1]="{{ ansible_distribution }} buildslave" # short name printed on start/stop
-SLAVE_USER[1]="buildbot"                              # user to run slave as
-SLAVE_BASEDIR[1]="/home/buildbot"                     # basedir to slave (absolute path)
+SLAVE_USER[1]="{{ buildslave_username }}"             # user to run slave as
+SLAVE_BASEDIR[1]="/home/{{ buildslave_username }}"    # basedir to slave (absolute path)
 SLAVE_OPTIONS[1]=""                                   # buildbot options
 SLAVE_PREFIXCMD[1]=""                                 # prefix command, i.e. nice, linux32, dchroot

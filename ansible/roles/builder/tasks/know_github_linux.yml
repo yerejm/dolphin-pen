@@ -1,7 +1,7 @@
 ---
 - name: Add github to known_hosts
   sudo: yes
-  sudo_user: buildbot
+  sudo_user: "{{ buildslave_username }}"
   lineinfile:
     dest: ~/.ssh/known_hosts
     create: yes

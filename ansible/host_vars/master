@@ -1,3 +1,9 @@
----
-buildbot_user_home: /home/buildbot
+# the user account for the slave
+buildslave_username: fifoci
 
+# the slave's login details against the build master
+slave_username: arch64
+slave_password: arch64
+
+buildbot_info_host: fifoci (ubuntu) buildslave
+buildbot_info_admin: fifoci@ububuild.dev

@@ -1,2 +1,4 @@
 master_address: 172.118.70.40:9989
 
+sdl_repository: http://hg.libsdl.org/SDL
+

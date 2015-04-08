@@ -43,7 +43,7 @@
 # SDL 2.0 must be compiled from source to prevent a bug causing Dolphin to crash
 # with rumble-enabled conrollers.
 - name: Retrieve SDL
-  hg: repo=http://hg.libsdl.org/SDL dest=~/SDL
+  hg: repo={{ sdl_repository }} dest=~/SDL
   when: ansible_os_family == 'Debian'
 
 - name: Install SDL

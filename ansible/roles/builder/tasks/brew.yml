@@ -1,3 +1,4 @@
+# under vagrant user
 ---
 - name: Install pip
   sudo: yes
@@ -8,11 +9,7 @@
   register: brew_exec
 
 - name: Get homebrew installer
-  get_url:
-    url: https://raw.githubusercontent.com/Homebrew/install/master/install
-    dest: ~/install_homebrew
-    validate_certs: no
-    sha256sum: 6d27da6196e6d9878bed9c59a79509b55c07eca3d4353d67fcf152877d59c40e
+  copy: src=homebrew/install dest=~/install_homebrew
   when: not brew_exec.stat.exists
 
 - name: Install homebrew

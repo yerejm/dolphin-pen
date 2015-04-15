@@ -1,0 +1,178 @@
+---
+- name: Add fifoci user
+  user: name=fifoci state=present shell=/bin/bash home=/home/fifoci
+
+- name: Add public key to login as changes
+  authorized_key: user=fifoci key="{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+- name: Add github to known_hosts
+  sudo: yes
+  sudo_user: fifoci
+  lineinfile:
+    dest: ~/.ssh/known_hosts
+    create: yes
+    state: present
+    line: "{{ lookup('pipe', 'ssh-keyscan -t rsa github.com') }}"
+    regexp: "^github\\.com"
+
+- name: Clone fifoci
+  sudo: yes
+  sudo_user: fifoci
+  git:
+    repo: "{{ fifoci_repository }}"
+    dest: fifoci
+    depth: 3
+    force: yes
+
+- name: Get fifoci requirements
+  copy: src=fifoci/requirements.txt dest=~/requirements-fifoci.txt
+
+# fifoci-runner (python 3)
+
+- name: Install fifoci runner dependencies
+  apt: pkg={{ item }} state=present
+  with_items:
+    - python3
+    - python3-pip
+    - xserver-xorg
+    - xserver-xorg-core
+  when: ansible_os_family == 'Debian'
+
+- name: Install fifoci dependencies (pip requirements)
+  pip: requirements=~/requirements-fifoci.txt executable=pip3
+
+- name: Add ffmpeg PPA
+  apt_repository: repo='ppa:kirillshkrogalev/ffmpeg-next'
+
+- name: Update apt cache
+  apt: update_cache=yes cache_valid_time=86400
+
+- name: Install ffmpeg
+  apt: pkg={{ item }} state=present
+  with_items:
+    - ffmpeg
+
+- name: Copy custom runner (disable ssl cert verification)
+  sudo: yes
+  sudo_user: fifoci
+  copy: src=fifoci/runner/runner.py dest=~/fifoci/runner/
+
+- name: Link python/pip v3 into fifoci home
+  sudo: yes
+  sudo_user: fifoci
+  file: src="/usr/bin/{{ item }}3" dest="~/{{ item }}" state=link
+  with_items:
+    - python
+    - pip
+  when: ansible_os_family == 'Debian'
+
+# fifoci requires sudo to run xorg
+- name: Give fifoci sudo
+  copy:
+    content: 'fifoci ALL=(ALL) NOPASSWD: ALL'
+    dest: /etc/sudoers.d/fifoci
+    mode: 0440
+    validate: 'visudo -cf %s'
+
+# fifoci-frontend
+
+- name: Install fifoci frontend dependencies
+  apt: pkg={{ item }} state=present
+  with_items:
+    - python3
+    - python3-pip
+    - python
+    - python-pip
+    - python-dev
+    - libjpeg-dev
+    - zlib1g-dev
+    - sqlite3
+  when: ansible_os_family == 'Debian'
+
+- name: Install fifoci dependencies (pip requirements)
+  pip: requirements=~/requirements-fifoci.txt executable=pip
+
+- name: Install gunicorn
+  pip: name={{ item }} state=present executable=pip
+  with_items:
+    - gunicorn
+    - requests
+
+- name: Copy custom frontend
+  sudo: yes
+  sudo_user: fifoci
+  copy:
+    src: "fifoci/frontend/fifoci/settings/{{ item }}"
+    dest: ~/fifoci/frontend/fifoci/settings/
+  with_items:
+    - base.py # change site name
+    - production.py # use sqlite3 db
+
+- name: Prepare fifoci static files
+  sudo: yes
+  sudo_user: fifoci
+  shell: "./manage.py collectstatic --noinput"
+  args:
+    chdir: ~/fifoci/frontend
+    creates: ~/fifoci/frontend/static
+
+- name: Create fifoci web area
+  file: src="/home/fifoci/fifoci/frontend" dest="/srv/fifoci" state=link
+  when: ansible_os_family == 'Debian'
+
+- name: Create media (dff) area
+  sudo: yes
+  sudo_user: fifoci
+  file: path="~/fifoci/frontend/media/dff" state=directory
+  when: ansible_os_family == 'Debian'
+
+- name: Link dff to fifoci home (runner)
+  file: src="~/fifoci/frontend/media/dff" dest="~/dff" state=link
+
+- name: Copy dff files (needed for /dff/)
+  sudo: yes
+  sudo_user: fifoci
+  copy: src=dff/ dest=~/fifoci/frontend/media/dff
+
+- name: Create media results area (needed for /existing-images/)
+  sudo: yes
+  sudo_user: fifoci
+  file: path="~/fifoci/frontend/media/results" state=directory
+  when: ansible_os_family == 'Debian'
+
+# Hack to get around need to be able to insert or update into fifoci database
+- name: Delete fifodb database
+  file: path=~/fifoci/frontend/db.sqlite3 state=absent
+
+- name: Prepare fifoci database
+  sudo: yes
+  sudo_user: fifoci
+  shell: "./manage.py migrate"
+  args:
+    chdir: ~/fifoci/frontend
+    creates: ~/fifoci/frontend/db.sqlite3
+
+- name: Seed dff
+  sudo: yes
+  sudo_user: fifoci
+  shell: "echo .read media/dff/dff.sql | sqlite3 db.sqlite3"
+  args:
+    chdir: ~/fifoci/frontend
+
+- name: Stop gunicorn
+  sudo: yes
+  sudo_user: fifoci
+  shell: pkill gunicorn
+  ignore_errors: True
+
+- name: Start fifoci
+  sudo: yes
+  sudo_user: fifoci
+  shell: "gunicorn fifoci.wsgi -b {{ fifoci_web_host }}:{{ fifoci_web_port }} -D"
+  args:
+    chdir: ~/fifoci/frontend
+
+- name: Enable nginx proxy
+  template: src=fifoci.nginx.j2 dest=/etc/nginx/services/fifoci.nginx mode=0444
+  when: ansible_os_family == 'Debian'
+

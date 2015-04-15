@@ -1,0 +1,25 @@
+server {
+    listen 443 ssl;
+    server_name {{ fifoci_server_name }};
+
+    access_log logs/fifoci.access.log main;
+
+    # FifoCI admins need to upload large DFF files, up to 100MB. Put a
+    # deliberately high limit here.
+    client_max_body_size {{ fifoci_web_dff_upload_max_size }};
+
+    location / {
+        proxy_set_header Host $host;
+        proxy_pass http://{{ fifoci_web_host }}:{{ fifoci_web_port }};
+    }
+
+    location /media {
+        alias {{ fifoci_media_location }};
+        expires 30d;
+    }
+
+    location /static {
+        alias {{ fifoci_static_location }};
+        expires 30d;
+    }
+}

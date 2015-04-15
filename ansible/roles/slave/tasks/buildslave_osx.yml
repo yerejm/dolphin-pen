@@ -12,6 +12,8 @@
 - name: Update slave admin information
   template: src=buildbot_info_admin.j2 dest=info/admin
 
+# ignore errors in case the master is not yet started
 - name: Start slave (non-service)
   shell: "nohup nice /usr/local/bin/buildslave restart"
+  ignore_errors: True
 

@@ -46,10 +46,12 @@
   template: src=changes.nginx.j2 dest=/etc/nginx/services/changes.nginx mode=0444
   when: ansible_os_family == 'Debian'
 
-- name: Create dolphin clone on which changes operates (100 revisions)
+- name: Create dolphin clone on which changes operates
   sudo: yes
   sudo_user: changes
-  git: repo={{ dolphin_repository }} dest={{ changes_dolphin_location }} depth=100
+  git:
+    repo: "{{ dolphin_repository }}"
+    dest: "{{ changes_dolphin_location }}"
 
 - name: Install changes cron
   cron:

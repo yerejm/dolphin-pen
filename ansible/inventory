@@ -6,6 +6,8 @@ ububuild
 debbuild
 winbuild
 osxbuild
+# master is a fifoci buildslave
+master
 
 [unix]
 master

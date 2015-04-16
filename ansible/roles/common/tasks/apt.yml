@@ -1,6 +1,10 @@
 ---
+- name: Set up mirror
+  template: src=etc_apt_sources.list.{{ ansible_distribution }}.j2 dest=/etc/apt/sources.list backup=yes
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
 - name: Update apt cache
-  apt: update_cache=yes cache_valid_time=86400
+  apt: update_cache=yes
 
 - name: Upgrade all safe packages
   apt: upgrade=safe
@@ -11,6 +15,7 @@
     - apt-transport-https
     - sudo
     - vim
+    - git
 
 - name: Install unattended upgrades (Debian/Ubuntu only)
   apt: pkg=unattended-upgrades state=present

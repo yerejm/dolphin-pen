@@ -5,3 +5,12 @@ ntp_servers:
   - 1.pool.ntp.org
   - 2.pool.ntp.org
   - 3.pool.ntp.org
+
+# default apt mirrors for debian and ubuntu
+debian_mirror: http://http.debian.net/debian
+debian_security_mirror: http://security.debian.org/
+debian_release: wheezy
+
+ubuntu_mirror: http://us.archive.ubuntu.com/ubuntu/
+ubuntu_security_mirror: http://security.ubuntu.com/ubuntu
+ubuntu_release: utopic

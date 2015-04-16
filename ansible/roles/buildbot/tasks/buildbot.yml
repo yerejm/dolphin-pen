@@ -1,13 +1,13 @@
 ---
 - name: Add buildbot user
   user:
-    name: "{{ buildmaster_username or buildslave_username }}"
+    name: "{{ buildbot_username }}"
     state: present
     shell: /bin/bash
-    home: "/home/{{ buildmaster_username or buildslave_username }}"
+    home: "/home/{{ buildbot_username }}"
 
 - name: Add public key to login as buildbot
   authorized_key:
-    user: "{{ buildmaster_username or buildslave_username }}"
+    user: "{{ buildbot_username }}"
     key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
 

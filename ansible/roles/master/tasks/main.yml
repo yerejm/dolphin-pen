@@ -4,5 +4,4 @@
 - include: central.yml tags=central
 - include: dl.yml tags=dl
 - include: changes.yml tags=changes
-- include: fifoci.yml tags=fifoci
 - include: nginx_restart.yml tags=post

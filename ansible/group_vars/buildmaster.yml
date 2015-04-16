@@ -1,0 +1,58 @@
+---
+#-----------------------------------------------------------------------
+# Build Master variables
+#-----------------------------------------------------------------------
+
+# The username and password to access the buildmaster.
+# This is required to be able to add jobs.
+webauth_user: dolphin
+webauth_password: buildbot
+
+changesource_password: buildbot
+
+# The buildmaster users and their passwords.
+# These are the login details for the build master web interface.
+buildmaster_users_passwords:
+  buildbot: buildbot
+
+# The nginx server names for the web front ends of each service expected by the
+# dolphin build infrastructure.
+buildmaster_server_name: buildbot.dev
+central_server_name: central.dev
+dl_server_name: dl.dev
+changes_server_name: changes.dev
+fifoci_server_name: fifoci.dev
+
+# The buildslave users and their passwords to be authenticated by the master.
+# These are the login details the build slaves use when connecting to the build
+# master.
+# These users are hardcoded into the build master configuration.
+# The passwords can change.
+buildslaves_passwords:
+  ubuntu: ubuntu
+  debian: debian
+  osx: osx
+  windows: windows
+  arch64: arch64
+
+# Buildbot user name under which the build master is created.
+buildbot_username: buildbot
+
+# Details for the build master web front end.
+buildmaster_web_host: localhost
+buildmaster_web_port: 9989
+# The build master will fetch builds from the build slaves and place them in the
+# specified builds location.
+buildmaster_builds_location: /srv/http/dl
+
+# Details for the dolphin's central system hub's web front end.
+central_web_host: localhost
+central_web_port: 8032
+
+# Details for the changes web front end.
+# Static HTML pages are built and are placed in the changes web location.
+changes_web_location: /srv/http/changes
+# The location of the dolphin repository clone used to determine whether commits
+# have occurred.
+changes_dolphin_location: repository
+

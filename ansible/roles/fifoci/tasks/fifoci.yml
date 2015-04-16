@@ -127,6 +127,8 @@
   when: ansible_os_family == 'Debian'
 
 - name: Link dff to fifoci home (runner)
+  sudo: yes
+  sudo_user: fifoci
   file: src="~/fifoci/frontend/media/dff" dest="~/dff" state=link
 
 - name: Copy dff files (needed for /dff/)
@@ -174,5 +176,6 @@
 
 - name: Enable nginx proxy
   template: src=fifoci.nginx.j2 dest=/etc/nginx/services/fifoci.nginx mode=0444
+  notify: restart nginx
   when: ansible_os_family == 'Debian'
 

@@ -1,9 +1,12 @@
 ---
-- hosts: buildslaves
+- hosts: fifoci
   user: root
   roles:
     - common
     - buildbot
     - builder
+    - fifoci
     - slave
+  vars:
+    buildbot_username: fifoci
 

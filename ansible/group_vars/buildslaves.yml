@@ -1,5 +1,8 @@
+---
+# The host:ip of the build master that the slave will connect to.
 master_address: 172.118.70.40:9989
-buildslave_username: buildbot
 
-sdl_repository: http://hg.libsdl.org/SDL
+# The name of the account under which the buildslave is
+# created.
+buildbot_username: buildbot
 

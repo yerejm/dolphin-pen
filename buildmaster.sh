@@ -7,5 +7,6 @@ if [ "$rc" != "0" ]; then
     echo "Servers not ready..."
     exit $rc
 fi
-ansible-playbook ansible/buildmaster.yml -i ansible/inventory -l buildmaster
+ansible-playbook ansible/buildmaster.yml -i ansible/inventory
+ansible-playbook ansible/fifoci.yml -i ansible/inventory
 

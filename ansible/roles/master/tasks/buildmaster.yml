@@ -26,6 +26,11 @@
   sudo_user: buildbot
   copy: src=sadm/buildbot/master.cfg dest=~/master.cfg mode=0444
 
+- name: Install send_build.py
+  sudo: yes
+  sudo_user: buildbot
+  copy: src=sadm/buildbot/send_build.py dest=~/bin/send_build.py mode=0755
+
 - name: Build buildslave password file
   sudo: yes
   sudo_user: buildbot

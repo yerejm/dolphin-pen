@@ -4,6 +4,12 @@
   sudo_user: buildbot
   copy: src=dpkg/ dest=~/debian/
 
+# For some reason, copy does not copy the file attributes.
+- name: Fix file attributes post-copy
+  sudo: yes
+  sudo_user: buildbot
+  file: state=file path=debian/rules mode=0755
+
 - name: Create dpkg template archive for buildbot
   sudo: yes
   sudo_user: buildbot

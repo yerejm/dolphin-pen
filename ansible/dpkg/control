@@ -1,4 +1,4 @@
-Source: dolphin
+Source: dolphin-emu-master
 Section: unknown
 Priority: optional
 Maintainer: unknown <buildbot@ububuild>
@@ -8,7 +8,7 @@ Homepage: http://www.dolphin-emu.org
 #Vcs-Git: git://anonscm.debian.org/collab-maint/dolphin.git
 #Vcs-Browser: http://anonscm.debian.org/?p=collab-maint/dolphin.git;a=summary
 
-Package: dolphin
+Package: dolphin-emu-master
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: dolphin emulator

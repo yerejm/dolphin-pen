@@ -4,3 +4,6 @@
 
 - include: dolphin-lib.yml tags=lib
 
+- include: dpkg.yml tags=dpkg
+  when: ansible_os_family == 'Debian'
+

@@ -1,0 +1,13 @@
+---
+- name: Install debian dpkg template files
+  sudo: yes
+  sudo_user: buildbot
+  copy: src=dpkg/ dest=~/debian/
+
+- name: Create dpkg template archive for buildbot
+  sudo: yes
+  sudo_user: buildbot
+  shell: "tar czf dolphin-debian.tar.gz debian/"
+  args:
+    creates: ~/dolphin-debian.tar.gz
+

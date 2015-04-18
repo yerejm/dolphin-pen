@@ -1,0 +1,15 @@
+Source: dolphin
+Section: unknown
+Priority: optional
+Maintainer: unknown <buildbot@ububuild>
+Build-Depends: debhelper (>= 9), cmake, libsdl2-dev
+Standards-Version: 3.9.5
+Homepage: http://www.dolphin-emu.org
+#Vcs-Git: git://anonscm.debian.org/collab-maint/dolphin.git
+#Vcs-Browser: http://anonscm.debian.org/?p=collab-maint/dolphin.git;a=summary
+
+Package: dolphin
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: dolphin emulator
+ dolphin emulator

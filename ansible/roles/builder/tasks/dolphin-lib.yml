@@ -15,7 +15,8 @@
     - libavcodec-dev
     - libavformat-dev
     - libswscale-dev
-    - mercurial # this is to install the latest SDL
+    - libsdl2-dev # broken sdl, but needed for dpkg
+    # - mercurial # this is to install the latest SDL
   when: ansible_os_family == 'Debian'
 
 - name: Install debian specific build dependencies
@@ -39,18 +40,22 @@
     - libasound-dev
   when: ansible_distribution == 'Ubuntu'
 
-# SDL 2.0 must be compiled from source to prevent a bug causing Dolphin to crash
-# with rumble-enabled conrollers.
-- name: Retrieve SDL
-  hg: repo={{ sdl_repository }} dest=~/SDL
-  when: ansible_os_family == 'Debian'
-
-- name: Install SDL
-  shell: "./configure && make -j4 && make install"
-  args:
-    chdir: ~/SDL
-    creates: /usr/local/include/SDL2/SDL.h
-  when: ansible_os_family == 'Debian'
+# Building a linux (.deb) package will not work when building SDL from source
+# without additional tasks, such as building a package from the built SDL and
+# installing that. For now, leave it alone and let it build a buggy package for
+# rumble-enabled controllers.
+# # SDL 2.0 must be compiled from source to prevent a bug causing Dolphin to crash
+# # with rumble-enabled conrollers.
+# - name: Retrieve SDL
+#   hg: repo={{ sdl_repository }} dest=~/SDL
+#   when: ansible_os_family == 'Debian'
+#
+# - name: Install SDL
+#   shell: "./configure && make -j4 && make install"
+#   args:
+#     chdir: ~/SDL
+#     creates: /usr/local/include/SDL2/SDL.h
+#   when: ansible_os_family == 'Debian'
 
 - name: Install cmake
   homebrew: state=present name={{ item }}

@@ -15,8 +15,6 @@
     - libavcodec-dev
     - libavformat-dev
     - libswscale-dev
-    - libsdl2-dev # broken sdl, but needed for dpkg
-    # - mercurial # this is to install the latest SDL
   when: ansible_os_family == 'Debian'
 
 - name: Install debian specific build dependencies
@@ -30,6 +28,7 @@
     - libxt-dev
     - libxt6
     - mesa-common-dev
+    - mercurial # this is to install the latest SDL
   when: ansible_distribution == 'Debian'
 
 - name: Install ubuntu specific build dependencies
@@ -38,24 +37,27 @@
     - libwxbase3.0-dev
     - libwxgtk3.0-dev
     - libasound-dev
+    - libsdl2-dev # broken sdl, but needed for dpkg shlib validation
   when: ansible_distribution == 'Ubuntu'
 
 # Building a linux (.deb) package will not work when building SDL from source
 # without additional tasks, such as building a package from the built SDL and
 # installing that. For now, leave it alone and let it build a buggy package for
-# rumble-enabled controllers.
-# # SDL 2.0 must be compiled from source to prevent a bug causing Dolphin to crash
-# # with rumble-enabled conrollers.
-# - name: Retrieve SDL
-#   hg: repo={{ sdl_repository }} dest=~/SDL
-#   when: ansible_os_family == 'Debian'
-#
-# - name: Install SDL
-#   shell: "./configure && make -j4 && make install"
-#   args:
-#     chdir: ~/SDL
-#     creates: /usr/local/include/SDL2/SDL.h
-#   when: ansible_os_family == 'Debian'
+# rumble-enabled controllers. This applies to the ubuntu buildslave only. The
+# debian buildslave needs to build from source because the apt repository does
+# not include SDL 2.0.
+# SDL 2.0 must be compiled from source to prevent a bug causing Dolphin to crash
+# with rumble-enabled conrollers.
+- name: Retrieve SDL
+  hg: repo={{ sdl_repository }} dest=~/SDL
+  when: ansible_distribution == 'Debian'
+
+- name: Install SDL
+  shell: "./configure && make -j4 && make install"
+  args:
+    chdir: ~/SDL
+    creates: /usr/local/include/SDL2/SDL.h
+  when: ansible_distribution == 'Debian'
 
 - name: Install cmake
   homebrew: state=present name={{ item }}

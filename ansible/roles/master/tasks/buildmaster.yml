@@ -26,6 +26,11 @@
   sudo_user: buildbot
   copy: src=sadm/buildbot/master.cfg dest=~/master.cfg mode=0444
 
+- name: Create bin directory
+  sudo: yes
+  sudo_user: buildbot
+  file: path="~/bin" state=directory
+
 - name: Install send_build.py
   sudo: yes
   sudo_user: buildbot

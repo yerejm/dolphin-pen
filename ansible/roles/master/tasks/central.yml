@@ -33,11 +33,13 @@
   sudo_user: central
   shell: pkill python3
   ignore_errors: True
+  tags: server_restart
 
 - name: Start central
   sudo: yes
   sudo_user: central
   shell: "nohup nice python3 central.py --config config.yml --no_local_logging >central.log 2>&1 &"
+  tags: server_restart
 
 - name: Install central reboot cron
   cron:

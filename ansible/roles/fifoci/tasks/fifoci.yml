@@ -2,7 +2,7 @@
 - name: Add fifoci user
   user: name=fifoci state=present shell=/bin/bash home=/home/fifoci
 
-- name: Add public key to login as changes
+- name: Add public key to login as fifoci
   authorized_key: user=fifoci key="{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
 
 - name: Add github to known_hosts
@@ -166,6 +166,7 @@
   sudo_user: fifoci
   shell: pkill gunicorn
   ignore_errors: True
+  tags: server_restart
 
 - name: Start fifoci
   sudo: yes
@@ -173,6 +174,7 @@
   shell: "gunicorn fifoci.wsgi -b {{ fifoci_web_host }}:{{ fifoci_web_port }} -D"
   args:
     chdir: ~/fifoci/frontend
+  tags: server_restart
 
 - name: Enable nginx proxy
   template: src=fifoci.nginx.j2 dest=/etc/nginx/services/fifoci.nginx mode=0444

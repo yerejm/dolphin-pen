@@ -21,8 +21,7 @@
   git:
     repo: "{{ fifoci_repository }}"
     dest: fifoci
-    depth: 3
-    force: yes
+    accept_hostkey: "{{ 'yes' if testing is defined else 'no' }}"
 
 - name: Get fifoci requirements
   copy: src=fifoci/requirements.txt dest=~/requirements-fifoci.txt

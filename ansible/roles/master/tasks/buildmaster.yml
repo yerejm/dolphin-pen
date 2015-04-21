@@ -26,6 +26,16 @@
   sudo_user: buildbot
   copy: src=sadm/buildbot/master.cfg dest=~/master.cfg mode=0444
 
+- name: Customise dolphin repository
+  sudo: yes
+  sudo_user: buildbot
+  lineinfile:
+    backup: yes
+    dest: ~/master.cfg
+    state: present
+    regexp: ^DOLPHIN_REPO
+    line: "DOLPHIN_REPO = \"{{ dolphin_repository }}\""
+
 - name: Create bin directory
   sudo: yes
   sudo_user: buildbot

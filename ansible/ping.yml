@@ -1,0 +1,9 @@
+---
+- hosts: buildslaves
+  user: root
+  tasks:
+    - action: win_ping
+      when: "ansible_os_family == 'Windows'"
+    - action: ping
+      when: "ansible_os_family != 'Windows'"
+

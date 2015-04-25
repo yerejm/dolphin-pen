@@ -1,0 +1,11 @@
+---
+- name: Install buildslave
+  pip: name=buildbot-slave executable="C:\\python27\\scripts\\pip"
+
+# - name: Create buildbot area
+#
+# - name: Install symbolstore utility
+#
+# - name: Create build slave
+#
+# - name: Start build slave

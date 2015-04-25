@@ -1,0 +1,34 @@
+---
+# Get the installer either from the cache or from an external source.
+# Cache it if it was fetched externally.
+- name: Is file cached?
+  win_stat: path="{{ cache_location }}/{{ file }}"
+  register: file_cached
+
+- name: Copy cached file to download area
+  raw: "copy {{ cache_location }}\\{{ file }} {{ download_location }}\\{{ file }}"
+  when: file_cached.stat.exists
+
+- name: Is file downloaded?
+  win_stat: path="{{ download_location }}/{{ file }}"
+  register: file_downloaded
+
+- name: Download file
+  win_get_url:
+    url: "{{ base_url }}/{{ file }}"
+    dest: "{{ download_location }}/{{ file }}"
+  when: not file_downloaded.stat.exists
+
+- name: Copy download file to cache
+  raw: "copy {{ download_location }}\\{{ file }} {{ cache_location }}\\{{ file }}"
+  when: not file_cached.stat.exists
+
+# Install application
+- name: Is application installed?
+  win_stat: path='C:\python27\pywin32-wininst.log'
+  register: app
+
+- name: Install application
+  raw: 'easy_install {{ download_location }}\{{ file }}'
+  when: not app.stat.exists
+

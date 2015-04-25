@@ -1,0 +1,47 @@
+# "script" has an option "creates=" that should be used to determine if the task
+# is complete when some thing is created on the file system, but it uses the
+# stat module internally which is not supported on windows. On windows, the stat
+# alternative win_stat has to be explicitly used instead.
+---
+# dolphin dependency: package
+- include: 7zip.yml
+  vars:
+    file: "{{ zip_file }}"
+    base_url: "{{ zip_url }}"
+    tags: 7zip
+
+# dolphin dependency: repository
+- include: git.yml
+  vars:
+    file: "{{ git_file }}"
+    base_url: "{{ git_url }}"
+    tags: git
+
+# buildbot dependency
+- include: python.yml
+  vars:
+    file: "{{ python_file }}"
+    base_url: "{{ python_url }}"
+    tags: python
+
+# buildbot dependency
+- include: pywin32.yml
+  vars:
+    file: "{{ pywin32_file }}"
+    base_url: "{{ pywin32_url }}"
+    tags: pywin32
+
+# dolphin dependency: compiler
+- include: visualstudio.yml
+  vars:
+    file: "{{ vs_file }}"
+    base_url: "{{ vs_url }}"
+    tags: visualstudio
+
+# dolphin dependency: symstore
+- include: wdk.yml
+  vars:
+    file: "{{ wdk_file }}"
+    base_url: "{{ wdk_url }}"
+    tags: wdk
+

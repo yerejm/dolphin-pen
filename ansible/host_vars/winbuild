@@ -1,5 +1,38 @@
 ---
+# No ssh in windows as such. Ansible's windows remote access is via winrm which
+# re-uses these ssh values.
 ansible_ssh_user: vagrant
 ansible_ssh_pass: vagrant
 ansible_ssh_port: 5985
 ansible_connection: winrm
+
+cache_location: 'c:\tmp\vagrant-cache'
+download_location: 'c:\tmp'
+
+#
+# Where to get the git binaries for windows
+#
+git_url: https://github.com/msysgit/msysgit/releases/download/Git-1.9.5-preview20150319
+git_file: Git-1.9.5-preview20150319.exe
+
+#
+# Where to get the visual studio (net) installer
+#
+vs_url: http://go.microsoft.com/?linkid=9863609
+vs_file: vs2013.4_ce_enu.iso
+
+#
+# Where to get the 7zip binaries for windows
+#
+zip_url: http://www.7-zip.org/a
+zip_file: 7z920-x64.msi
+
+python_url: https://www.python.org/ftp/python/2.7.9
+python_file: python-2.7.9.amd64.msi
+
+pywin32_url: http://liquidtelecom.dl.sourceforge.net/project/pywin32/pywin32/Build%20219
+pywin32_file: pywin32-219.win-amd64-py2.7.exe
+
+wdk_url: http://download.microsoft.com/download/0/8/C/08C7497F-8551-4054-97DE-60C0E510D97A/wdk
+wdk_file: wdksetup.exe
+

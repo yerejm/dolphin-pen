@@ -22,14 +22,18 @@
   vars:
     file: "{{ python_file }}"
     base_url: "{{ python_url }}"
-    tags: python
+    tags:
+      - python
+      - buildbot
 
 # buildbot dependency
 - include: pywin32.yml
   vars:
     file: "{{ pywin32_file }}"
     base_url: "{{ pywin32_url }}"
-    tags: pywin32
+    tags:
+      - pywin32
+      - buildbot
 
 # dolphin dependency: compiler
 - include: visualstudio.yml

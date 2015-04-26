@@ -1,3 +1,3 @@
 ---
 - include: builder.yml
-- include: buildbot.yml
+- include: buildbot.yml tags=buildbot

@@ -47,7 +47,9 @@ def linux(cfg)
 end
 
 def windows(cfg)
-  cfg.vm.synced_folder ".", "/vagrant", :disabled => true
+  # The default vagrant share is necessary while ansible's windows support for
+  # copy and template is lacking.
+  # cfg.vm.synced_folder ".", "/vagrant", :disabled => true
   cfg.cache.scope = :box if Vagrant.has_plugin? "vagrant-cachier"
 end
 

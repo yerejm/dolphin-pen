@@ -9,6 +9,16 @@ ansible_connection: winrm
 cache_location: 'c:\tmp\vagrant-cache'
 download_location: 'c:\tmp'
 
+slave_username: windows
+slave_password: windows
+
+# The buildbot info are not used on windows due to ansible not having any
+# facility to dynamically set the contents of these files. Since they are not
+# important for slave operation, they are not important enough to define static
+# files as a workaround.
+buildbot_info_host: windows buildslave
+buildbot_info_admin: windows@winbuild.dev
+
 #
 # Where to get the git binaries for windows
 #

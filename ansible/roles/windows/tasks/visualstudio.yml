@@ -32,8 +32,12 @@
   raw: "powershell mount-diskimage {{ download_location }}\\{{ file }}"
   when: not app.stat.exists
 
+- name: Copy Visual Studio Unattended Deployment setup file to installer location
+  raw: "copy c:\\vagrant\\ansible\\roles\\windows\\files\\AdminDeployment.xml c:\\tmp\\AdminDeployment.xml"
+  when: not app.stat.exists
+
 - name: Install application
-  raw: "d:\\vs_community.exe /silent /norestart /norefresh"
+  raw: "d:\\vs_community.exe /silent /norestart /norefresh /adminfile c:\\tmp\\AdminDeployment.xml"
   when: not app.stat.exists
 
 - name: Dismount ISO

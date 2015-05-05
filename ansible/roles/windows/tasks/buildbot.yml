@@ -25,14 +25,15 @@
 - name: Install symbol store utility
   raw: "copy c:\\vagrant\\ansible\\sadm\\symbols\\storesymbols.bat c:\\{{ buildbot_username }}"
 
+# http://trac.buildbot.net/wiki/RunningBuildbotOnWindows
 - name: Install buildslave
   raw: "pip install buildbot-slave"
 
 - name: Create build slave
   raw: "buildslave create-slave c:\\{{ buildbot_username }} {{ master_address }} {{ slave_username }} {{ slave_password }}"
 
-# http://trac.buildbot.net/wiki/RunningBuildbotOnWindows
-# No unprivileged user, so no need to add privilege.
+# Adding the service does not grant the logon privilege. This must be done
+# explicitly.
 - name: Install logon as service privilege utility
   raw: "copy c:\\vagrant\\ansible\\roles\\windows\\files\\lsa_add_logon_as_svc.ps1 c:\\tmp"
 

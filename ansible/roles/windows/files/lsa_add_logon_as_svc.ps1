@@ -1,21 +1,19 @@
 param([string]$user)
 $ErrorActionPreference = "Stop"
-
+# Code to give a user logon as a service, but it works inconsistently...
 # http://stackoverflow.com/questions/26392151/enabling-a-local-user-right-assignment-in-powershell/26393118#26393118
+# Corrections to code to make it work consistently due to DLL loading bug.
+# http://stackoverflow.com/questions/1147914/why-might-lsaaddaccountrights-return-status-invalid-parameter/14469248#14469248
 
 Add-Type @'
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace LSA
 {
+    using System.ComponentModel;
     using System.Runtime.InteropServices;
     using System.Security;
-    using System.Management;
-    using System.Runtime.CompilerServices;
-    using System.ComponentModel;
-
+    using System.Security.Principal;
     using LSA_HANDLE = IntPtr;
 
     [StructLayout(LayoutKind.Sequential)]
@@ -28,6 +26,7 @@ namespace LSA
         internal IntPtr SecurityDescriptor;
         internal IntPtr SecurityQualityOfService;
     }
+
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
     struct LSA_UNICODE_STRING
     {
@@ -36,36 +35,24 @@ namespace LSA
         [MarshalAs(UnmanagedType.LPWStr)]
         internal string Buffer;
     }
+
     sealed class Win32Sec
     {
-        [DllImport("advapi32", CharSet = CharSet.Unicode, SetLastError = true),
-        SuppressUnmanagedCodeSecurityAttribute]
+        [DllImport("advapi32", CharSet = CharSet.Unicode, SetLastError = true), SuppressUnmanagedCodeSecurityAttribute]
         internal static extern uint LsaOpenPolicy(
-        LSA_UNICODE_STRING[] SystemName,
-        ref LSA_OBJECT_ATTRIBUTES ObjectAttributes,
-        int AccessMask,
-        out IntPtr PolicyHandle
-        );
+                LSA_UNICODE_STRING[] SystemName,
+                ref LSA_OBJECT_ATTRIBUTES ObjectAttributes,
+                int AccessMask,
+                out IntPtr PolicyHandle
+                );
 
-        [DllImport("advapi32", CharSet = CharSet.Unicode, SetLastError = true),
-        SuppressUnmanagedCodeSecurityAttribute]
+        [DllImport("advapi32", CharSet = CharSet.Unicode, SetLastError = true), SuppressUnmanagedCodeSecurityAttribute]
         internal static extern uint LsaAddAccountRights(
-        LSA_HANDLE PolicyHandle,
-        IntPtr pSID,
-        LSA_UNICODE_STRING[] UserRights,
-        int CountOfRights
-        );
-
-        [DllImport("advapi32", CharSet = CharSet.Unicode, SetLastError = true),
-        SuppressUnmanagedCodeSecurityAttribute]
-        internal static extern int LsaLookupNames2(
-        LSA_HANDLE PolicyHandle,
-        uint Flags,
-        uint Count,
-        LSA_UNICODE_STRING[] Names,
-        ref IntPtr ReferencedDomains,
-        ref IntPtr Sids
-        );
+                LSA_HANDLE PolicyHandle,
+                IntPtr pSID,
+                LSA_UNICODE_STRING[] UserRights,
+                int CountOfRights
+                );
 
         [DllImport("advapi32")]
         internal static extern int LsaNtStatusToWinError(int NTSTATUS);
@@ -73,51 +60,41 @@ namespace LSA
         [DllImport("advapi32")]
         internal static extern int LsaClose(IntPtr PolicyHandle);
 
-        [DllImport("advapi32")]
-        internal static extern int LsaFreeMemory(IntPtr Buffer);
-
     }
-    /// <summary>
-    /// This class is used to grant "Log on as a service", "Log on as a batchjob", "Log on localy" etc.
-    /// to a user.
-    /// </summary>
+
+    sealed class Sid : IDisposable
+    {
+        public IntPtr pSid = IntPtr.Zero;
+        public SecurityIdentifier sid = null;
+
+        public Sid(string account)
+        {
+            sid = (SecurityIdentifier) (new NTAccount(account)).Translate(typeof(SecurityIdentifier));
+            Byte[] buffer = new Byte[sid.BinaryLength];
+            sid.GetBinaryForm(buffer, 0);
+
+            pSid = Marshal.AllocHGlobal(sid.BinaryLength);
+            Marshal.Copy(buffer, 0, pSid, sid.BinaryLength);
+        }
+
+        public void Dispose()
+        {
+            if (pSid != IntPtr.Zero)
+            {
+                Marshal.FreeHGlobal(pSid);
+                pSid = IntPtr.Zero;
+            }
+            GC.SuppressFinalize(this);
+        }
+        ~Sid()
+        {
+            Dispose();
+        }
+    }
+
+
     public sealed class LsaWrapper : IDisposable
     {
-        [StructLayout(LayoutKind.Sequential)]
-        struct LSA_TRUST_INFORMATION
-        {
-            internal LSA_UNICODE_STRING Name;
-            internal IntPtr Sid;
-        }
-        [StructLayout(LayoutKind.Sequential)]
-        struct LSA_TRANSLATED_SID2
-        {
-            internal SidNameUse Use;
-            internal IntPtr Sid;
-            internal int DomainIndex;
-            uint Flags;
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        struct LSA_REFERENCED_DOMAIN_LIST
-        {
-            internal uint Entries;
-            internal LSA_TRUST_INFORMATION Domains;
-        }
-
-        enum SidNameUse : int
-        {
-            User = 1,
-            Group = 2,
-            Domain = 3,
-            Alias = 4,
-            KnownGroup = 5,
-            DeletedAccount = 6,
-            Invalid = 7,
-            Unknown = 8,
-            Computer = 9
-        }
-
         enum Access : int
         {
             POLICY_READ = 0x20006,
@@ -153,7 +130,7 @@ namespace LSA
             }
 
             uint ret = Win32Sec.LsaOpenPolicy(system, ref lsaAttr,
-            (int)Access.POLICY_ALL_ACCESS, out lsaHandle);
+                    (int) Access.POLICY_ALL_ACCESS, out lsaHandle);
             if (ret == 0)
                 return;
             if (ret == STATUS_ACCESS_DENIED)
@@ -164,15 +141,18 @@ namespace LSA
             {
                 throw new OutOfMemoryException();
             }
-            throw new Win32Exception(Win32Sec.LsaNtStatusToWinError((int)ret));
+            throw new Win32Exception(Win32Sec.LsaNtStatusToWinError((int) ret));
         }
 
         public void AddPrivileges(string account, string privilege)
         {
-            IntPtr pSid = GetSIDInformation(account);
-            LSA_UNICODE_STRING[] privileges = new LSA_UNICODE_STRING[1];
-            privileges[0] = InitLsaString(privilege);
-            uint ret = Win32Sec.LsaAddAccountRights(lsaHandle, pSid, privileges, 1);
+            uint ret = 0;
+            using (Sid sid = new Sid(account))
+            {
+                LSA_UNICODE_STRING[] privileges = new LSA_UNICODE_STRING[1];
+                privileges[0] = InitLsaString(privilege);
+                ret = Win32Sec.LsaAddAccountRights(lsaHandle, sid.pSid, privileges, 1);
+            }
             if (ret == 0)
                 return;
             if (ret == STATUS_ACCESS_DENIED)
@@ -183,7 +163,7 @@ namespace LSA
             {
                 throw new OutOfMemoryException();
             }
-            throw new Win32Exception(Win32Sec.LsaNtStatusToWinError((int)ret));
+            throw new Win32Exception(Win32Sec.LsaNtStatusToWinError((int) ret));
         }
 
         public void Dispose()
@@ -201,25 +181,6 @@ namespace LSA
         }
         // helper functions
 
-        IntPtr GetSIDInformation(string account)
-        {
-            LSA_UNICODE_STRING[] names = new LSA_UNICODE_STRING[1];
-            LSA_TRANSLATED_SID2 lts;
-            IntPtr tsids = IntPtr.Zero;
-            IntPtr tdom = IntPtr.Zero;
-            names[0] = InitLsaString(account);
-            lts.Sid = IntPtr.Zero;
-            Console.WriteLine("String account: {0}", names[0].Length);
-            int ret = Win32Sec.LsaLookupNames2(lsaHandle, 0, 1, names, ref tdom, ref tsids);
-            if (ret != 0)
-                throw new Win32Exception(Win32Sec.LsaNtStatusToWinError(ret));
-            lts = (LSA_TRANSLATED_SID2)Marshal.PtrToStructure(tsids,
-            typeof(LSA_TRANSLATED_SID2));
-            Win32Sec.LsaFreeMemory(tsids);
-            Win32Sec.LsaFreeMemory(tdom);
-            return lts.Sid;
-        }
-
         static LSA_UNICODE_STRING InitLsaString(string s)
         {
             // Unicode strings max. 32KB
@@ -227,8 +188,8 @@ namespace LSA
                 throw new ArgumentException("String too long");
             LSA_UNICODE_STRING lus = new LSA_UNICODE_STRING();
             lus.Buffer = s;
-            lus.Length = (ushort)(s.Length * sizeof(char));
-            lus.MaximumLength = (ushort)(lus.Length + sizeof(char));
+            lus.Length = (ushort) (s.Length * sizeof(char));
+            lus.MaximumLength = (ushort) (lus.Length + sizeof(char));
             return lus;
         }
     }
@@ -246,10 +207,10 @@ namespace LSA
 '@
 
 try {
-  [LSA.Editor]::AddPrivileges($user, "SeServiceLogonRight")
+    [LSA.Editor]::AddPrivileges($user, "SeServiceLogonRight")
 } catch {
-  Write-Host "$($_.Exception.Message)" -ForegroundColor Red
-  Write-Host "$($_.InvocationInfo.PositionMessage)" -ForegroundColor Red
-  exit 1
+    Write-Host "$($_.Exception.Message)"  -ForegroundColor Red
+    Write-Host "$($_.InvocationInfo.PositionMessage)" -ForegroundColor Red
+    exit 1
 }
 

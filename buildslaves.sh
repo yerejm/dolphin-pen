@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 set -o pipefail
-ansible buildslaves -m ping -i ansible/inventory -u root
+ansible-playbook ansible/ping.yml -i ansible/inventory
 rc=$?
 if [ "$rc" != "0" ]; then
     echo "Servers not ready..."

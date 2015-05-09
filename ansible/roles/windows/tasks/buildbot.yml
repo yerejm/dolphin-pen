@@ -22,9 +22,6 @@
   raw: "mkdir c:\\{{ buildbot_username }}"
   when: not buildbot_area.stat.exists
 
-- name: Install symbol store utility
-  raw: "copy c:\\vagrant\\ansible\\sadm\\symbols\\storesymbols.bat c:\\{{ buildbot_username }}"
-
 # http://trac.buildbot.net/wiki/RunningBuildbotOnWindows
 - name: Install buildslave
   raw: "pip install buildbot-slave"
@@ -57,6 +54,31 @@
   raw: "powershell New-ItemProperty -path Registry::HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\Buildbot\\Parameters -Name directories -PropertyType String -Value C:\\{{ buildbot_username }}"
   ignore_errors: yes
 
+# The sadm/symbols/storesymbols.bat utility assumes that the symbols area is
+# mapped to Z:\, but this is difficult or impossible to map to a folder, shared
+# folder, or network host folder in Windows without having an actual real person
+# do the mapping in Windows. So forget it - Windows is a waste of time. The
+# storesymbols.bat here has replaced the Z:\ drive where the symbols are stored
+# with a local folder on the local drive.
+# It is guessed that the Dolphin infrastructure, which hosts the Windows build
+# slave on the same physical machine as the build master, maps a drive to
+# a share set up on the build master and this share is served over HTTPS by
+# nginx from the build master host. Even if this were set up across virtual
+# machines, the limitations of Windows makes this impossible to truly automate
+# anyway. Since there is no need for remote access to the symbol store as any
+# Windows development would be done locally, this is not a great loss.
+- name: Is symbol area present?
+  win_stat: path="c:\\symbols"
+  register: symbol_area
+
+- name: Create symbol store folder
+  raw: "mkdir c:\\symbols"
+  when: not symbol_area.stat.exists
+
+- name: Install buildbot symbol store utility
+  raw: "copy c:\\vagrant\\ansible\\roles\\windows\\files\\storesymbols.bat c:\\buildbot"
+
+# All dependencies are done. Start the build slave.
 - name: Start build slave
   win_service:
     name: BuildBot

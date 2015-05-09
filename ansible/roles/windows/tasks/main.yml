@@ -1,3 +1,5 @@
 ---
-- include: builder.yml
+- include: uninstall_apps.yml tags=windows
+- include: builder.yml tags=dev
 - include: buildbot.yml tags=buildbot
+

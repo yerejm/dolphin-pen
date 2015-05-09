@@ -1,0 +1,6 @@
+---
+- name: Install uninstallation utility
+  raw: "copy c:\\vagrant\\ansible\\roles\\windows\\files\\uninstall_apps.ps1 c:\\tmp"
+
+- name: Uninstall Windows Modern Apps
+  raw: "powershell c:\\tmp\\uninstall_apps.ps1"

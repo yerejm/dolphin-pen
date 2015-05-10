@@ -75,8 +75,19 @@
   raw: "mkdir c:\\symbols"
   when: not symbol_area.stat.exists
 
+- name: Create local symbol store folder
+  raw: "mkdir c:\\localsymbols"
+  when: not symbol_area.stat.exists
+
 - name: Install buildbot symbol store utility
   raw: "copy c:\\vagrant\\ansible\\roles\\windows\\files\\storesymbols.bat c:\\buildbot"
+  when: not symbol_area.stat.exists
+
+# https://randomascii.wordpress.com/2013/03/09/symbols-the-microsoft-way/
+# https://msdn.microsoft.com/en-us/library/windows/hardware/ff537994%28v=vs.85%29.aspx
+- name: Add symbol store to path
+  raw: powershell [Environment]::SetEnvironmentVariable('_NT_SYMBOL_PATH', 'srv*c:\localsymbols*c:\symbols*https://msdl.microsoft.com/download/symbols', [EnvironmentVariableTarget]::Machine)
+  when: not symbol_area.stat.exists
 
 # All dependencies are done. Start the build slave.
 - name: Start build slave

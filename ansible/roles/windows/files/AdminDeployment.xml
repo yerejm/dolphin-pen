@@ -24,7 +24,7 @@
      <SelectableItemCustomization Id="SDKTools3Hidden" Selected="no" />
      <SelectableItemCustomization Id="SDKTools4Hidden" Selected="no" />
      <SelectableItemCustomization Id="Silverlight5DRTHidden" Selected="no" />
-     <SelectableItemCustomization Id="SQLCEHidden" Selected="no" />
+     <SelectableItemCustomization Id="SQLCEHidden" Selected="yes" />
      <SelectableItemCustomization Id="SQLCLRTypesHidden" Selected="no" />
      <SelectableItemCustomization Id="SQLDACHidden" Selected="no" />
      <SelectableItemCustomization Id="SQLDOMHidden" Selected="no" />

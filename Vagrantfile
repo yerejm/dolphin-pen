@@ -40,6 +40,13 @@ def ram2g(cfg)
   end
 end
 
+def ram4g(cfg)
+  cfg.vm.provider "virtualbox" do |v|
+    v.cpus = 2
+    v.memory = 4096
+  end
+end
+
 def linux(cfg)
   cfg.vm.synced_folder ".", "/vagrant", :disabled => true
   cfg.cache.scope = :box if Vagrant.has_plugin? "vagrant-cachier"
@@ -66,7 +73,7 @@ Vagrant.configure("2") do |config|
     # master
     :master => {
       :ip => '172.118.70.40',
-      :provisioner => [:linux, :ram2g, :enable_3d],
+      :provisioner => [:linux, :ram4g, :enable_3d],
       :box => 'ubuntu1410',
       :primary => true,
       :ports => { 8010 => 8010, 8443 => 443, 8888 => 80 },

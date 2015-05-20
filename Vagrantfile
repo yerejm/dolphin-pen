@@ -73,7 +73,7 @@ Vagrant.configure("2") do |config|
     # master
     :master => {
       :ip => '172.118.70.40',
-      :provisioner => [:linux, :ram4g, :enable_3d],
+      :provisioner => [:linux, :ram1g],
       :box => 'ubuntu1410',
       :primary => true,
       :ports => { 8010 => 8010, 8443 => 443, 8888 => 80 },
@@ -101,6 +101,12 @@ Vagrant.configure("2") do |config|
       :ip => '172.118.70.44',
       :provisioner => [:osx, :ram2g, :enable_3d],
       :box => 'osx1010'
+    },
+    # fifoci build slave
+    :dffbuild => {
+      :ip => '172.118.70.45',
+      :provisioner => [:linux, :ram2g, :enable_3d],
+      :box => 'ubuntu1410',
     },
   }
 

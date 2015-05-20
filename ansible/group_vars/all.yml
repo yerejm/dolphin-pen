@@ -14,5 +14,9 @@ fifoci_repository: https://github.com/dolphin-emu/fifoci
 # Repository location of SDL. Current SDL packages available to debian-based
 # distributions have a bug that causes dolphin to fail. For these systems, SDL
 # is installed from source.
+# e.g. http://hg.libsdl.org/SDL
 sdl_repository: http://hg.libsdl.org/SDL
+
+fifoci_server_name: fifoci.dev
+master_host: 172.118.70.40
 

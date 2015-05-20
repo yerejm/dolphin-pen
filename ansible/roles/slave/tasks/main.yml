@@ -2,6 +2,9 @@
 - include: buildslave_linux.yml tags=buildbot
   when: ansible_system == 'Linux'
 
+- include: fifoci.yml tags=fifoci hosts=fifoci
+  when: ansible_system == 'Linux'
+
 # Ansible user creation on osx seems broken, so buildbot will not be available.
 # OSX assumes the presence of an already created user that is set by host_vars
 # to act as the buildbot user. This is not the only difficulty.

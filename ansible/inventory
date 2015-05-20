@@ -1,20 +1,19 @@
 [buildmaster]
 master
 
-[fifoci]
-master
-
 [buildslaves]
 ububuild
 debbuild
 winbuild
 osxbuild
+dffbuild
 
 [unix]
 master
 ububuild
 debbuild
 osxbuild
+dffbuild
 
 [windows]
 winbuild

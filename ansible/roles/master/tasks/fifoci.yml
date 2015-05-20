@@ -26,53 +26,6 @@
 - name: Get fifoci requirements
   copy: src=fifoci/requirements.txt dest=~/requirements-fifoci.txt
 
-# fifoci-runner (python 3)
-
-- name: Install fifoci runner dependencies
-  apt: pkg={{ item }} state=present
-  with_items:
-    - python3
-    - python3-pip
-    - xserver-xorg
-    - xserver-xorg-core
-  when: ansible_os_family == 'Debian'
-
-- name: Install fifoci dependencies (pip requirements)
-  pip: requirements=~/requirements-fifoci.txt executable=pip3
-
-- name: Add ffmpeg PPA
-  apt_repository: repo='ppa:kirillshkrogalev/ffmpeg-next'
-
-- name: Update apt cache
-  apt: update_cache=yes cache_valid_time=86400
-
-- name: Install ffmpeg
-  apt: pkg={{ item }} state=present
-  with_items:
-    - ffmpeg
-
-- name: Copy custom runner (disable ssl cert verification)
-  sudo: yes
-  sudo_user: fifoci
-  copy: src=fifoci/runner/runner.py dest=~/fifoci/runner/
-
-- name: Link python/pip v3 into fifoci home
-  sudo: yes
-  sudo_user: fifoci
-  file: src="/usr/bin/{{ item }}3" dest="~/{{ item }}" state=link
-  with_items:
-    - python
-    - pip
-  when: ansible_os_family == 'Debian'
-
-# fifoci requires sudo to run xorg
-- name: Give fifoci sudo
-  copy:
-    content: 'fifoci ALL=(ALL) NOPASSWD: ALL'
-    dest: /etc/sudoers.d/fifoci
-    mode: 0440
-    validate: 'visudo -cf %s'
-
 # fifoci-frontend
 
 - name: Install fifoci frontend dependencies
@@ -88,8 +41,17 @@
     - sqlite3
   when: ansible_os_family == 'Debian'
 
+- name: Link python/pip v3 into fifoci home
+  sudo: yes
+  sudo_user: fifoci
+  file: src="/usr/bin/{{ item }}3" dest="~/{{ item }}" state=link
+  with_items:
+    - python
+    - pip
+  when: ansible_os_family == 'Debian'
+
 - name: Install fifoci dependencies (pip requirements)
-  pip: requirements=~/requirements-fifoci.txt executable=pip
+  pip: requirements=~/requirements-fifoci.txt executable=pip3
 
 - name: Install gunicorn
   pip: name={{ item }} state=present executable=pip
@@ -180,6 +142,5 @@
 
 - name: Enable nginx proxy
   template: src=fifoci.nginx.j2 dest=/etc/nginx/services/fifoci.nginx mode=0444
-  notify: restart nginx
   when: ansible_os_family == 'Debian'
 

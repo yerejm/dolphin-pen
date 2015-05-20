@@ -1,0 +1,88 @@
+---
+- name: Add fifoci user
+  user: name=fifoci state=present shell=/bin/bash home=/home/fifoci
+
+- name: Add public key to login as fifoci
+  authorized_key: user=fifoci key="{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+- name: Add github to known_hosts
+  sudo: yes
+  sudo_user: fifoci
+  lineinfile:
+    dest: ~/.ssh/known_hosts
+    create: yes
+    state: present
+    line: "{{ lookup('pipe', 'ssh-keyscan -t rsa github.com') }}"
+    regexp: "^github\\.com"
+
+- name: Clone fifoci
+  sudo: yes
+  sudo_user: fifoci
+  git:
+    repo: "{{ fifoci_repository }}"
+    dest: fifoci
+    accept_hostkey: "{{ 'yes' if testing is defined else 'no' }}"
+
+- name: Get fifoci requirements
+  copy: src=fifoci/requirements.txt dest=~/requirements-fifoci.txt
+
+# fifoci-runner (python 3)
+
+- name: Install fifoci runner dependencies
+  apt: pkg={{ item }} state=present
+  with_items:
+    - python3
+    - python3-pip
+    - xserver-xorg
+    - xserver-xorg-core
+  when: ansible_os_family == 'Debian'
+
+- name: Install fifoci dependencies (pip requirements)
+  pip: requirements=~/requirements-fifoci.txt executable=pip3
+
+- name: Add ffmpeg PPA
+  apt_repository: repo='ppa:kirillshkrogalev/ffmpeg-next'
+
+- name: Update apt cache
+  apt: update_cache=yes cache_valid_time=86400
+
+- name: Install ffmpeg
+  apt: pkg={{ item }} state=present
+  with_items:
+    - ffmpeg
+
+- name: Copy custom runner (disable ssl cert verification)
+  sudo: yes
+  sudo_user: fifoci
+  copy: src=fifoci/runner/runner.py dest=~/fifoci/runner/
+
+- name: Link python/pip v3 into fifoci home
+  sudo: yes
+  sudo_user: fifoci
+  file: src="/usr/bin/{{ item }}3" dest="~/{{ item }}" state=link
+  with_items:
+    - python
+    - pip
+  when: ansible_os_family == 'Debian'
+
+- name: Create media (dff) area
+  sudo: yes
+  sudo_user: fifoci
+  file: path="~/dff" state=directory
+
+- name: Copy dff files (needed for /dff/)
+  sudo: yes
+  sudo_user: fifoci
+  copy: src=dff/ dest=~/dff
+
+# fifoci requires sudo to run xorg
+- name: Give fifoci sudo
+  copy:
+    content: 'fifoci ALL=(ALL) NOPASSWD: ALL'
+    dest: /etc/sudoers.d/fifoci
+    mode: 0440
+    validate: 'visudo -cf %s'
+
+- name: Alias master as fifoci.dev
+  lineinfile: dest=/etc/hosts state=present insertbefore=BOF line="{{ master_host }} {{ fifoci_server_name }}"
+

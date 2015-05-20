@@ -75,5 +75,7 @@
   when: ansible_os_family == 'Debian'
 
 - name: Start buildmaster
-  service: name=buildmaster state=started enabled=yes pattern=/usr/bin/buildbot
+  service: name=buildmaster state=restarted enabled=yes pattern=/usr/bin/buildbot
+  tags:
+    - server_restart
 

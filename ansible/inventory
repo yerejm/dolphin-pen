@@ -1,6 +1,17 @@
 [buildmaster]
 master
 
+[fifoci]
+dffbuild
+
+[dpkg]
+ububuild
+
+[aptmaster]
+master
+ububuild
+debbuild
+
 [buildslaves]
 ububuild
 debbuild

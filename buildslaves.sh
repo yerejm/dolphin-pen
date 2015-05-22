@@ -7,5 +7,5 @@ if [ "$rc" != "0" ]; then
     echo "Servers not ready..."
     exit $rc
 fi
-ansible-playbook ansible/buildslaves.yml -i ansible/inventory
+ansible-playbook ansible/buildslaves.yml -i ansible/inventory -e 'testing=yes'
 

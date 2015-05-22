@@ -5,5 +5,5 @@
 - include: dolphin-lib.yml tags=lib
 
 - include: dpkg.yml tags=dpkg
-  when: ansible_os_family == 'Debian'
+  when: ansible_hostname in groups['dpkg']
 

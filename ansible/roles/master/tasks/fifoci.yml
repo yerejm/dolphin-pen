@@ -33,9 +33,7 @@
   with_items:
     - python3
     - python3-pip
-    - python
-    - python-pip
-    - python-dev
+    - python3-dev
     - libjpeg-dev
     - zlib1g-dev
     - sqlite3
@@ -54,7 +52,7 @@
   pip: requirements=~/requirements-fifoci.txt executable=pip3
 
 - name: Install gunicorn
-  pip: name={{ item }} state=present executable=pip
+  pip: name={{ item }} state=present executable=pip3
   with_items:
     - gunicorn
     - requests
@@ -72,7 +70,7 @@
 - name: Prepare fifoci static files
   sudo: yes
   sudo_user: fifoci
-  shell: "./manage.py collectstatic --noinput"
+  shell: "~/python ./manage.py collectstatic --noinput"
   args:
     chdir: ~/fifoci/frontend
     creates: ~/fifoci/frontend/static
@@ -110,7 +108,7 @@
 - name: Prepare fifoci database
   sudo: yes
   sudo_user: fifoci
-  shell: "./manage.py migrate"
+  shell: "~/python ./manage.py migrate"
   args:
     chdir: ~/fifoci/frontend
     creates: ~/fifoci/frontend/db.sqlite3

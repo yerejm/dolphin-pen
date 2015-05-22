@@ -43,16 +43,10 @@
   raw: "c:\\python27\\python.exe c:\\python27\\scripts\\buildbot_service.py --user .\\{{ ansible_ssh_user }} --password {{ ansible_ssh_pass }} --startup auto install"
 
 - name: Set buildbot service registry entries (1)
-  raw: "powershell New-Item -path Registry::HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\Buildbot"
-  ignore_errors: yes
+  raw: "powershell New-Item -path Registry::HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\Buildbot\\Parameters"
 
 - name: Set buildbot service registry entries (2)
-  raw: "powershell New-Item -path Registry::HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\Buildbot\\Parameters"
-  ignore_errors: yes
-
-- name: Set buildbot service registry entries (3)
   raw: "powershell New-ItemProperty -path Registry::HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\Buildbot\\Parameters -Name directories -PropertyType String -Value C:\\{{ buildbot_username }}"
-  ignore_errors: yes
 
 # The sadm/symbols/storesymbols.bat utility assumes that the symbols area is
 # mapped to Z:\, but this is difficult or impossible to map to a folder, shared

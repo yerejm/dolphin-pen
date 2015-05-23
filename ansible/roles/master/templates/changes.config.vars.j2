@@ -12,6 +12,10 @@ DEST={{ changes_web_location }}
 # Default: $BASE/repository
 REPO=$BASE/{{ changes_dolphin_location }}
 
+# Number of revisions to check for changes
+# Default: 100
+NR_REV={{ changes_revision_count }}
+
 # URL for linking to a changeset. Git commit hash is appended at the end
 # Default: https://github.com/dolphin-emu/dolphin/commit/
 URL={{ dolphin_repository }}/commit/

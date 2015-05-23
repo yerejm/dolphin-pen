@@ -29,6 +29,10 @@ dffbuild
 [windows]
 winbuild
 
+[bots:children]
+buildmaster
+buildslaves
+
 [local]
 127.0.0.1
 

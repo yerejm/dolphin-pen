@@ -1,0 +1,29 @@
+---
+- name: Buildmaster service state change
+  service:
+    name: buildmaster
+    state: "{{ buildbot_state }}{{ 'ped' if buildbot_state == 'stop' else 'ed' }}"
+    enabled: yes
+    pattern: "--python=buildbot.tac"
+  when: ansible_hostname in groups['buildmaster']
+
+- name: Linux buildslave service state change
+  service:
+    name: buildslave
+    state: "{{ buildbot_state }}{{ 'ped' if buildbot_state == 'stop' else 'ed' }}"
+    enabled: yes
+    pattern: /usr/bin/buildslave
+  when: ansible_system == 'Linux' and ansible_hostname not in groups['buildmaster']
+
+- name: OSX buildslave service state change
+  shell: "nohup nice /usr/local/bin/buildslave {{ buildbot_state }}"
+  when: ansible_system == 'Darwin'
+  ignore_errors: yes
+
+- name: Windows buildslave service state change
+  win_service:
+    name: BuildBot
+    start_mode: auto
+    state: "{{ buildbot_state }}{{ 'ped' if buildbot_state == 'stop' else 'ed' }}"
+  when: ansible_os_family == 'Windows'
+

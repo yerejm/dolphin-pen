@@ -1,6 +1,6 @@
 #!/usr/bin/sh
-vagrant destroy -f master ububuild debbuild osxbuild
-vagrant up master ububuild debbuild osxbuild
+vagrant destroy -f
+vagrant up
 sh playbooktest.sh
 sh buildmaster.sh
 sh buildslaves.sh

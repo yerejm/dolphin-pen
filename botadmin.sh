@@ -17,7 +17,7 @@ case "$BUILDBOT_TYPE" in
     master) LIMIT="-l buildmaster" ;;
     slave) LIMIT="-l buildslaves" ;;
     all) ;;
-    *) echo "Invalid buildbot type $BUILDBOT_TYPE, expecting master, slave, or all." ;;
+    *) LIMIT="-l $BUILDBOT_TYPE" ;;
 esac
 case "$BUILDBOT_STATE" in
   start|stop|restart)

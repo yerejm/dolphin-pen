@@ -84,5 +84,9 @@
     validate: 'visudo -cf %s'
 
 - name: Alias master as fifoci.dev
-  lineinfile: dest=/etc/hosts state=present insertbefore=BOF line="{{ master_host }} {{ fifoci_server_name }}"
+  lineinfile:
+    dest: /etc/hosts
+    state: present
+    insertbefore: BOF
+    line: "{{ buildmaster_host }} {{ fifoci_server_name }}"
 

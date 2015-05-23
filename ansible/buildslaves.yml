@@ -2,7 +2,7 @@
 - hosts: buildslaves
   user: root
   roles:
-    - { role: common, when: "ansible_os_family != 'Windows'" }
+    - common
     - { role: buildbot, when: "ansible_os_family != 'Windows'" }
     - { role: builder, when: "ansible_os_family != 'Windows'" }
     - { role: slave, when: "ansible_os_family != 'Windows'" }

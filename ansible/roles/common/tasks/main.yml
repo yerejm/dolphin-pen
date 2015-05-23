@@ -4,5 +4,8 @@
 
 - include: ntp.yml tags=ntp
   when: ansible_os_family == 'Debian'
+
+- include: hosts.yml tags=hosts
+
 #- include: security.yml tags=security
 

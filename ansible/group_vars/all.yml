@@ -17,6 +17,15 @@ fifoci_repository: https://github.com/dolphin-emu/fifoci
 # e.g. http://hg.libsdl.org/SDL
 sdl_repository: http://hg.libsdl.org/SDL
 
+# The nginx server names for the web front ends of each service expected by the
+# dolphin build infrastructure.
+buildmaster_server_name: buildbot.dev
+central_server_name: central.dev
+dl_server_name: dl.dev
+changes_server_name: changes.dev
 fifoci_server_name: fifoci.dev
-master_host: 172.118.70.40
+
+# The host and port of the build master.
+buildmaster_host: 172.118.70.40
+buildmaster_port: 9989
 

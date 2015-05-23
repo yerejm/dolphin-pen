@@ -5,7 +5,7 @@
   pip: name=buildbot-slave executable=/usr/local/bin/pip
 
 - name: Create build slave
-  shell: /usr/local/bin/buildslave create-slave . {{ master_address }} {{ slave_username }} {{ slave_password }}
+  shell: /usr/local/bin/buildslave create-slave . {{ buildmaster_host }}:{{ buildmaster_port }} {{ slave_username }} {{ slave_password }}
   args:
     creates: buildbot.tac
 

@@ -15,13 +15,6 @@ changesource_password: buildbot
 buildmaster_users_passwords:
   buildbot: buildbot
 
-# The nginx server names for the web front ends of each service expected by the
-# dolphin build infrastructure.
-buildmaster_server_name: buildbot.dev
-central_server_name: central.dev
-dl_server_name: dl.dev
-changes_server_name: changes.dev
-
 # The buildslave users and their passwords to be authenticated by the master.
 # These are the login details the build slaves use when connecting to the build
 # master.

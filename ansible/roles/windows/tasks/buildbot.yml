@@ -27,7 +27,7 @@
   raw: "pip install buildbot-slave"
 
 - name: Create build slave
-  raw: "buildslave create-slave c:\\{{ buildbot_username }} {{ master_address }} {{ slave_username }} {{ slave_password }}"
+  raw: "buildslave create-slave c:\\{{ buildbot_username }} {{ buildmaster_host }}:{{ buildmaster_port }} {{ slave_username }} {{ slave_password }}"
 
 # Adding the service does not grant the logon privilege. This must be done
 # explicitly.

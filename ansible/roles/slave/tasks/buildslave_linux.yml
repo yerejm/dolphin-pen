@@ -5,7 +5,7 @@
     - buildbot-slave
 
 - name: Create build slave
-  shell : buildslave create-slave . {{ master_address }} {{ slave_username }} {{ slave_password }}
+  shell : buildslave create-slave . {{ buildmaster_host }}:{{ buildmaster_port }} {{ slave_username }} {{ slave_password }}
   args:
     creates: info/admin
   sudo: yes

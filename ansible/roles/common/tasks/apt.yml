@@ -3,11 +3,8 @@
   template: src=etc_apt_sources.list.{{ ansible_distribution }}.j2 dest=/etc/apt/sources.list backup=yes
   when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
 
-# When run in virtualbox where apt is cached, only update the cache on the main
-# apt hosts. Other hosts on the same OS version will re-use it.
 - name: Update apt cache
   apt: update_cache=yes
-  when: ansible_hostname in groups['aptmaster']
 
 - name: Upgrade all safe packages
   apt: upgrade=safe

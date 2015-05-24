@@ -12,6 +12,16 @@
 - name: Set tile PushNotification disabled
   raw: "powershell New-ItemProperty -path Registry::HKEY_CURRENT_USER\\Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\PushNotifications -Name NoTileApplicationNotification -PropertyType DWord -Value 0"
 
-- name: Delete winstore tile cache
-  raw: "rm -rf c:\\users\\{{ ansible_ssh_user }}\\appdata\\local\\packages\\winstore*"
+- name: Delete metro app caches
+  raw: "rm -rf c:\\users\\{{ ansible_ssh_user }}\\appdata\\local\\packages"
+
+- name: Stop unnecessary services
+  win_service:
+    name: "{{ item }}"
+    start_mode: disabled
+    state: stopped
+  with_items:
+    - Spooler
+    - WSearch
+    - WSService
 

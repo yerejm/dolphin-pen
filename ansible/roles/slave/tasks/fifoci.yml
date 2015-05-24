@@ -83,10 +83,3 @@
     mode: 0440
     validate: 'visudo -cf %s'
 
-- name: Alias master as fifoci.dev
-  lineinfile:
-    dest: /etc/hosts
-    state: present
-    insertbefore: BOF
-    line: "{{ buildmaster_host }} {{ fifoci_server_name }}"
-

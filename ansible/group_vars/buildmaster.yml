@@ -48,7 +48,7 @@ changes_web_location: /srv/http/changes
 # have occurred.
 changes_dolphin_location: repository
 # Number of revisions to check when determining builds that will occur.
-changes_revision_count: 10
+changes_revision_count: 5
 
 # Details for the fifoci web front end.
 fifoci_web_host: localhost

@@ -1,8 +1,0 @@
----
-- hosts: buildmaster
-  user: root
-  roles:
-    - common
-    - buildbot
-    - master
-

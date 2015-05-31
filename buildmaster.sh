@@ -1,5 +1,5 @@
 #!/bin/sh
 set -eu
 set -o pipefail
-ansible-playbook ansible/buildmaster.yml -i ansible/inventory -e 'testing=yes'
+ansible-playbook ansible/all.yml -i ansible/inventory -e 'testing=yes' -l master
 

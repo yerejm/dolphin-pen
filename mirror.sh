@@ -56,8 +56,22 @@ mirror() {
     hg clone http://hg.libsdl.org/SDL "${MIRROR_DIR}/SDL"
 }
 
+update_clones() {
+    for gitrepo in dolphin ext-win-qt fifoci sadm; do
+        echo "Updating ${gitrepo}"
+        cd "${MIRROR_DIR}/${gitrepo}.git"
+        git fetch -p origin
+    done
+
+    echo "Updating SDL"
+    cd "${MIRROR_DIR}/SDL"
+    hg pull && hg update
+
+    cd "${BASE}"
+}
+
 usage() {
-    echo "${0} [create|start|stop|restart|destroy]"
+    echo "${0} [create|start|stop|restart|destroy|update]"
     exit 2
 }
 
@@ -87,6 +101,9 @@ case "$CMD" in
         else
             echo "No existing mirror at ${MIRROR_DIR}..."
         fi
+        ;;
+    update)
+        update_clones
         ;;
     *)
         echo "Unknown command ${CMD}"

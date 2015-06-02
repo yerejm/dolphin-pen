@@ -9,6 +9,7 @@ BASE=$(pwd)
 MIRROR_DIR="${BASE}/mirror"
 GIT_PID="${MIRROR_DIR}/git-daemon.pid"
 HG_PID="${MIRROR_DIR}/hg-daemon.pid"
+GIT_REPOSITORIES="dolphin ext-win-qt fifoci sadm"
 
 check_mirror_dir() {
     if [ -d "${MIRROR_DIR}" ]; then
@@ -49,15 +50,14 @@ mirror() {
         exit 1
     fi
     mkdir -p "${MIRROR_DIR}"
-    git clone --mirror "${GITHUB_HOME}/dolphin.git" "${MIRROR_DIR}/dolphin.git"
-    git clone --mirror "${GITHUB_HOME}/ext-win-qt" "${MIRROR_DIR}/ext-win-qt.git"
-    git clone --mirror "${GITHUB_HOME}/fifoci.git" "${MIRROR_DIR}/fifoci.git"
-    git clone --mirror "${GITHUB_HOME}/sadm.git" "${MIRROR_DIR}/sadm.git"
+    for gitrepo in ${GIT_REPOSITORIES}; do
+        git clone --mirror "${GITHUB_HOME}/${gitrepo}.git" "${MIRROR_DIR}/${gitrepo}.git"
+    done
     hg clone http://hg.libsdl.org/SDL "${MIRROR_DIR}/SDL"
 }
 
 update_clones() {
-    for gitrepo in dolphin ext-win-qt fifoci sadm; do
+    for gitrepo in ${GIT_REPOSITORIES}; do
         echo "Updating ${gitrepo}"
         cd "${MIRROR_DIR}/${gitrepo}.git"
         git fetch -p origin

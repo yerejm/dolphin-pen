@@ -9,3 +9,5 @@ slave_password: osx
 buildbot_info_host: osx buildslave
 buildbot_info_admin: osx@osxbuild.dev
 
+buildbot_username: vagrant
+

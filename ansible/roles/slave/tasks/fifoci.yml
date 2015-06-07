@@ -26,8 +26,6 @@
 - name: Get fifoci requirements
   copy: src=fifoci/requirements.txt dest=~/requirements-fifoci.txt
 
-# fifoci-runner (python 3)
-
 - name: Install fifoci runner dependencies
   apt: pkg={{ item }} state=present
   with_items:
@@ -35,7 +33,6 @@
     - python3-pip
     - xserver-xorg
     - xserver-xorg-core
-  when: ansible_os_family == 'Debian'
 
 - name: Install fifoci dependencies (pip requirements)
   pip: requirements=~/requirements-fifoci.txt executable=pip3
@@ -63,7 +60,6 @@
   with_items:
     - python
     - pip
-  when: ansible_os_family == 'Debian'
 
 - name: Create media (dff) area
   sudo: yes

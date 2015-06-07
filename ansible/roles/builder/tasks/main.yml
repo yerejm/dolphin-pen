@@ -1,9 +1,0 @@
----
-- include: brew.yml tags=pkg
-  when: ansible_os_family == 'Darwin'
-
-- include: dolphin-lib.yml tags=lib
-
-- include: dpkg.yml tags=dpkg
-  when: ansible_hostname in groups['dpkg']
-

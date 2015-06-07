@@ -1,10 +1,35 @@
 ---
-# buildmaster will attempt to change into fifoci
-# (assuming fifoci is on the same host)
+##
+## USER
+##
+- name: Add buildbot user
+  user:
+    name: "{{ buildbot_username }}"
+    state: present
+    shell: /bin/bash
+    home: "/home/{{ buildbot_username }}"
+
+- name: Add public key to login as buildbot
+  authorized_key:
+    user: "{{ buildbot_username }}"
+    key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+# - name: Add github to known_hosts
+#   sudo: yes
+#   sudo_user: "{{ buildbot_username }}"
+#   lineinfile:
+#     dest: ~/.ssh/known_hosts
+#     create: yes
+#     state: present
+#     line: "{{ lookup('pipe', 'ssh-keyscan -t rsa github.com') }}"
+#     regexp: "^github\\.com"
+
+# buildmaster will change into fifoci to upload the test results fetched from
+# the fifoci slave into the fifoci (master) front end.
 - name: Give buildmaster sudo
   copy:
-    content: 'buildbot ALL=(ALL) NOPASSWD: ALL'
-    dest: /etc/sudoers.d/buildbot
+    content: '{{ buildbot_username }} ALL=(ALL) NOPASSWD: ALL'
+    dest: /etc/sudoers.d/{{ buildbot_username }}
     mode: 0440
     validate: 'visudo -cf %s'
 
@@ -12,23 +37,22 @@
   apt: pkg={{ item }} state=present
   with_items:
     - buildbot
-  when: ansible_os_family == 'Debian'
 
 - name: Create build master
   sudo: yes
-  sudo_user: buildbot
+  sudo_user: "{{ buildbot_username }}"
   command: buildbot create-master
   args:
     creates: buildbot.tac
 
 - name: Install master.cfg
   sudo: yes
-  sudo_user: buildbot
+  sudo_user: "{{ buildbot_username }}"
   copy: src=sadm/buildbot/master.cfg dest=~/master.cfg mode=0444
 
 - name: Customise dolphin repository
   sudo: yes
-  sudo_user: buildbot
+  sudo_user: "{{ buildbot_username }}"
   lineinfile:
     backup: yes
     dest: ~/master.cfg
@@ -38,41 +62,39 @@
 
 - name: Create bin directory
   sudo: yes
-  sudo_user: buildbot
+  sudo_user: "{{ buildbot_username }}"
   file: path="~/bin" state=directory
 
 - name: Install send_build.py
   sudo: yes
-  sudo_user: buildbot
+  sudo_user: "{{ buildbot_username }}"
   copy: src=sadm/buildbot/send_build.py dest=~/bin/send_build.py mode=0755
 
 - name: Build buildslave password file
   sudo: yes
-  sudo_user: buildbot
+  sudo_user: "{{ buildbot_username }}"
   copy: content="{{ buildslaves_passwords | to_nice_json }}" dest=~/buildslaves-passwords.json
 
 - name: Build users password file
   sudo: yes
-  sudo_user: buildbot
+  sudo_user: "{{ buildbot_username }}"
   copy: content="{{ buildmaster_users_passwords | to_nice_json }}" dest=~/users-passwords.json
 
 - name: Build changesource password file
   sudo: yes
-  sudo_user: buildbot
+  sudo_user: "{{ buildbot_username }}"
   copy: content={{ changesource_password }} dest=~/changesource-password.txt
 
 - name: Build webauth password file
   sudo: yes
-  sudo_user: buildbot
+  sudo_user: "{{ buildbot_username }}"
   copy: content={{ webauth_password }} dest=~/webauth-password.txt
 
 - name: Enable buildmaster init.d
   template: src=etc_default_buildmaster.j2 dest=/etc/default/buildmaster backup=yes mode=0444
-  when: ansible_os_family == 'Debian'
 
 - name: Enable nginx proxy
   template: src=buildbot.nginx.j2 dest=/etc/nginx/services/buildbot.nginx mode=0444
-  when: ansible_os_family == 'Debian'
 
 - name: Start buildmaster
   service:

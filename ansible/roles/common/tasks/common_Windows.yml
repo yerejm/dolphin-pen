@@ -1,6 +1,9 @@
 ---
+##
+## Remove applications
+##
 - name: Install uninstallation utility
-  raw: "copy c:\\vagrant\\ansible\\roles\\windows\\files\\uninstall_apps.ps1 c:\\tmp"
+  raw: "copy c:\\vagrant\\ansible\\roles\\common\\files\\uninstall_apps.ps1 c:\\tmp"
 
 - name: Uninstall Windows Modern Apps
   raw: "powershell c:\\tmp\\uninstall_apps.ps1"
@@ -8,13 +11,19 @@
 # turn off windows store tile
 - name: Create PushNotification registry entry
   raw: "powershell New-Item -path Registry::HKEY_CURRENT_USER\\Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\PushNotifications"
+  ignore_errors: True
 
 - name: Set tile PushNotification disabled
   raw: "powershell New-ItemProperty -path Registry::HKEY_CURRENT_USER\\Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\PushNotifications -Name NoTileApplicationNotification -PropertyType DWord -Value 0"
+  ignore_errors: True
 
 - name: Delete metro app caches
   raw: "rm -rf c:\\users\\{{ ansible_ssh_user }}\\appdata\\local\\packages"
+  ignore_errors: True
 
+##
+## Stop services
+##
 - name: Stop unnecessary services
   win_service:
     name: "{{ item }}"
@@ -24,4 +33,9 @@
     - Spooler
     - WSearch
     - WSService
+
+##
+## HOSTS
+##
+- include: hosts.yml
 

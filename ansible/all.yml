@@ -3,9 +3,6 @@
   user: root
   roles:
     - common
-    - { role: buildbot, when: "ansible_os_family != 'Windows'" }
-    - { role: builder, when: "ansible_os_family != 'Windows' and ansible_hostname in groups['buildslaves']" }
-    - { role: master, when: "ansible_os_family != 'Windows' and ansible_hostname in groups['buildmaster']" }
-    - { role: slave, when: "ansible_os_family != 'Windows' and ansible_hostname in groups['buildslaves']" }
-    - { role: windows, when: "ansible_os_family == 'Windows' and ansible_hostname in groups['buildslaves']" }
+    - slave
+    - master
 

@@ -1,0 +1,81 @@
+# Ansible user creation on OSX seems broken, so a dedicated buildbot user will
+# not be available. Assume the presence of an already created user that is
+# set by host_vars to act as the buildbot user (e.g. vagrant).
+---
+##
+## USER
+##
+- name: Add github to known_hosts
+  lineinfile:
+    dest: ~/.ssh/known_hosts
+    create: yes
+    state: present
+    line: "{{ lookup('pipe', 'ssh-keyscan -t rsa github.com') }}"
+    regexp: "^github\\.com"
+
+##
+## PIP
+##
+- name: Install pip
+  sudo: yes
+  easy_install: name=pip
+
+##
+## HOMEBREW
+##
+- name: Check homebrew installation
+  stat: path=/usr/local/bin/brew
+  register: brew_exec
+
+- name: Get homebrew installer
+  copy: src=homebrew/install dest=~/install_homebrew
+  when: not brew_exec.stat.exists
+
+- name: Install homebrew
+  shell: "echo \"\\n\" | ruby install_homebrew"
+  when: not brew_exec.stat.exists
+
+- name: Update brew cache and upgrade
+  homebrew: update_homebrew=yes upgrade_all=yes
+
+- name: Install cmake
+  homebrew: state=present name={{ item }}
+  with_items:
+    - cmake
+
+# Put cmake in the PATH as privileged user
+# On darwin, the path setting of non-interactive logins does not include
+# /usr/local/bin, so cmake is not available.
+# This means that doing a real login as a user to echo the $PATH and doing the
+# same through ssh results in competely different PATH values being set.
+# There does not seem to be a it-just-works solution to handle it properly, so
+# link the executable directly into /usr/bin.
+- name: Link cmake
+  file:
+    src: /usr/local/bin/cmake
+    dest: /usr/bin/cmake
+    state: link
+  sudo: yes
+
+##
+## BUILDBOT
+##
+# sudo to install because on osx this playbook is not run as root
+- name: Install buildbot slave
+  sudo: yes
+  pip: name=buildbot-slave executable=/usr/local/bin/pip
+
+- name: Create build slave
+  shell: /usr/local/bin/buildslave create-slave . {{ buildmaster_host }}:{{ buildmaster_port }} {{ slave_username }} {{ slave_password }}
+  args:
+    creates: buildbot.tac
+
+- name: Update slave admin information
+  template: src=buildbot_info_admin.j2 dest=info/admin
+
+# Ignore errors in case the master is not yet started
+# This should use the service module if supported on OSX.
+- name: Start slave (non-service)
+  shell: "nohup nice /usr/local/bin/buildslave restart"
+  ignore_errors: True
+

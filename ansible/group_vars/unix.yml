@@ -1,4 +1,8 @@
 ---
+# Location of the hosts file.
+# Customised by winbuild for the windows location.
+etc_hosts_file: /etc/hosts
+
 # common,ntp
 ntp_servers:
   - 0.pool.ntp.org
@@ -14,3 +18,4 @@ debian_release: wheezy
 ubuntu_mirror: http://us.archive.ubuntu.com/ubuntu/
 ubuntu_security_mirror: http://security.ubuntu.com/ubuntu
 ubuntu_release: utopic
+

@@ -1,12 +1,16 @@
 ---
-- include: fifoci.yml tags=fifoci
+- include: slave_Debian.yml tags=slave,buildbot,debian
+  when: ansible_hostname in groups['buildslaves'] and ansible_os_family == 'Debian'
+
+- include: slave_Darwin.yml tags=slave,buildbot,darwin
+  when: ansible_hostname in groups['buildslaves'] and ansible_os_family == 'Darwin'
+
+- include: slave_Windows.yml tags=slave,buildbot,windows
+  when: ansible_hostname in groups['buildslaves'] and ansible_os_family == 'Windows'
+
+##
+## FIFOCI
+##
+- include: fifoci.yml tags=slave,buildbot,fifoci
   when: ansible_hostname in groups['fifoci']
 
-- include: buildslave_linux.yml tags=buildbot
-  when: ansible_system == 'Linux'
-
-# Ansible user creation on osx seems broken, so buildbot will not be available.
-# OSX assumes the presence of an already created user that is set by host_vars
-# to act as the buildbot user. This is not the only difficulty.
-- include: buildslave_osx.yml tags=buildbot
-  when: ansible_system == 'Darwin'

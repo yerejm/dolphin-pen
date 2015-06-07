@@ -9,6 +9,8 @@ ansible_connection: winrm
 cache_location: 'c:\tmp\vagrant-cache'
 download_location: 'c:\tmp'
 
+etc_hosts_file: 'c:\windows\system32\drivers\etc\hosts'
+
 slave_username: windows
 slave_password: windows
 

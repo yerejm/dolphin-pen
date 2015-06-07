@@ -1,0 +1,58 @@
+---
+##
+## APT
+##
+- name: Set up mirror
+  template:
+    src: etc_apt_sources.list.{{ ansible_distribution }}.j2
+    dest: /etc/apt/sources.list
+    backup: yes
+
+- name: Update apt cache
+  apt: update_cache=yes
+
+- name: Upgrade all safe packages
+  apt: upgrade=safe
+
+- name: Install base packages
+  apt: pkg={{ item }} state=present
+  with_items:
+    - apt-transport-https
+    - sudo
+    - vim
+    - git
+    - ntp
+
+- name: Install unattended upgrades
+  apt: pkg=unattended-upgrades state=present
+
+##
+## NTP
+##
+- name: Configure ntp
+  template: src=ntp.conf.j2 dest=/etc/ntp.conf
+  notify: restart ntp
+
+- name: Ensure ntpd is running and enabled
+  service:
+    name: ntp
+    state: started
+    enabled: yes
+
+##
+## SECURITY
+##
+# This task can be used for OSX only if notification works.
+- name: Update sshd config to disallow root logins
+  lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: ^PermitRootLogin
+    line: "PermitRootLogin no"
+    state: present
+  notify: restart ssh
+
+##
+## HOSTS
+##
+- include: hosts.yml
+

@@ -1,11 +1,10 @@
 ---
-- include: apt.yml tags=pkg
+- include: common_Debian.yml tags=common,debian
   when: ansible_os_family == 'Debian'
 
-- include: ntp.yml tags=ntp
-  when: ansible_os_family == 'Debian'
+- include: common_Darwin.yml tags=common,darwin
+  when: ansible_os_family == 'Darwin'
 
-- include: hosts.yml tags=hosts
-
-#- include: security.yml tags=security
+- include: common_Windows.yml tags=common,windows
+  when: ansible_os_family == 'Windows'
 

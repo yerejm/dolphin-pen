@@ -4,7 +4,64 @@
 # This also means that templates are impossible at this time.
 # Instead, there are many raw commands. Even dealing with idempotency is
 # difficult with the current level of windows support.
+#
+# "script" has an option "creates=" that should be used to determine if the task
+# is complete when some thing is created on the file system, but it uses the
+# stat module internally which is not supported on windows. On windows, the stat
+# alternative win_stat has to be explicitly used instead.
 ---
+##
+## BUILD DEPS
+##
+# dolphin dependency: packaging
+- include: w_7zip.yml
+  vars:
+    file: "{{ zip_file }}"
+    base_url: "{{ zip_url }}"
+    tags: 7zip
+
+# dolphin dependency: repository
+- include: w_git.yml
+  vars:
+    file: "{{ git_file }}"
+    base_url: "{{ git_url }}"
+    tags: git
+
+# buildbot dependency
+- include: w_python.yml
+  vars:
+    file: "{{ python_file }}"
+    base_url: "{{ python_url }}"
+    tags:
+      - python
+      - buildbot
+
+# buildbot dependency
+- include: w_pywin32.yml
+  vars:
+    file: "{{ pywin32_file }}"
+    base_url: "{{ pywin32_url }}"
+    tags:
+      - pywin32
+      - buildbot
+
+# dolphin dependency: compiler
+- include: w_visualstudio.yml
+  vars:
+    file: "{{ vs_file }}"
+    base_url: "{{ vs_url }}"
+    tags: visualstudio
+
+# dolphin dependency: symstore
+- include: w_wdk.yml
+  vars:
+    file: "{{ wdk_file }}"
+    base_url: "{{ wdk_url }}"
+    tags: wdk
+
+##
+## BUILDBOT
+##
 # Without the ability to change users in windows, this makes tasks harder than
 # they should be to create. Given the incompleteness of features on windows,
 # the vagrant user is the buildbot user.
@@ -32,7 +89,7 @@
 # Adding the service does not grant the logon privilege. This must be done
 # explicitly.
 - name: Install logon as service privilege utility
-  raw: "copy c:\\vagrant\\ansible\\roles\\windows\\files\\lsa_add_logon_as_svc.ps1 c:\\tmp"
+  raw: "copy c:\\vagrant\\ansible\\roles\\slave\\files\\lsa_add_logon_as_svc.ps1 c:\\tmp"
 
 - name: Allow buildbot service logon
   raw: "powershell c:\\tmp\\lsa_add_logon_as_svc.ps1 {{ ansible_ssh_user }}"
@@ -74,7 +131,7 @@
   when: not symbol_area.stat.exists
 
 - name: Install buildbot symbol store utility
-  raw: "copy c:\\vagrant\\ansible\\roles\\windows\\files\\storesymbols.bat c:\\buildbot"
+  raw: "copy c:\\vagrant\\ansible\\roles\\slave\\files\\storesymbols.bat c:\\buildbot"
   when: not symbol_area.stat.exists
 
 # https://randomascii.wordpress.com/2013/03/09/symbols-the-microsoft-way/

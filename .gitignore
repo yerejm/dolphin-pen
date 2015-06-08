@@ -1,3 +1,4 @@
+.ansible_fact_cache
 .vagrant
 .DS_Store
 *.dff

@@ -4,3 +4,4 @@
 *.sql
 *.tar.gz
 mirror
+secrets.yml

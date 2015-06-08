@@ -9,7 +9,9 @@
     backup: yes
 
 - name: Update apt cache
-  apt: update_cache=yes
+  apt:
+    update_cache: yes
+    cache_valid_time: 86400
 
 - name: Upgrade all safe packages
   apt: upgrade=safe
@@ -42,14 +44,14 @@
 ##
 ## SECURITY
 ##
-# This task can be used for OSX only if notification works.
-- name: Update sshd config to disallow root logins
-  lineinfile:
-    dest: /etc/ssh/sshd_config
-    regexp: ^PermitRootLogin
-    line: "PermitRootLogin no"
-    state: present
-  notify: restart ssh
+# # This task can be used for OSX only if notification works.
+# - name: Update sshd config to disallow root logins
+#   lineinfile:
+#     dest: /etc/ssh/sshd_config
+#     regexp: ^PermitRootLogin
+#     line: "PermitRootLogin no"
+#     state: present
+#   notify: restart ssh
 
 ##
 ## HOSTS

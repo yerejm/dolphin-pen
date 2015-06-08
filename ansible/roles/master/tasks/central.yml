@@ -1,55 +1,79 @@
 ---
-- name: Install central dependencies
-  apt: pkg={{ item }} state=present
+##
+## USER
+##
+- name: central | Add central user
+  user:
+    name: central
+    state: present
+    shell: /bin/bash
+    home: /home/central
+
+- name: central | Add public key to login as central
+  authorized_key:
+    user: central
+    key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+##
+## APT DEPENDENCIES
+##
+- name: central | Install central dependencies
+  apt:
+    pkg: "{{ item }}"
+    state: present
   with_items:
     - python3
     - python3-pip
-  when: ansible_os_family == 'Debian'
+    - supervisor
 
-- name: Add central user
-  user: name=central state=present shell=/bin/bash home=/home/central
-
-- name: Add public key to login as central
-  authorized_key: user=central key="{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
-
-- name: Install central
+##
+## DEPLOY
+##
+- name: central | Install central
   sudo: yes
   sudo_user: central
-  copy: src=sadm/central/ dest=~/
+  copy:
+    src: sadm/central/
+    dest: ~/
 
-- name: Get central requirements
-  copy: src=sadm/central/requirements.txt dest=~/requirements-central.txt
-
-- name: Install central dependencies (pip requirements)
-  pip: requirements=~/requirements-central.txt executable=pip3
-
-- name: Install configuration file
+##
+## PIP DEPENDENCIES
+##
+- name: central | Get central requirements
   sudo: yes
   sudo_user: central
-  template: src="central_config.yml.j2" dest=~/config.yml
+  copy:
+    src: sadm/central/requirements.txt
+    dest: /home/central/requirements.txt
 
-- name: Stop central server status
+- name: central | Install central dependencies (pip requirements)
+  pip:
+    executable: pip3
+    requirements: /home/central/requirements.txt
+
+##
+## WEB
+##
+- name: central | Install configuration file
   sudo: yes
   sudo_user: central
-  shell: pkill python3
-  ignore_errors: True
-  tags: server_restart
+  template:
+    src: central_config.yml.j2
+    dest: ~/config.yml
 
-- name: Start central
-  sudo: yes
-  sudo_user: central
-  shell: "nohup nice python3 central.py --config config.yml --no_local_logging >central.log 2>&1 &"
-  tags: server_restart
+  # shell: "nohup nice python3 central.py --config config.yml --no_local_logging >central.log 2>&1 &"
 
-- name: Install central reboot cron
-  cron:
-    name: "start at boot"
-    job: "nohup nice python3 /home/central/central.py --config config.yml --no_local_logging >/home/central/central.log 2>&1"
-    state: present
-    user: central
-    special_time: reboot
+- name: central | Install the supervisor configuration file
+  template:
+    src: supervisor.central.conf.j2
+    dest: /etc/supervisor/conf.d/central.conf
+    mode: 0444
+  notify: restart central supervisor
 
-- name: Enable nginx proxy
-  template: src=central.nginx.j2 dest=/etc/nginx/services/central.nginx mode=0444
-  when: ansible_os_family == 'Debian'
+- name: central | Enable nginx proxy
+  template:
+    src: central.nginx.j2
+    dest: /etc/nginx/services/central.nginx
+    mode: 0444
+  notify: restart nginx
 

@@ -1,0 +1,12 @@
+[group:central]
+programs=central
+
+[program:central]
+command=python3 central.py --config config.yml --no_local_logging
+directory=/home/central
+user=central
+autostart=true
+autorestart=true
+redirect_stderr=true
+environment=LANG="en_US.UTF-8",LC_ALL="en_US.UTF-8",LC_LANG="en_US.UTF-8"
+

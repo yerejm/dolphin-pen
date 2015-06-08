@@ -1,4 +1,15 @@
 ---
 - name: restart nginx
-  service: name=nginx state=restarted
+  service:
+    name: nginx
+    state: restarted
 
+- name: restart fifoci supervisor
+  supervisorctl:
+    name: gunicorn_fifoci
+    state: restarted
+
+- name: restart central supervisor
+  supervisorctl:
+    name: central
+    state: restarted

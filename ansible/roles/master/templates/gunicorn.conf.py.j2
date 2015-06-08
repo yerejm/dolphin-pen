@@ -1,0 +1,8 @@
+from __future__ import unicode_literals
+import multiprocessing
+
+bind = "{{ fifoci_web_host }}:{{ fifoci_web_port }}"
+workers = multiprocessing.cpu_count() * 2 + 1
+loglevel = "error"
+proc_name = "fifoci"
+

@@ -1,11 +1,22 @@
+# Do not use virtualenv. django_manage and the build master invocation of
+# django's manage require python/pip at the system level.
 ---
-- name: Add fifoci user
-  user: name=fifoci state=present shell=/bin/bash home=/home/fifoci
+##
+## USER
+##
+- name: fifoci | Add fifoci user
+  user:
+    name: fifoci
+    home: /home/fifoci
+    shell: /bin/bash
+    state: present
 
-- name: Add public key to login as fifoci
-  authorized_key: user=fifoci key="{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+- name: fifoci | Add public key to login as fifoci
+  authorized_key:
+    user: fifoci
+    key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
 
-- name: Add github to known_hosts
+- name: fifoci | Add github to known_hosts
   sudo: yes
   sudo_user: fifoci
   lineinfile:
@@ -15,7 +26,10 @@
     line: "{{ lookup('pipe', 'ssh-keyscan -t rsa github.com') }}"
     regexp: "^github\\.com"
 
-- name: Clone fifoci
+##
+## CLONE
+##
+- name: fifoci | Clone fifoci
   sudo: yes
   sudo_user: fifoci
   git:
@@ -23,13 +37,13 @@
     dest: fifoci
     accept_hostkey: "{{ 'yes' if testing is defined else 'no' }}"
 
-- name: Get fifoci requirements
-  copy: src=fifoci/requirements.txt dest=~/requirements-fifoci.txt
-
-# fifoci-frontend
-
-- name: Install fifoci frontend dependencies
-  apt: pkg={{ item }} state=present
+##
+## APT DEPENDENCIES
+##
+- name: fifoci | Install fifoci frontend dependencies
+  apt:
+    pkg: "{{ item }}"
+    state: present
   with_items:
     - python3
     - python3-pip
@@ -37,27 +51,30 @@
     - libjpeg-dev
     - zlib1g-dev
     - sqlite3
-  when: ansible_os_family == 'Debian'
+    - supervisor
 
-- name: Link python/pip v3 into fifoci home
-  sudo: yes
-  sudo_user: fifoci
-  file: src="/usr/bin/{{ item }}3" dest="~/{{ item }}" state=link
-  with_items:
-    - python
-    - pip
-  when: ansible_os_family == 'Debian'
+##
+## PIP DEPENDENCIES
+##
+- name: fifoci | Install fifoci dependencies (pip requirements)
+  pip:
+    executable: pip3
+    requirements: /home/fifoci/fifoci/requirements.txt
+    state: present
 
-- name: Install fifoci dependencies (pip requirements)
-  pip: requirements=~/requirements-fifoci.txt executable=pip3
-
-- name: Install gunicorn
-  pip: name={{ item }} state=present executable=pip3
+- name: fifoci | Install python packages (pip)
+  pip:
+    executable: pip3
+    name: "{{ item }}"
+    state: present
   with_items:
     - gunicorn
     - requests
 
-- name: Copy custom frontend
+##
+## SYSTEM DEPENDENCIES
+##
+- name: fifoci | Copy custom frontend
   sudo: yes
   sudo_user: fifoci
   copy:
@@ -67,78 +84,123 @@
     - base.py # change site name
     - production.py # use sqlite3 db
 
-- name: Prepare fifoci static files
+- name: fifoci | Create fifoci web area
+  file:
+    src: /home/fifoci/fifoci/frontend
+    dest: /srv/fifoci
+    state: link
+
+# The build master will sudo into fifoci to run manage.py to import the test
+# results retrieved from the slave. It assumes that python exists in the home
+# directory. This python must be at least 3.3.
+- name: fifoci | Link python into fifoci home
   sudo: yes
   sudo_user: fifoci
-  shell: "~/python ./manage.py collectstatic --noinput"
-  args:
-    chdir: ~/fifoci/frontend
-    creates: ~/fifoci/frontend/static
+  file:
+    src: "/usr/bin/{{ item }}3"
+    dest: "~/{{ item }}"
+    state: link
+  with_items:
+    - python
 
-- name: Create fifoci web area
-  file: src="/home/fifoci/fifoci/frontend" dest="/srv/fifoci" state=link
-  when: ansible_os_family == 'Debian'
-
-- name: Create media (dff) area
+##
+## DFF
+##
+- name: fifoci | Create media (dff) area
   sudo: yes
   sudo_user: fifoci
-  file: path="~/fifoci/frontend/media/dff" state=directory
-  when: ansible_os_family == 'Debian'
+  file:
+    path: ~/fifoci/frontend/media/dff
+    state: directory
 
-- name: Link dff to fifoci home (runner)
+- name: fifoci | Link dff to fifoci home (runner)
   sudo: yes
   sudo_user: fifoci
-  file: src="~/fifoci/frontend/media/dff" dest="~/dff" state=link
+  file:
+    src: ~/fifoci/frontend/media/dff
+    dest: ~/dff
+    state: link
 
-- name: Copy dff files (needed for /dff/)
+- name: fifoci | Copy dff files (needed for /dff/)
   sudo: yes
   sudo_user: fifoci
-  copy: src=dff/ dest=~/fifoci/frontend/media/dff
+  copy:
+    src: dff/
+    dest: ~/fifoci/frontend/media/dff
 
-- name: Create media results area (needed for /existing-images/)
+- name: fifoci | Create media results area (needed for /existing-images/)
   sudo: yes
   sudo_user: fifoci
-  file: path="~/fifoci/frontend/media/results" state=directory
-  when: ansible_os_family == 'Debian'
+  file:
+    path: ~/fifoci/frontend/media/results
+    state: directory
 
+##
+## DJANGO
+##
 # Hack to get around need to be able to insert or update into fifoci database
-- name: Delete fifodb database
-  file: path=~/fifoci/frontend/db.sqlite3 state=absent
+# This is not very idempotent
+- name: fifoci | Delete fifodb database
+  file:
+    path: ~/fifoci/frontend/db.sqlite3
+    state: absent
 
-- name: Prepare fifoci database
+# django_manage does not allow overriding the python command used to run it,
+# which is required for python 3.
+# - name: fifoci | Prepare fifoci database and static content
+#   sudo: yes
+#   sudo_user: fifoci
+#   django_manage:
+#     command: "{{ item }}"
+#     app_path: ~/fifoci/frontend
+#   with_items:
+#     - migrate
+#     - collectstatic --noinput
+
+# As a result, call the command directly.
+- name: fifoci | Prepare fifoci database and static content
   sudo: yes
   sudo_user: fifoci
-  shell: "~/python ./manage.py migrate"
+  command: "~/python manage.py {{ item.command }}"
   args:
     chdir: ~/fifoci/frontend
-    creates: ~/fifoci/frontend/db.sqlite3
+    creates: "~/fifoci/frontend/{{ item.artifact }}"
+  with_items:
+    - { command: "migrate", artifact: "db.sqlite3" }
+    - { command: "collectstatic --noinput", artifact: "static/index.html" }
 
 # The dff.sql file is generated by initdff.py. It is a prerequisite of running
 # fifoci that this be done or else this task will fail. This is expected
 # behaviour.
-- name: Seed dff
+- name: fifoci | Seed dff
   sudo: yes
   sudo_user: fifoci
   shell: "echo .read media/dff/dff.sql | sqlite3 db.sqlite3"
   args:
     chdir: ~/fifoci/frontend
 
-- name: Stop gunicorn
+##
+## WEB
+##
+- name: fifoci | Install gunicorn configuration file
   sudo: yes
   sudo_user: fifoci
-  shell: pkill gunicorn
-  ignore_errors: True
-  tags: server_restart
+  template:
+    src: gunicorn.conf.py.j2
+    dest: ~/fifoci/frontend/gunicorn.conf.py
+    mode: 0444
 
-- name: Start fifoci
-  sudo: yes
-  sudo_user: fifoci
-  shell: "gunicorn fifoci.wsgi -b {{ fifoci_web_host }}:{{ fifoci_web_port }} -D"
-  args:
-    chdir: ~/fifoci/frontend
-  tags: server_restart
+- name: fifoci | Install the supervisor configuration file
+  template:
+    src: supervisor.fifoci.conf.j2
+    dest: /etc/supervisor/conf.d/fifoci.conf
+    mode: 0444
+  notify: restart fifoci supervisor
 
-- name: Enable nginx proxy
-  template: src=fifoci.nginx.j2 dest=/etc/nginx/services/fifoci.nginx mode=0444
-  when: ansible_os_family == 'Debian'
+- name: fifoci | Enable nginx proxy
+  template:
+    src: fifoci.nginx.j2
+    dest: /etc/nginx/services/fifoci.nginx
+    mode: 0444
+  notify: restart nginx
 

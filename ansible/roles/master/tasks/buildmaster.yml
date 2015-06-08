@@ -79,17 +79,35 @@
     regexp: ^DOLPHIN_REPO
     line: "DOLPHIN_REPO = \"{{ dolphin_repository }}\""
 
-- name: buildbot | Build password files
+# Do not parameterise the password file creation. The passwords will print to
+# stdout in the ansible output.
+- name: buildbot | Build buildslave password file
   sudo: yes
   sudo_user: "{{ buildbot_username }}"
   copy:
-    content: "{{ item.password }}"
-    dest: "{{ item.file }}"
-  with_items:
-    - { password: "{{ buildslaves_passwords | to_nice_json }}", file: "~/buildslaves-passwords.json" }
-    - { password: "{{ buildmaster_users_passwords | to_nice_json }}", file: "~/users-passwords.json" }
-    - { password: "{{ changesource_password }}", file: "~/changesource-password.txt" }
-    - { password: "{{ webauth_password }}", file: "~/webauth-password.txt" }
+    content: "{{ buildslaves_passwords | to_nice_json }}"
+    dest: ~/buildslaves-passwords.json
+
+- name: buildbot | Build users password file
+  sudo: yes
+  sudo_user: "{{ buildbot_username }}"
+  copy:
+    content: "{{ buildmaster_users_passwords | to_nice_json }}"
+    dest: ~/users-passwords.json
+
+- name: buildbot | Build changesource password file
+  sudo: yes
+  sudo_user: "{{ buildbot_username }}"
+  copy:
+    content: "{{ changesource_password }}"
+    dest: ~/changesource-password.txt
+
+- name: buildbot | Build webauth password file
+  sudo: yes
+  sudo_user: "{{ buildbot_username }}"
+  copy:
+    content: "{{ webauth_password }}"
+    dest: ~/webauth-password.txt
 
 - name: buildbot | Enable buildmaster init.d
   template:

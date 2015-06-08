@@ -1,11 +1,20 @@
 ---
-- name: Add changes user
-  user: name=changes state=present shell=/bin/bash home=/home/changes
+##
+## USER
+##
+- name: changes | Add changes user
+  user:
+    name: changes
+    home: /home/changes
+    shell: /bin/bash
+    state: present
 
-- name: Add public key to login as changes
-  authorized_key: user=changes key="{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+- name: changes | Add public key to login as changes
+  authorized_key:
+    user: changes
+    key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
 
-- name: Add github to known_hosts
+- name: changes | Add github to known_hosts
   sudo: yes
   sudo_user: changes
   lineinfile:
@@ -15,21 +24,24 @@
     line: "{{ lookup('pipe', 'ssh-keyscan -t rsa github.com') }}"
     regexp: "^github\\.com"
 
-- name: Install changes
+##
+## DEPLOY
+##
+- name: changes | Install changes
   sudo: yes
   sudo_user: changes
-  copy: src=sadm/changes/ dest=~/
-
-- name: Update configuration
-  sudo: yes
-  sudo_user: changes
-  template: src=changes.config.vars.j2 dest=~/config.vars
+  copy:
+    src: sadm/changes/
+    dest: ~/
 
 # For some reason, copy does not copy the file attributes.
-- name: Fix file attributes post-copy
+- name: changes | Fix file attributes post-copy
   sudo: yes
   sudo_user: changes
-  file: state=file path={{ item }} mode=0755
+  file:
+    path: "{{ item }}"
+    mode: 0755
+    state: file
   with_items:
     - gen-pages
     - gen-rev-infos
@@ -37,18 +49,25 @@
     - send-buildbot-change
     - update-wiki
 
-- name: Create changes web area
-  shell: mkdir -p {{ changes_web_location }} && chown changes:changes {{ changes_web_location }}
-  args:
-    creates: "{{ changes_web_location }}"
+- name: changes | Update configuration
+  sudo: yes
+  sudo_user: changes
+  template:
+    src: changes.config.vars.j2
+    dest: ~/config.vars
 
-- name: Enable nginx proxy
-  template: src=changes.nginx.j2 dest=/etc/nginx/services/changes.nginx mode=0444
-  when: ansible_os_family == 'Debian'
+- name: changes | Create changes web area
+  file:
+    path: "{{ changes_web_location }}"
+    owner: changes
+    group: changes
+    mode: 0755
+    state: directory
+    recurse: yes
 
 # There is no need to clone the submodules since only the dolphin changes are of
 # interest.
-- name: Create dolphin (non-recursive) clone on which changes operates
+- name: changes | Create dolphin (non-recursive) clone on which changes operates
   sudo: yes
   sudo_user: changes
   git:
@@ -57,10 +76,23 @@
     accept_hostkey: "{{ 'yes' if testing is defined else 'no' }}"
     recursive: no
 
-- name: Install changes cron
+##
+## CRON
+##
+- name: changes | Install changes cron
   cron:
     name: "check for dolphin changes"
     job: "/home/changes/gen-pages >/dev/null"
     state: present
     user: changes
+
+##
+## WEB
+##
+- name: changes | Enable nginx proxy
+  template:
+    src: changes.nginx.j2
+    dest: /etc/nginx/services/changes.nginx
+    mode: 0444
+  notify: restart nginx
 

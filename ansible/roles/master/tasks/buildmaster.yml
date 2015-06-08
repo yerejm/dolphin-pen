@@ -2,55 +2,74 @@
 ##
 ## USER
 ##
-- name: Add buildbot user
+- name: buildbot | Add buildbot user
   user:
     name: "{{ buildbot_username }}"
-    state: present
-    shell: /bin/bash
     home: "/home/{{ buildbot_username }}"
+    shell: /bin/bash
+    state: present
 
-- name: Add public key to login as buildbot
+- name: buildbot | Add public key to login as buildbot
   authorized_key:
     user: "{{ buildbot_username }}"
     key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
 
-# - name: Add github to known_hosts
-#   sudo: yes
-#   sudo_user: "{{ buildbot_username }}"
-#   lineinfile:
-#     dest: ~/.ssh/known_hosts
-#     create: yes
-#     state: present
-#     line: "{{ lookup('pipe', 'ssh-keyscan -t rsa github.com') }}"
-#     regexp: "^github\\.com"
-
 # buildmaster will change into fifoci to upload the test results fetched from
 # the fifoci slave into the fifoci (master) front end.
-- name: Give buildmaster sudo
+- name: buildbot | Give buildmaster sudo
   copy:
-    content: '{{ buildbot_username }} ALL=(ALL) NOPASSWD: ALL'
-    dest: /etc/sudoers.d/{{ buildbot_username }}
+    content: "{{ buildbot_username }} ALL=(ALL) NOPASSWD: ALL"
+    dest: "/etc/sudoers.d/{{ buildbot_username }}"
     mode: 0440
-    validate: 'visudo -cf %s'
+    validate: "visudo -cf %s"
 
-- name: Install buildbot-master
-  apt: pkg={{ item }} state=present
+##
+## APT DEPENDENCIES
+##
+- name: buildbot | Install buildbot-master
+  apt:
+    pkg: "{{ item }}"
+    state: present
   with_items:
     - buildbot
 
-- name: Create build master
+##
+## DEPLOY
+##
+- name: buildbot | Create bin directory
+  sudo: yes
+  sudo_user: "{{ buildbot_username }}"
+  file:
+    path: ~/bin
+    state: directory
+
+- name: buildbot | Install send_build.py
+  sudo: yes
+  sudo_user: "{{ buildbot_username }}"
+  copy:
+    src: sadm/buildbot/send_build.py
+    dest: ~/bin/send_build.py
+    mode: 0755
+
+##
+## BUILDBOT
+##
+- name: buildbot | Create build master
   sudo: yes
   sudo_user: "{{ buildbot_username }}"
   command: buildbot create-master
   args:
     creates: buildbot.tac
 
-- name: Install master.cfg
+- name: buildbot | Install master.cfg
   sudo: yes
   sudo_user: "{{ buildbot_username }}"
-  copy: src=sadm/buildbot/master.cfg dest=~/master.cfg mode=0444
+  copy:
+    src: sadm/buildbot/master.cfg
+    dest: ~/master.cfg
+    mode: 0444
 
-- name: Customise dolphin repository
+- name: buildbot | Customise dolphin repository
   sudo: yes
   sudo_user: "{{ buildbot_username }}"
   lineinfile:
@@ -60,46 +79,39 @@
     regexp: ^DOLPHIN_REPO
     line: "DOLPHIN_REPO = \"{{ dolphin_repository }}\""
 
-- name: Create bin directory
+- name: buildbot | Build password files
   sudo: yes
   sudo_user: "{{ buildbot_username }}"
-  file: path="~/bin" state=directory
+  copy:
+    content: "{{ item.password }}"
+    dest: "{{ item.file }}"
+  with_items:
+    - { password: "{{ buildslaves_passwords | to_nice_json }}", file: "~/buildslaves-passwords.json" }
+    - { password: "{{ buildmaster_users_passwords | to_nice_json }}", file: "~/users-passwords.json" }
+    - { password: "{{ changesource_password }}", file: "~/changesource-password.txt" }
+    - { password: "{{ webauth_password }}", file: "~/webauth-password.txt" }
 
-- name: Install send_build.py
-  sudo: yes
-  sudo_user: "{{ buildbot_username }}"
-  copy: src=sadm/buildbot/send_build.py dest=~/bin/send_build.py mode=0755
+- name: buildbot | Enable buildmaster init.d
+  template:
+    src: etc_default_buildmaster.j2
+    dest: /etc/default/buildmaster
+    backup: yes
+    mode: 0444
 
-- name: Build buildslave password file
-  sudo: yes
-  sudo_user: "{{ buildbot_username }}"
-  copy: content="{{ buildslaves_passwords | to_nice_json }}" dest=~/buildslaves-passwords.json
-
-- name: Build users password file
-  sudo: yes
-  sudo_user: "{{ buildbot_username }}"
-  copy: content="{{ buildmaster_users_passwords | to_nice_json }}" dest=~/users-passwords.json
-
-- name: Build changesource password file
-  sudo: yes
-  sudo_user: "{{ buildbot_username }}"
-  copy: content={{ changesource_password }} dest=~/changesource-password.txt
-
-- name: Build webauth password file
-  sudo: yes
-  sudo_user: "{{ buildbot_username }}"
-  copy: content={{ webauth_password }} dest=~/webauth-password.txt
-
-- name: Enable buildmaster init.d
-  template: src=etc_default_buildmaster.j2 dest=/etc/default/buildmaster backup=yes mode=0444
-
-- name: Enable nginx proxy
-  template: src=buildbot.nginx.j2 dest=/etc/nginx/services/buildbot.nginx mode=0444
-
-- name: Start buildmaster
+- name: buildbot | Start buildmaster
   service:
     name: buildmaster
     state: restarted
     enabled: yes
     pattern: "--python=buildbot.tac"
+
+##
+## WEB
+##
+- name: buildbot | Enable nginx proxy
+  template:
+    src: buildbot.nginx.j2
+    dest: /etc/nginx/services/buildbot.nginx
+    mode: 0444
+  notify: restart nginx
 

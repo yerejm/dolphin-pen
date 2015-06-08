@@ -1,12 +1,17 @@
 ---
-# - name: Create dl web area
-#   shell: mkdir -m 0755 -p "{{ buildmaster_builds_location }}/builds" && chown -R buildbot:buildbot {{ buildmaster_builds_location }}
-#   args:
-#     creates: "{{ buildmaster_builds_location }}/builds"
-- name: Create dl web area
-  file: owner=buildbot group=buildbot mode=0755 state=directory recurse=yes path="{{ buildmaster_builds_location }}/builds"
+- name: dl | Create dl web area
+  file:
+    path: "{{ buildmaster_builds_location }}/builds"
+    owner: "{{ buildbot_username }}"
+    group: "{{ buildbot_username }}"
+    mode: 0755
+    state: directory
+    recurse: yes
 
-- name: Enable nginx proxy
-  template: src=dl.nginx.j2 dest=/etc/nginx/services/dl.nginx mode=0444
-  when: ansible_os_family == 'Debian'
+- name: dl | Enable nginx proxy
+  template:
+    src: dl.nginx.j2
+    dest: /etc/nginx/services/dl.nginx
+    mode: 0444
+  notify: restart nginx
 

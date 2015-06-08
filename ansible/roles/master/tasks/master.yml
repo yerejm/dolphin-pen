@@ -5,4 +5,4 @@
 - include: dl.yml tags=dl
 - include: fifoci.yml tags=fifoci
 - include: changes.yml tags=changes
-- include: nginx_restart.yml tags=post
+

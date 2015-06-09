@@ -14,7 +14,8 @@
     cache_valid_time: 86400
 
 - name: Upgrade all safe packages
-  apt: upgrade=safe
+  apt:
+    upgrade: safe
 
 - name: Install base packages
   apt: pkg={{ item }} state=present

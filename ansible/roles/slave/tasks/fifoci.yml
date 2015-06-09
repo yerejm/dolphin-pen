@@ -1,11 +1,20 @@
 ---
-- name: Add fifoci user
-  user: name=fifoci state=present shell=/bin/bash home=/home/fifoci
+##
+## USER
+##
+- name: fifoci | Add fifoci user
+  user:
+    name: fifoci
+    home: /home/fifoci
+    shell: /bin/bash
+    state: present
 
-- name: Add public key to login as fifoci
-  authorized_key: user=fifoci key="{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+- name: fifoci | Add public key to login as fifoci
+  authorized_key:
+    user: fifoci
+    key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
 
-- name: Add github to known_hosts
+- name: fifoci | Add github to known_hosts
   sudo: yes
   sudo_user: fifoci
   lineinfile:
@@ -15,7 +24,10 @@
     line: "{{ lookup('pipe', 'ssh-keyscan -t rsa github.com') }}"
     regexp: "^github\\.com"
 
-- name: Clone fifoci
+##
+## CLONE
+##
+- name: fifoci | Clone fifoci
   sudo: yes
   sudo_user: fifoci
   git:
@@ -23,59 +35,72 @@
     dest: fifoci
     accept_hostkey: "{{ 'yes' if testing is defined else 'no' }}"
 
-- name: Get fifoci requirements
-  copy: src=fifoci/requirements.txt dest=~/requirements-fifoci.txt
+##
+## APT DEPENDENCIES
+##
+- name: fifoci | Add ffmpeg PPA
+  apt_repository:
+    repo: 'ppa:kirillshkrogalev/ffmpeg-next'
 
-- name: Install fifoci runner dependencies
-  apt: pkg={{ item }} state=present
+- name: fifoci | Install fifoci runner dependencies
+  apt:
+    pkg: "{{ item }}"
+    state: present
   with_items:
     - python3
     - python3-pip
     - xserver-xorg
     - xserver-xorg-core
-
-- name: Install fifoci dependencies (pip requirements)
-  pip: requirements=~/requirements-fifoci.txt executable=pip3
-
-- name: Add ffmpeg PPA
-  apt_repository: repo='ppa:kirillshkrogalev/ffmpeg-next'
-
-- name: Update apt cache
-  apt: update_cache=yes
-
-- name: Install ffmpeg
-  apt: pkg={{ item }} state=present
-  with_items:
     - ffmpeg
 
-- name: Copy custom runner (disable ssl cert verification)
-  sudo: yes
-  sudo_user: fifoci
-  copy: src=fifoci/runner/runner.py dest=~/fifoci/runner/
+##
+## PIP DEPENDENCIES
+##
+- name: fifoci | Install fifoci dependencies (pip requirements)
+  pip:
+    executable: pip3
+    requirements: /home/fifoci/fifoci/requirements.txt
+    state: present
 
-- name: Link python/pip v3 into fifoci home
+##
+## DEPLOY
+##
+
+# Needed for runner execution by the build master
+- name: fifoci | Link python into fifoci home
   sudo: yes
   sudo_user: fifoci
-  file: src="/usr/bin/{{ item }}3" dest="~/{{ item }}" state=link
+  file:
+    src: "/usr/bin/{{ item }}3"
+    dest: "~/{{ item }}"
+    state: link
   with_items:
     - python
-    - pip
 
-- name: Create media (dff) area
-  sudo: yes
-  sudo_user: fifoci
-  file: path="~/dff" state=directory
-
-- name: Copy dff files (needed for /dff/)
-  sudo: yes
-  sudo_user: fifoci
-  copy: src=dff/ dest=~/dff
-
-# fifoci requires sudo to run xorg
-- name: Give fifoci sudo
+# The fifoci runner requires sudo to run xorg
+- name: fifoci | Give fifoci sudo
   copy:
     content: 'fifoci ALL=(ALL) NOPASSWD: ALL'
     dest: /etc/sudoers.d/fifoci
     mode: 0440
     validate: 'visudo -cf %s'
+
+##
+## DFF
+##
+- name: fifoci | Create media (dff) area
+  sudo: yes
+  sudo_user: fifoci
+  file:
+    path: ~/dff
+    state: directory
+
+# This could be left to be downloaded from the fifoci web server by the runner.
+# However, it may as well be copied now.
+- name: fifoci | Copy dff files (needed for tests)
+  sudo: yes
+  sudo_user: fifoci
+  copy:
+    src: dff/
+    dest: ~/dff
 

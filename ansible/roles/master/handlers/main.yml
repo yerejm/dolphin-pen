@@ -4,6 +4,11 @@
     name: nginx
     state: restarted
 
+- name: restart supervisor
+  service:
+    name: supervisor
+    state: restarted
+
 - name: restart fifoci supervisor
   supervisorctl:
     name: gunicorn_fifoci

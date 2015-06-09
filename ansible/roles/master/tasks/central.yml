@@ -68,7 +68,7 @@
     src: supervisor.central.conf.j2
     dest: /etc/supervisor/conf.d/central.conf
     mode: 0444
-  notify: restart central supervisor
+  notify: restart supervisor
 
 - name: central | Enable nginx proxy
   template:

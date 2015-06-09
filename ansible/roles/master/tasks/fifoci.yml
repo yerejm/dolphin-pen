@@ -113,7 +113,7 @@
     path: ~/fifoci/frontend/media/dff
     state: directory
 
-- name: fifoci | Link dff to fifoci home (runner)
+- name: fifoci | Link dff to fifoci home
   sudo: yes
   sudo_user: fifoci
   file:
@@ -195,7 +195,7 @@
     src: supervisor.fifoci.conf.j2
     dest: /etc/supervisor/conf.d/fifoci.conf
     mode: 0444
-  notify: restart fifoci supervisor
+  notify: restart supervisor
 
 - name: fifoci | Enable nginx proxy
   template:

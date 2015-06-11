@@ -1,6 +1,1 @@
 ---
-##
-## HOSTS
-##
-- include: hosts.yml
-

@@ -34,8 +34,3 @@
     - WSearch
     - WSService
 
-##
-## HOSTS
-##
-- include: hosts.yml
-

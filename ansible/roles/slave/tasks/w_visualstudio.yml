@@ -1,50 +1,29 @@
 ---
-# Get the installer either from the cache or from an external source.
-# Cache it if it was fetched externally.
-- name: Is file cached?
-  win_stat: path="{{ cache_location }}/{{ file }}" get_md5=no
-  register: file_cached
+- include: windows_cache_download.yml
 
-- name: Copy cached file to download area
-  raw: "copy {{ cache_location }}\\{{ file }} {{ download_location }}\\{{ file }}"
-  when: file_cached.stat.exists
-
-- name: Is file downloaded?
-  win_stat: path="{{ download_location }}/{{ file }}"
-  register: file_downloaded
-
-- name: Download file
-  win_get_url:
-    url: "{{ base_url }}/{{ file }}"
-    dest: "{{ download_location }}/{{ file }}"
-  when: not file_downloaded.stat.exists
-
-- name: Copy download file to cache
-  raw: "copy {{ download_location }}\\{{ file }} {{ cache_location }}\\{{ file }}"
-  when: not file_cached.stat.exists
-
-# Install application if not already installed
-- name: Is application installed?
-  win_stat: path='C:\Program Files (x86)\msbuild\12.0\bin'
+- name: visual studio | Installed?
+  win_stat:
+    path: "C:\\Program Files (x86)\\msbuild\\12.0\\bin"
   register: app
 
-- name: Mount ISO
+- name: visual studio | Mount ISO
   raw: "powershell mount-diskimage {{ download_location }}\\{{ file }}"
   when: not app.stat.exists
 
-- name: Copy Visual Studio Unattended Deployment setup file to installer location
+- name: visual studio | Copy Unattended Deployment setup file to installer location
   raw: "copy c:\\vagrant\\ansible\\roles\\slave\\files\\AdminDeployment.xml c:\\tmp\\AdminDeployment.xml"
   when: not app.stat.exists
 
-- name: Install application
+- name: visual studio | Install
   raw: "d:\\vs_community.exe /silent /norestart /norefresh /adminfile c:\\tmp\\AdminDeployment.xml"
   when: not app.stat.exists
 
-- name: Dismount ISO
+- name: visual studio | Dismount ISO
   raw: "powershell dismount-diskimage {{ download_location }}\\{{ file }}"
   when: not app.stat.exists
 
-- name: Add msbuild to path
+# build master calls msbuild.  It does not use nmake.
+- name: visual studio | Add msbuild to path
   raw: "powershell [Environment]::SetEnvironmentVariable('Path', $env:Path + ';C:\\Program Files (x86)\\MSBuild\\12.0\\Bin', [EnvironmentVariableTarget]::Machine)"
   when: not app.stat.exists
 

@@ -1,16 +1,21 @@
 ---
-- name: Install debian dpkg template files
+- name: dpkg | Install template files
   sudo: yes
   sudo_user: "{{ buildbot_username }}"
-  copy: src=dpkg/ dest=~/debian/
+  copy:
+    src: dpkg/
+    dest: ~/debian/
 
 # For some reason, copy does not copy the file attributes.
-- name: Fix file attributes post-copy
+- name: dpkg | Fix file attributes post-copy
   sudo: yes
   sudo_user: "{{ buildbot_username }}"
-  file: state=file path=debian/rules mode=0755
+  file:
+    path: debian/rules
+    mode: 0755
+    state: file
 
-- name: Create dpkg template archive for buildbot
+- name: dpkg | Create template archive for buildbot
   sudo: yes
   sudo_user: "{{ buildbot_username }}"
   shell: "tar czf dolphin-debian.tar.gz debian/"

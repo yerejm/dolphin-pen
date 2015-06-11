@@ -18,7 +18,9 @@
     upgrade: safe
 
 - name: Install base packages
-  apt: pkg={{ item }} state=present
+  apt:
+    pkg: "{{ item }}"
+    state: present
   with_items:
     - apt-transport-https
     - sudo
@@ -27,13 +29,17 @@
     - ntp
 
 - name: Install unattended upgrades
-  apt: pkg=unattended-upgrades state=present
+  apt:
+    pkg: unattended-upgrades
+    state: present
 
 ##
 ## NTP
 ##
 - name: Configure ntp
-  template: src=ntp.conf.j2 dest=/etc/ntp.conf
+  template:
+    src: ntp.conf.j2
+    dest: /etc/ntp.conf
   notify: restart ntp
 
 - name: Ensure ntpd is running and enabled
@@ -53,9 +59,4 @@
 #     line: "PermitRootLogin no"
 #     state: present
 #   notify: restart ssh
-
-##
-## HOSTS
-##
-- include: hosts.yml
 

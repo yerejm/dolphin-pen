@@ -14,3 +14,9 @@
 - include: fifoci.yml tags=slave,buildbot,fifoci
   when: ansible_hostname in groups['fifoci']
 
+##
+## DPKG
+##
+- include: dpkg.yml tags=slave,dpkg
+  when: ansible_hostname in groups['dpkg']
+

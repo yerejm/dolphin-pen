@@ -5,9 +5,9 @@
 - name: Add buildbot user
   user:
     name: "{{ buildbot_username }}"
-    state: present
-    shell: /bin/bash
     home: "/home/{{ buildbot_username }}"
+    shell: /bin/bash
+    state: present
 
 - name: Add public key to login as buildbot
   authorized_key:
@@ -18,17 +18,19 @@
   sudo: yes
   sudo_user: "{{ buildbot_username }}"
   lineinfile:
-    dest: ~/.ssh/known_hosts
     create: yes
-    state: present
+    dest: ~/.ssh/known_hosts
     line: "{{ lookup('pipe', 'ssh-keyscan -t rsa github.com') }}"
     regexp: "^github\\.com"
+    state: present
 
 ##
 ## COMMON PKG
 ##
 - name: Install common build dependencies
-  apt: pkg={{ item }} state=present
+  apt:
+    pkg: "{{ item }}"
+    state: present
   with_items:
     - cmake
     - g++
@@ -48,7 +50,9 @@
 ## UBUNTU PKG
 ##
 - name: Install ubuntu specific build dependencies
-  apt: pkg={{ item }} state=present
+  apt:
+    pkg: "{{ item }}"
+    state: present
   with_items:
     - libwxbase3.0-dev
     - libwxgtk3.0-dev
@@ -60,7 +64,9 @@
 ## DEBIAN PKG
 ##
 - name: Install debian specific build dependencies
-  apt: pkg={{ item }} state=present
+  apt:
+    pkg: "{{ item }}"
+    state: present
   with_items:
     - libwxbase2.8-dev
     - libwxgtk2.8-dev
@@ -82,7 +88,9 @@
 # SDL 2.0 must be compiled from source to prevent a bug causing Dolphin to crash
 # with rumble-enabled conrollers.
 - name: Retrieve SDL
-  hg: repo={{ sdl_repository }} dest=~/SDL
+  hg:
+    repo: "{{ sdl_repository }}"
+    dest: ~/SDL
   when: ansible_distribution == 'Debian'
 
 - name: Install SDL
@@ -93,39 +101,47 @@
   when: ansible_distribution == 'Debian'
 
 ##
-## DPKG
-##
-- include: dpkg.yml tags=slave,dpkg
-  when: ansible_hostname in groups['dpkg']
-
-##
 ## BUILDBOT
 ##
 - name: Install buildbot-slave
-  apt: pkg={{ item }} state=present
+  apt:
+    pkg: "{{ item }}"
+    state: present
   with_items:
     - buildbot-slave
 
 - name: Create build slave
   sudo: yes
   sudo_user: "{{ buildbot_username }}"
-  shell: buildslave create-slave . {{ buildmaster_host }}:{{ buildmaster_port }} {{ slave_username }} {{ slave_password }}
+  shell: "buildslave create-slave . {{ buildmaster_host }}:{{ buildmaster_port }} {{ slave_username }} {{ slave_password }}"
   args:
     creates: info/admin
 
 - name: Update slave host information
   sudo: yes
   sudo_user: "{{ buildbot_username }}"
-  template: src=buildbot_info_host.j2 dest=info/host
+  template:
+    src: buildbot_info_host.j2
+    dest: info/host
 
 - name: Update slave admin information
   sudo: yes
   sudo_user: "{{ buildbot_username }}"
-  template: src=buildbot_info_admin.j2 dest=info/admin
+  template:
+    src: buildbot_info_admin.j2
+    dest: info/admin
 
 - name: Enable buildslave init.d
-  template: src=etc_default_buildslave.j2 dest=/etc/default/buildslave backup=yes mode=0644
+  template:
+    src: etc_default_buildslave.j2
+    dest: /etc/default/buildslave
+    backup: yes
+    mode: 0644
 
 - name: Start buildslave
-  service: name=buildslave state=restarted enabled=yes pattern=/usr/bin/buildslave
+  service:
+    name: buildslave
+    enabled: yes
+    pattern: /usr/bin/buildslave
+    state: started
 

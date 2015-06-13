@@ -10,7 +10,7 @@ for dff in dffs:
 sql = open('dff.sql', 'w')
 sql.write("begin;\n")
 for dff in dffs:
-    sql.write("insert into fifoci_fifotest (file, name, shortname, active, description) values('%s', '%s', '%s', %s, '%s');\n"
+    sql.write("insert into fifoci_fifotest (file, name, shortname, active, description) values('%s', '%s', '%s', '%s', '%s');\n"
             % (dff['url'], dff['filename'], dff['shortname'], 1, dff['shortname']))
 sql.write("commit;\n")
 sql.close()

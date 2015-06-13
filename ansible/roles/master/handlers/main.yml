@@ -18,3 +18,9 @@
   supervisorctl:
     name: central
     state: restarted
+
+- name: restart postgresql
+  service:
+    name: postgresql
+    state: restarted
+

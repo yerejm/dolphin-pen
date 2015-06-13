@@ -32,6 +32,19 @@
     state: present
   with_items:
     - buildbot
+    - python
+    - python-pip
+    - python-dev
+
+##
+## PIP DEPENDENCIES
+##
+- name: buildbot | Install python packages (pip)
+  pip:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - psycopg2
 
 ##
 ## DEPLOY
@@ -52,14 +65,49 @@
     mode: 0755
 
 ##
+## POSTGRESQL
+##
+- name: buildbot | create buildbot database user
+  sudo: yes
+  sudo_user: postgres
+  postgresql_user:
+    name: "{{ buildbot_username }}"
+    password: "{{ buildbot_username }}"
+
+- name: buildbot | Create buildbot database
+  sudo: yes
+  sudo_user: postgres
+  postgresql_db:
+    owner: "{{ buildbot_username }}"
+    name: "{{ buildbot_username }}"
+    state: present
+
+- name: buildbot | Grant database access
+  sudo: yes
+  sudo_user: postgres
+  postgresql_privs:
+    db: "{{ buildbot_username }}"
+    privs: ALL
+    type: database
+    role: "{{ buildbot_username }}"
+
+##
 ## BUILDBOT
 ##
 - name: buildbot | Create build master
   sudo: yes
   sudo_user: "{{ buildbot_username }}"
-  command: buildbot create-master
+  command: "buildbot create-master --db postgresql://buildbot@localhost/buildbot"
   args:
     creates: buildbot.tac
+
+# Bug in buildbot 0.8.x (fixed in 0.9.x) with postgresql
+# It can cause changes that should be added to the build queue to go missing.
+# http://trac.buildbot.net/ticket/2423
+- name: buildbot | Workaround buildbot race condition
+  sudo: yes
+  sudo_user: "{{ buildbot_username }}"
+  command: psql -c "alter table buildsets drop constraint buildsets_sourcestampid_fkey"
 
 - name: buildbot | Install master.cfg
   sudo: yes

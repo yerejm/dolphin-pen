@@ -64,6 +64,13 @@
     dest: ~/bin/send_build.py
     mode: 0755
 
+- name: buildbot | Create pr-jobdir
+  sudo: yes
+  sudo_user: "{{ buildbot_username }}"
+  file:
+    path: ~/pr-jobdir
+    state: directory
+
 ##
 ## POSTGRESQL
 ##
@@ -115,17 +122,25 @@
   copy:
     src: sadm/buildbot/master.cfg
     dest: ~/master.cfg
-    mode: 0444
+    backup: yes
+
+- name: buildbot | Replace dolphin-emu.org domain
+  sudo: yes
+  sudo_user: "{{ buildbot_username }}"
+  replace:
+    dest: ~/master.cfg
+    regexp: '\.dolphin-emu\.org'
+    replace: '.dev'
+    backup: yes
 
 - name: buildbot | Customise dolphin repository
   sudo: yes
   sudo_user: "{{ buildbot_username }}"
-  lineinfile:
-    backup: yes
+  replace:
     dest: ~/master.cfg
-    state: present
-    regexp: ^DOLPHIN_REPO
-    line: "DOLPHIN_REPO = \"{{ dolphin_repository }}\""
+    regexp: '"https://github.com/dolphin-emu/dolphin.git"'
+    replace: "\"{{ dolphin_repository }}\""
+    backup: yes
 
 # Do not parameterise the password file creation. The passwords will print to
 # stdout in the ansible output.

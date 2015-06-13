@@ -26,6 +26,9 @@ buildslaves_passwords:
   osx: osx
   windows: windows
   arch64: arch64
+  odroid: odroid
+  ec2-ubu64-nv: ec2-ubu64-nv
+  ec2-win64-nv: ec2-win64-nv
 
 # Buildbot user name under which the build master is created.
 buildbot_username: buildbot

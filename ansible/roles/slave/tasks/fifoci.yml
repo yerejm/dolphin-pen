@@ -7,11 +7,15 @@
     src: tmp/ssl/
     dest: /usr/local/share/ca-certificates
     mode: 0444
+  tags:
+    - ssl
 
 - name: fifoci | Update ca-certificates
   command: update-ca-certificates
   args:
     creates: /etc/ssl/certs/dolphin-emu.pem
+  tags:
+    - ssl
 
 ##
 ## USER

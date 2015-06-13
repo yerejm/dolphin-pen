@@ -8,15 +8,3 @@
 - include: slave_Windows.yml tags=slave,buildbot,windows
   when: ansible_hostname in groups['buildslaves'] and ansible_os_family == 'Windows'
 
-##
-## FIFOCI
-##
-- include: fifoci.yml tags=slave,buildbot,fifoci
-  when: ansible_hostname in groups['fifoci']
-
-##
-## DPKG
-##
-- include: dpkg.yml tags=slave,dpkg
-  when: ansible_hostname in groups['dpkg']
-

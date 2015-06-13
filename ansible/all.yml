@@ -3,8 +3,8 @@
   user: root
   roles:
     - common
-    - slave
     - master
+    - slave
   vars_files:
     - vars/secrets.yml
 

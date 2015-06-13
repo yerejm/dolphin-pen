@@ -1,6 +1,3 @@
-[submodule "fifoci"]
-	path = ansible/fifoci
-	url = git@github.com:yerejm/fifoci.git
 [submodule "homebrew"]
 	path = ansible/homebrew
 	url = https://github.com/Homebrew/install.git

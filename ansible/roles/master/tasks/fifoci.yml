@@ -75,16 +75,6 @@
 ##
 ## SYSTEM DEPENDENCIES
 ##
-- name: fifoci | Copy custom frontend
-  sudo: yes
-  sudo_user: fifoci
-  copy:
-    src: "fifoci/frontend/fifoci/settings/{{ item }}"
-    dest: ~/fifoci/frontend/fifoci/settings/
-  with_items:
-    - base.py # change site name
-    - production.py # use sqlite3 db
-
 - name: fifoci | Create fifoci web area
   file:
     src: /home/fifoci/fifoci/frontend

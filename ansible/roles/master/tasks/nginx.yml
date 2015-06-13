@@ -57,6 +57,14 @@
     chdir: /etc/nginx/ssl
     creates: /etc/nginx/ssl/dolphin-emu.pem
 
+- name: nginx | Get ssl certificate for slave deployment
+  fetch:
+    src: /etc/nginx/ssl/dolphin-emu.pem
+    dest: "tmp/ssl/{{ ansible_hostname }}-dolphin-emu.crt"
+    flat: yes
+    fail_on_missing: yes
+    validate_checksum: yes
+
 - name: nginx | Start nginx
   service:
     name: nginx

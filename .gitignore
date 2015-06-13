@@ -1,6 +1,7 @@
 .ansible_fact_cache
 .vagrant
 .DS_Store
+ansible/tmp
 *.dff
 *.sql
 *.tar.gz

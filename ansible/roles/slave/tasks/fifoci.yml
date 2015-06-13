@@ -1,5 +1,19 @@
 ---
 ##
+## SSL
+##
+- name: fifoci | Install frontend ssl certificate
+  copy:
+    src: tmp/ssl/
+    dest: /usr/local/share/ca-certificates
+    mode: 0444
+
+- name: fifoci | Update ca-certificates
+  command: update-ca-certificates
+  args:
+    creates: /etc/ssl/certs/dolphin-emu.pem
+
+##
 ## USER
 ##
 - name: fifoci | Add fifoci user

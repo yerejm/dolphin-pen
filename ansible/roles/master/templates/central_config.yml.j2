@@ -1,13 +1,12 @@
 irc:
-    server: irc.freenode.net
+    server: {{ irc_host }}
     port: 6667
     ssl: false
-    nick: irrawaddy
+    nick: {{ central_irc_bot_nick }}
     channels:
         - "#dolphin-dev"
         - "#dolphin-test"
-    trusted_users:
-        - delroth
+    rebuild_repo: dolphin-emu/dolphin
 
 web:
     external_url: https://{{ central_server_name }}
@@ -43,7 +42,7 @@ gcode:
 
 buildbot:
     url: https://{{ buildmaster_server_name }}
-    jobdir: /home/buildbot/pr-jobdir
+    jobdir: /home/buildbot/{{ buildmaster_pr_jobdir }}
     pr_builders:
         - pr-android
         - pr-deb-x64

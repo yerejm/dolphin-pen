@@ -28,4 +28,10 @@ fifoci_server_name: fifoci.dev
 # The host and port of the build master.
 buildmaster_host: 172.118.70.40
 buildmaster_port: 9989
+# Pull request job directory relative to buildmaster home
+buildmaster_pr_jobdir: pr-jobdir
+
+# IRC host
+irc_host: localhost
+central_irc_bot_nick: DolCentralBot
 

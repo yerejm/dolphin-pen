@@ -69,9 +69,9 @@
     mode: 0755
     state: file
 
-- name: buildbot | Create pr-jobdir
+- name: buildbot | Create pull request job directory
   file:
-    path: "/home/{{ buildbot_username }}/pr-jobdir"
+    path: "/home/{{ buildbot_username }}/{{ buildmaster_pr_jobdir }}"
     owner: "{{ buildbot_username }}"
     state: directory
 
@@ -139,6 +139,13 @@
     dest: "/home/{{ buildbot_username }}/master.cfg"
     regexp: '"https://github.com/dolphin-emu/dolphin.git"'
     replace: "\"{{ dolphin_repository }}\""
+    backup: yes
+
+- name: buildbot | Customise master.cfg irc host
+  replace:
+    dest: "/home/{{ buildbot_username }}/master.cfg"
+    regexp: '"irc\.freenode\.net"'
+    replace: "\"{{ irc_host }}\""
     backup: yes
 
 - name: buildbot | Set master.cfg attributes

@@ -28,26 +28,9 @@
 ## DEPLOY
 ##
 - name: changes | Install changes
-  sudo: yes
-  sudo_user: changes
-  copy:
-    src: sadm/changes/
-    dest: ~/
-
-# For some reason, copy does not copy the file attributes.
-- name: changes | Fix file attributes post-copy
-  sudo: yes
-  sudo_user: changes
-  file:
-    path: "{{ item }}"
-    mode: 0755
-    state: file
-  with_items:
-    - gen-pages
-    - gen-rev-infos
-    - git-what-branch
-    - send-buildbot-change
-    - update-wiki
+  shell: cp -p -R ~/sadm/changes/* /home/changes && chown -R changes:changes /home/changes
+  args:
+    creates: /home/changes/gen-pages
 
 - name: changes | Update configuration
   sudo: yes

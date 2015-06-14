@@ -30,22 +30,13 @@
 ## DEPLOY
 ##
 - name: central | Install central
-  sudo: yes
-  sudo_user: central
-  copy:
-    src: sadm/central/
-    dest: ~/
+  shell: cp -R ~/sadm/central/* /home/central && chown -R central:central /home/central
+  args:
+    creates: /home/central/central.py
 
 ##
 ## PIP DEPENDENCIES
 ##
-- name: central | Get central requirements
-  sudo: yes
-  sudo_user: central
-  copy:
-    src: sadm/central/requirements.txt
-    dest: /home/central/requirements.txt
-
 - name: central | Install central dependencies (pip requirements)
   pip:
     executable: pip3
@@ -60,8 +51,6 @@
   template:
     src: central_config.yml.j2
     dest: ~/config.yml
-
-  # shell: "nohup nice python3 central.py --config config.yml --no_local_logging >central.log 2>&1 &"
 
 - name: central | Install the supervisor configuration file
   template:

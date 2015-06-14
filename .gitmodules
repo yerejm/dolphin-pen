@@ -1,7 +1,3 @@
 [submodule "homebrew"]
 	path = ansible/homebrew
 	url = https://github.com/Homebrew/install.git
-[submodule "ansible/sadm"]
-	path = ansible/sadm
-	url = git@github.com:yerejm/sadm
-	branch = mm

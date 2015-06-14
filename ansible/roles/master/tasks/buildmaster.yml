@@ -57,18 +57,22 @@
     state: directory
 
 - name: buildbot | Install send_build.py
-  sudo: yes
-  sudo_user: "{{ buildbot_username }}"
-  copy:
-    src: sadm/buildbot/send_build.py
-    dest: ~/bin/send_build.py
+  command: "cp ~/sadm/buildbot/send_build.py /home/{{ buildbot_username }}/bin/send_build.py"
+  args:
+    creates: "/home/{{ buildbot_username }}/bin/send_build.py"
+
+- name: buildbot | Set send_build.py attributes
+  file:
+    path: "/home/{{ buildbot_username }}/bin/send_build.py"
+    owner: "{{ buildbot_username }}"
+    group: "{{ buildbot_username }}"
     mode: 0755
+    state: file
 
 - name: buildbot | Create pr-jobdir
-  sudo: yes
-  sudo_user: "{{ buildbot_username }}"
   file:
-    path: ~/pr-jobdir
+    path: "/home/{{ buildbot_username }}/pr-jobdir"
+    owner: "{{ buildbot_username }}"
     state: directory
 
 ##
@@ -114,33 +118,36 @@
 - name: buildbot | Workaround buildbot race condition
   sudo: yes
   sudo_user: "{{ buildbot_username }}"
-  command: psql -c "alter table buildsets drop constraint buildsets_sourcestampid_fkey"
+  shell: psql -c "alter table buildsets drop constraint buildsets_sourcestampid_fkey" && touch ~/.buildbot-race
+  args:
+    creates: ~/.buildbot-race
 
 - name: buildbot | Install master.cfg
-  sudo: yes
-  sudo_user: "{{ buildbot_username }}"
-  copy:
-    src: sadm/buildbot/master.cfg
-    dest: ~/master.cfg
-    backup: yes
+  command: "cp ~/sadm/buildbot/master.cfg /home/{{ buildbot_username }}/master.cfg"
+  args:
+    creates: "/home/{{ buildbot_username }}/master.cfg"
 
-- name: buildbot | Replace dolphin-emu.org domain
-  sudo: yes
-  sudo_user: "{{ buildbot_username }}"
+- name: buildbot | Replace master.cfg dolphin-emu.org domain
   replace:
-    dest: ~/master.cfg
+    dest: "/home/{{ buildbot_username }}/master.cfg"
     regexp: '\.dolphin-emu\.org'
     replace: '.dev'
     backup: yes
 
-- name: buildbot | Customise dolphin repository
-  sudo: yes
-  sudo_user: "{{ buildbot_username }}"
+- name: buildbot | Customise master.cfg dolphin repository
   replace:
-    dest: ~/master.cfg
+    dest: "/home/{{ buildbot_username }}/master.cfg"
     regexp: '"https://github.com/dolphin-emu/dolphin.git"'
     replace: "\"{{ dolphin_repository }}\""
     backup: yes
+
+- name: buildbot | Set master.cfg attributes
+  file:
+    path: "/home/{{ buildbot_username }}/master.cfg"
+    owner: "{{ buildbot_username }}"
+    group: "{{ buildbot_username }}"
+    mode: 0644
+    state: file
 
 # Do not parameterise the password file creation. The passwords will print to
 # stdout in the ansible output.

@@ -1,4 +1,22 @@
 ---
+##
+## CLONE
+##
+- name: master | Add github to known_hosts
+  lineinfile:
+    dest: ~/.ssh/known_hosts
+    create: yes
+    state: present
+    line: "{{ lookup('pipe', 'ssh-keyscan -t rsa github.com') }}"
+    regexp: "^github\\.com"
+
+- name: master | Clone sadm
+  git:
+    repo: "{{ sadm_repository }}"
+    dest: sadm
+    accept_hostkey: "{{ 'yes' if testing is defined else 'no' }}"
+    force: yes
+
 - include: database.yml tags=database
 - include: nginx.yml tags=nginx
 - include: buildmaster.yml tags=buildbot

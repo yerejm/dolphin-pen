@@ -21,14 +21,16 @@
     path: /usr/local/bin/brew
   register: brew_exec
 
-- name: Get homebrew installer
-  copy:
-    src: homebrew/install
-    dest: ~/install_homebrew
+- name: Clone homebrew
+  git:
+    repo: https://github.com/Homebrew/install.git
+    dest: homebrew
+    accept_hostkey: "{{ 'yes' if testing is defined else 'no' }}"
+    force: yes
   when: not brew_exec.stat.exists
 
 - name: Install homebrew
-  shell: "echo \"\\n\" | ruby install_homebrew"
+  shell: "echo \"\\n\" | ruby homebrew/install"
   when: not brew_exec.stat.exists
 
 - name: Update brew cache and upgrade

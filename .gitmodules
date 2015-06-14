@@ -1,3 +1,0 @@
-[submodule "homebrew"]
-	path = ansible/homebrew
-	url = https://github.com/Homebrew/install.git

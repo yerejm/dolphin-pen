@@ -9,7 +9,7 @@ BASE=$(pwd)
 MIRROR_DIR="${BASE}/mirror"
 GIT_PID="${MIRROR_DIR}/git-daemon.pid"
 HG_PID="${MIRROR_DIR}/hg-daemon.pid"
-GIT_REPOSITORIES="dolphin ext-win-qt fifoci sadm"
+GIT_REPOSITORIES="dolphin ext-win-qt fifoci sadm www"
 
 check_mirror_dir() {
     if [ -d "${MIRROR_DIR}" ]; then

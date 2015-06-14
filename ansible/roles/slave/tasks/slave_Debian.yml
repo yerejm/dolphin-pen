@@ -68,8 +68,8 @@
     pkg: "{{ item }}"
     state: present
   with_items:
-    - libwxbase2.8-dev
-    - libwxgtk2.8-dev
+    - libwxbase3.0-dev
+    - libwxgtk3.0-dev
     - libasound2-dev
     - libgl1-mesa-dev
     - libglu1-mesa-dev
@@ -155,5 +155,5 @@
     name: buildslave
     enabled: yes
     pattern: /usr/bin/buildslave
-    state: started
+    state: restarted
 

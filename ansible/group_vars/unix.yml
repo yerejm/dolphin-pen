@@ -13,7 +13,7 @@ ntp_servers:
 # default apt mirrors for debian and ubuntu
 debian_mirror: http://http.debian.net/debian
 debian_security_mirror: http://security.debian.org/
-debian_release: wheezy
+debian_release: jessie
 
 ubuntu_mirror: http://us.archive.ubuntu.com/ubuntu/
 ubuntu_security_mirror: http://security.ubuntu.com/ubuntu

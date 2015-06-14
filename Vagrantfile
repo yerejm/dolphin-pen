@@ -87,8 +87,8 @@ Vagrant.configure("2") do |config|
     # debian build slave
     :debbuild => {
       :ip => '172.118.70.42',
-      :provisioner => [:linux, :ram1g],
-      :box => 'debian78',
+      :provisioner => [:linux, :ram2g],
+      :box => 'debian81',
     },
     # windows build slave
     :winbuild => {

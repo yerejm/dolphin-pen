@@ -1,0 +1,38 @@
+# The local network
+172.118.70.40 buildbot.dev central.dev changes.dev dl.dev fifoci.dev
+172.118.70.40  master
+172.118.70.41  ububuild
+172.118.70.42  debbuild
+172.118.70.43  winbuild
+172.118.70.44  osxbuild
+172.118.70.45  dffbuild
+
+#
+# Don't go outside the local network!
+#
+127.0.0.1 dolphin-emu.org
+127.0.0.1 anal.dolphin-emu.org
+127.0.0.1 buildbot.dolphin-emu.org
+127.0.0.1 central.dolphin-emu.org
+127.0.0.1 changes.dolphin-emu.org
+127.0.0.1 dl.dolphin-emu.org
+127.0.0.1 fifoci.dolphin-emu.org
+127.0.0.1 forums.dolphin-emu.org
+127.0.0.1 ovhproxy.dolphin-emu.org
+127.0.0.1 underlord.dolphin-emu.org
+127.0.0.1 wiki.dolphin-emu.org
+
+127.0.0.1 dolphin-emu.net
+127.0.0.1 anal.dolphin-emu.net
+127.0.0.1 buildbot.dolphin-emu.net
+127.0.0.1 central.dolphin-emu.net
+127.0.0.1 changes.dolphin-emu.net
+127.0.0.1 dl.dolphin-emu.net
+127.0.0.1 fifoci.dolphin-emu.net
+127.0.0.1 forums.dolphin-emu.net
+127.0.0.1 ovhproxy.dolphin-emu.net
+127.0.0.1 underlord.dolphin-emu.net
+127.0.0.1 wiki.dolphin-emu.net
+
+127.0.0.1 irc.freenode.net
+

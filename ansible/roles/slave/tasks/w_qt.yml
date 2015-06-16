@@ -1,0 +1,10 @@
+# No ansible support for git on windows.
+---
+- name: Clone Qt
+  raw: "git clone {{ ext_win_qt_repository }} C:\\Qt"
+  ignore_errors: True
+
+- name: Add QTDIR
+  raw: "powershell [Environment]::SetEnvironmentVariable('QTDIR', 'C:\\Qt\\Qt5.4.0\\5.4\\msvc2013_64_opengl', [EnvironmentVariableTarget]::Machine)"
+  ignore_errors: True
+

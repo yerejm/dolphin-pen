@@ -52,6 +52,9 @@
     base_url: "{{ vs_url }}"
     tags: visualstudio
 
+# dolphin dependency: qt
+- include: w_qt.yml tags=qt
+
 # dolphin dependency: symstore
 - include: w_wdk.yml
   vars:

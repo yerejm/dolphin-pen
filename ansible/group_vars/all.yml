@@ -17,6 +17,10 @@ fifoci_repository: https://github.com/dolphin-emu/fifoci
 # e.g. http://hg.libsdl.org/SDL
 sdl_repository: http://hg.libsdl.org/SDL
 
+# Repository location of Qt as used by dolphin.
+# e.g. https://github.com/dolphin-emu/ext-win-qt
+ext_win_qt_repository: https://github.com/dolphin-emu/ext-win-qt
+
 # The nginx server names for the web front ends of each service expected by the
 # dolphin build infrastructure.
 buildmaster_server_name: buildbot.dev

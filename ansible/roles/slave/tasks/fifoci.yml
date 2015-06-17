@@ -113,12 +113,3 @@
     path: ~/dff
     state: directory
 
-# This could be left to be downloaded from the fifoci web server by the runner.
-# However, it may as well be copied now.
-- name: fifoci | Copy dff files (needed for tests)
-  sudo: yes
-  sudo_user: fifoci
-  copy:
-    src: dff/
-    dest: ~/dff
-

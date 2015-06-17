@@ -4,12 +4,20 @@ CMD="$1"
 
 set -eu
 set -o pipefail
+set -x
 
 BASE=$(pwd)
+DOLPHIN_BASE_URL=https://github.com/dolphin-emu
 MIRROR_DIR="${BASE}/mirror"
 GIT_PID="${MIRROR_DIR}/git-daemon.pid"
 HG_PID="${MIRROR_DIR}/hg-daemon.pid"
-GIT_REPOSITORIES="dolphin ext-win-qt fifoci sadm www"
+GIT_REPOSITORIES="\
+    ${DOLPHIN_BASE_URL}/dolphin \
+    ${DOLPHIN_BASE_URL}/ext-win-qt \
+    ${DOLPHIN_BASE_URL}/fifoci \
+    ${GITHUB_HOME}/sadm \
+    ${GITHUB_HOME}/www \
+    "
 
 check_mirror_dir() {
     if [ -d "${MIRROR_DIR}" ]; then
@@ -45,13 +53,10 @@ start_daemons() {
 }
 
 mirror() {
-    if [ -d "${MIRROR_DIR}" ]; then
-        echo "Mirror already exists. To recreate, destroy first."
-        exit 1
-    fi
     mkdir -p "${MIRROR_DIR}"
+    cd "${MIRROR_DIR}"
     for gitrepo in ${GIT_REPOSITORIES}; do
-        git clone --mirror "${GITHUB_HOME}/${gitrepo}.git" "${MIRROR_DIR}/${gitrepo}.git"
+        git clone --mirror "${gitrepo}" || true
     done
     hg clone http://hg.libsdl.org/SDL "${MIRROR_DIR}/SDL"
 }

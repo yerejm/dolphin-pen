@@ -64,7 +64,7 @@ mirror() {
 update_clones() {
     for gitrepo in ${GIT_REPOSITORIES}; do
         echo "Updating ${gitrepo}"
-        cd "${MIRROR_DIR}/${gitrepo}.git"
+        cd "${MIRROR_DIR}/$(basename ${gitrepo}).git"
         git fetch -p origin
     done
 

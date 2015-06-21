@@ -32,6 +32,10 @@ www
 buildmaster
 buildslaves
 
+[all_hosts:children]
+bots
+web
+
 [local]
 127.0.0.1
 

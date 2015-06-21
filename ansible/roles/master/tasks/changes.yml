@@ -32,6 +32,24 @@
   args:
     creates: /home/changes/gen-pages
 
+- name: changes | Replace wiki.dolphin-emu.org
+  sudo: yes
+  sudo_user: changes
+  replace:
+    dest: "/home/changes/update-wiki"
+    regexp: 'dolphin-emu\.org'
+    replace: "dev"
+    backup: yes
+
+- name: changes | Replace number of revisions to check
+  sudo: yes
+  sudo_user: changes
+  replace:
+    dest: "/home/changes/gen-rev-infos"
+    regexp: '-n 100'
+    replace: "-n {{ changes_revision_count }}"
+    backup: yes
+
 - name: changes | Update configuration
   sudo: yes
   sudo_user: changes

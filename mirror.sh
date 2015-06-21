@@ -15,8 +15,8 @@ GIT_REPOSITORIES="\
     ${DOLPHIN_BASE_URL}/dolphin \
     ${DOLPHIN_BASE_URL}/ext-win-qt \
     ${DOLPHIN_BASE_URL}/fifoci \
-    ${GITHUB_HOME}/sadm \
-    ${GITHUB_HOME}/www \
+    ${DOLPHIN_BASE_URL}/sadm \
+    ${DOLPHIN_BASE_URL}/www
     "
 
 check_mirror_dir() {
@@ -58,7 +58,7 @@ mirror() {
     for gitrepo in ${GIT_REPOSITORIES}; do
         git clone --mirror "${gitrepo}" || true
     done
-    hg clone http://hg.libsdl.org/SDL "${MIRROR_DIR}/SDL"
+    hg clone http://hg.libsdl.org/SDL "${MIRROR_DIR}/SDL" || true
 }
 
 update_clones() {

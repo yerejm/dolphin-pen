@@ -113,3 +113,13 @@
     path: ~/dff
     state: directory
 
+# Preload dff files on to fifoci slave. Although it can download from the fifoci
+# front end, multiple fifoci slave runners on the same machine may end up in
+# contention because they read from the same dff directory.
+- name: fifoci | Copy dff files (needed for tests)
+  sudo: yes
+  sudo_user: fifoci
+  copy:
+    src: dff/
+    dest: ~/dff
+

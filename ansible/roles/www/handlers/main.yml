@@ -1,0 +1,21 @@
+---
+- name: restart nginx
+  service:
+    name: nginx
+    state: restarted
+
+- name: restart supervisor
+  service:
+    name: supervisor
+    state: restarted
+
+- name: restart gunicorn_www supervisor
+  supervisorctl:
+    name: gunicorn_www
+    state: restarted
+
+- name: restart postgresql
+  service:
+    name: postgresql
+    state: restarted
+

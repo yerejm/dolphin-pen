@@ -1,0 +1,4 @@
+---
+- include: www.yml tags=www
+  when: ansible_hostname in groups['web']
+

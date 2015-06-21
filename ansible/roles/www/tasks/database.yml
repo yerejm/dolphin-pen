@@ -28,7 +28,7 @@
     - ::1/128
 
 # Restart has to happen immediately for provisioning since handlers happen at
-# the end.
+# the end. This unfortunately is not result in idempotency.
 - name: database | restart
   service:
     name: postgresql

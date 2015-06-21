@@ -21,6 +21,10 @@ sdl_repository: http://hg.libsdl.org/SDL
 # e.g. https://github.com/dolphin-emu/ext-win-qt
 ext_win_qt_repository: https://github.com/dolphin-emu/ext-win-qt
 
+# Repository location of the dolphin-emu.org web application.
+# e.g. https://github.com/dolphin-emu/www
+www_repository: http://github.com/dolphin-emu/www
+
 # The nginx server names for the web front ends of each service expected by the
 # dolphin build infrastructure.
 buildmaster_server_name: buildbot.dev
@@ -34,8 +38,11 @@ buildmaster_host: 172.118.70.40
 buildmaster_port: 9989
 # Pull request job directory relative to buildmaster home
 buildmaster_pr_jobdir: pr-jobdir
+# Build master notifies www of new build via www's API. This requires
+# authentiation.
+www_downloads_create_key: password
 
 # IRC host
-irc_host: localhost
+irc_host: 172.118.70.46
 central_irc_bot_nick: DolCentralBot
 

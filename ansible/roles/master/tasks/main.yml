@@ -1,12 +1,4 @@
 ---
-- name: install irc server
-  apt:
-    pkg: "{{ item }}"
-    state: present
-  with_items:
-    - charybdis
-  when: ansible_hostname in groups['buildmaster']
-
 - include: master.yml tags=master
   when: ansible_hostname in groups['buildmaster']
 

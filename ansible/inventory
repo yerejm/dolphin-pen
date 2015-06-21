@@ -20,9 +20,13 @@ ububuild
 debbuild
 osxbuild
 dffbuild
+www
 
 [windows]
 winbuild
+
+[web]
+www
 
 [bots:children]
 buildmaster

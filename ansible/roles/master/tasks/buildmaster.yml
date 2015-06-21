@@ -56,10 +56,49 @@
     path: ~/bin
     state: directory
 
+- name: buildbot | Create pull request job directory
+  file:
+    path: "/home/{{ buildbot_username }}/{{ buildmaster_pr_jobdir }}"
+    owner: "{{ buildbot_username }}"
+    state: directory
+
+##
+## SSL & SEND_BUILD
+##
+# Certificate from www is required for send_build
+- name: buildbot | Install www ssl certificate
+  copy:
+    src: tmp/ssl/www.crt
+    dest: /usr/local/share/ca-certificates/www.crt
+    mode: 0444
+  tags:
+    - ssl
+
+- name: buildbot | Update ca-certificates
+  command: update-ca-certificates
+  args:
+    creates: /etc/ssl/certs/www.pem
+  tags:
+    - ssl
+
 - name: buildbot | Install send_build.py
   command: "cp ~/sadm/buildbot/send_build.py /home/{{ buildbot_username }}/bin/send_build.py"
   args:
     creates: "/home/{{ buildbot_username }}/bin/send_build.py"
+
+- name: buildbot | Set www/downloads key
+  replace:
+    dest: "/home/{{ buildbot_username }}/bin/send_build.py"
+    regexp: 'password'
+    replace: "{{ www_downloads_create_key }}"
+    backup: yes
+
+- name: buildbot | Replace dolphin-emu.org
+  replace:
+    dest: "/home/{{ buildbot_username }}/bin/send_build.py"
+    regexp: 'dolphin-emu\.org'
+    replace: "www.dev"
+    backup: yes
 
 - name: buildbot | Set send_build.py attributes
   file:
@@ -68,12 +107,6 @@
     group: "{{ buildbot_username }}"
     mode: 0755
     state: file
-
-- name: buildbot | Create pull request job directory
-  file:
-    path: "/home/{{ buildbot_username }}/{{ buildmaster_pr_jobdir }}"
-    owner: "{{ buildbot_username }}"
-    state: directory
 
 ##
 ## POSTGRESQL

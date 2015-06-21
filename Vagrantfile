@@ -108,6 +108,12 @@ Vagrant.configure("2") do |config|
       :provisioner => [:linux, :ram2g, :enable_3d],
       :box => 'ubuntu1410',
     },
+    # www
+    :www => {
+      :ip => '172.118.70.46',
+      :provisioner => [:linux, :ram1g],
+      :box => 'ubuntu1410',
+    },
   }
 
   servers.each do |server_name, server_details|

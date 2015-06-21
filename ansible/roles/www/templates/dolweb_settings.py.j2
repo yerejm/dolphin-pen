@@ -1,0 +1,43 @@
+# zinnia bug with static file creation requires Debug to be true.
+DEBUG = True
+TEMPLATE_DEBUG = False
+SERVE_MEDIA = False
+
+DOWNLOADS_CREATE_KEY = '{{ www_downloads_create_key }}'
+
+ADMINS = (
+  ('dolphin', 'dolphin'),
+)
+
+ALLOWED_HOSTS = ['.dev']
+
+DATABASES = {
+  'default': {
+    'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    'NAME': 'www',
+    'USER': 'www',
+    'PASSWORD': 'www'
+  }
+}
+
+WIKI_DB_NAME = 'default'
+
+TIME_ZONE = None
+
+USE_I18N = False
+
+MEDIA_URL = '//www.dev/user/'
+STATIC_URL = '//www.dev/static/'
+
+FORUM_URL = "https://forums.dev/"
+WIKI_URL = "https://wiki.dev/"
+
+DEFAULT_HOST = "dev"
+
+FB_LIKE_PAGE = ''
+GPLUS_LIKE_PAGE = ''
+
+MGMT_AUTHORIZED_USERS = [
+  ('dolphin', 'dolphin')
+]
+

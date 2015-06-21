@@ -13,21 +13,9 @@
 ## NGINX
 ##
 - name: nginx | Install nginx.conf
-  shell: cp ~/sadm/nginx/nginx.conf /etc/nginx/nginx.conf
-
-- name: nginx | Specify nginx pid location
-  lineinfile:
+  copy:
+    src: nginx.conf
     dest: /etc/nginx/nginx.conf
-    state: present
-    insertbefore: BOF
-    line: "pid /run/nginx.pid;"
-
-- name: nginx | Change nginx user
-  lineinfile:
-    dest: /etc/nginx/nginx.conf
-    state: present
-    regexp: "^user http;"
-    line: "user www-data;"
 
 - name: nginx | Link nginx log location
   file:
@@ -47,16 +35,15 @@
     state: directory
     recurse: yes
 
-# The name of the certificate and key comes from sadm/nginx/ngix.conf.
 - name: nginx | Create Self-Signed SSL certificate
-  command: "openssl req -newkey rsa:2048 -new -nodes -x509 -days 3650 -keyout dolphin-emu.key -out dolphin-emu.pem -subj '/CN=*.dev'"
+  command: "openssl req -newkey rsa:2048 -new -nodes -x509 -days 3650 -keyout {{ ansible_hostname }}.key -out {{ ansible_hostname }}.pem -subj '/CN=*.dev'"
   args:
     chdir: /etc/nginx/ssl
-    creates: "/etc/nginx/ssl/dolphin-emu.pem"
+    creates: "/etc/nginx/ssl/{{ ansible_hostname }}.pem"
 
-- name: nginx | Get ssl certificate for slave deployment
+- name: nginx | Get ssl certificate for master deployment
   fetch:
-    src: "/etc/nginx/ssl/dolphin-emu.pem"
+    src: "/etc/nginx/ssl/{{ ansible_hostname }}.pem"
     dest: "tmp/ssl/{{ ansible_hostname }}.crt"
     flat: yes
     fail_on_missing: yes

@@ -4,8 +4,8 @@
 ##
 - name: fifoci | Install frontend ssl certificate
   copy:
-    src: tmp/ssl/
-    dest: /usr/local/share/ca-certificates
+    src: tmp/ssl/master.crt
+    dest: /usr/local/share/ca-certificates/master.crt
     mode: 0444
   tags:
     - ssl
@@ -13,7 +13,7 @@
 - name: fifoci | Update ca-certificates
   command: update-ca-certificates
   args:
-    creates: /etc/ssl/certs/dolphin-emu.pem
+    creates: /etc/ssl/certs/master.pem
   tags:
     - ssl
 

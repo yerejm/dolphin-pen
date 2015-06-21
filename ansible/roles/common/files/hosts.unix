@@ -6,6 +6,7 @@
 172.118.70.43  winbuild
 172.118.70.44  osxbuild
 172.118.70.45  dffbuild
+172.118.70.46  www www.dev
 
 #
 # Don't go outside the local network!

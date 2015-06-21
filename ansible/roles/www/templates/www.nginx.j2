@@ -1,0 +1,25 @@
+server {
+    listen 80;
+    server_name www.dev;
+    return 301 https://$server_name$request_uri;
+}
+server {
+    listen 443 ssl;
+    server_name www.dev;
+
+    access_log logs/www.access.log;
+    error_log logs/www.error.log;
+
+    location /static {
+        alias /home/www/www/media/static;
+    }
+    location /user {
+        alias /home/www/www/media/user;
+    }
+
+    location / {
+        proxy_set_header Host $host;
+        proxy_pass http://localhost:8080;
+    }
+}
+

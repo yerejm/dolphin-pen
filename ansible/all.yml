@@ -1,8 +1,9 @@
 ---
-- hosts: bots
+- hosts: all
   user: root
   roles:
     - common
+    - www
     - master
     - slave
   vars_files:

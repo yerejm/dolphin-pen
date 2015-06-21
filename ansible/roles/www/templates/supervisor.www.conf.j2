@@ -1,0 +1,12 @@
+[group:www]
+programs=gunicorn_www
+
+[program:gunicorn_www]
+command=/home/www/www/gunicorn_start
+directory=/home/www/www
+user=www
+autostart=true
+autorestart=true
+redirect_stderr=true
+environment=LANG="en_US.UTF-8",LC_ALL="en_US.UTF-8",LC_LANG="en_US.UTF-8"
+

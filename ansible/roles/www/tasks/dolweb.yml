@@ -1,0 +1,188 @@
+---
+##
+## USER
+##
+- name: www | Add www user
+  user:
+    name: www
+    home: /home/www
+    shell: /bin/bash
+    state: present
+
+- name: www | Add public key to login as www
+  authorized_key:
+    user: www
+    key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+- name: www | Add github to known_hosts
+  sudo: yes
+  sudo_user: www
+  lineinfile:
+    dest: ~/.ssh/known_hosts
+    create: yes
+    state: present
+    line: "{{ lookup('pipe', 'ssh-keyscan -t rsa github.com') }}"
+    regexp: "^github\\.com"
+
+##
+## CLONE
+##
+- name: www | Clone www
+  sudo: yes
+  sudo_user: www
+  git:
+    repo: "{{ www_repository }}"
+    dest: www
+    accept_hostkey: "{{ 'yes' if testing is defined else 'no' }}"
+    force: yes
+
+##
+## APT DEPENDENCIES
+##
+- name: www | Install www dependencies
+  apt:
+    pkg: "{{ item }}"
+    state: present
+  with_items:
+    - python
+    - python-dev
+    - python-setuptools # for easy_install
+    - virtualenv
+    - supervisor
+    - libmysqlclient-dev # dolweb's requirements need it although it is not used
+
+##
+## PIP DEPENDENCIES
+##
+# Ubuntu's pip package is too old
+- name: Install pip via easy_install
+  easy_install:
+    name: pip
+#   state: latest
+
+- name: www | Install www dependencies (pip requirements)
+  sudo: yes
+  sudo_user: www
+  pip:
+    virtualenv: /home/www
+    requirements: /home/www/www/requirements.txt
+    state: present
+
+- name: www | Install python packages (pip)
+  sudo: yes
+  sudo_user: www
+  pip:
+    virtualenv: /home/www
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - gunicorn
+    - requests
+    - psycopg2
+
+##
+## POSTGRESQL
+##
+# Hack to get around need to be able to insert or update into www database
+# This is not very idempotent
+- name: www | Delete www database
+  sudo: yes
+  sudo_user: postgres
+  postgresql_db:
+    name: www
+    state: absent
+
+- name: www | create www user
+  sudo: yes
+  sudo_user: postgres
+  postgresql_user:
+    name: www
+    password: www
+
+- name: www | Create www database
+  sudo: yes
+  sudo_user: postgres
+  postgresql_db:
+    owner: www
+    name: www
+    state: present
+
+- name: www | Grant database access
+  sudo: yes
+  sudo_user: postgres
+  postgresql_privs:
+    db: www
+    privs: ALL
+    type: database
+    role: www
+
+##
+## DJANGO
+##
+- name: www | Install settings
+  sudo: yes
+  sudo_user: www
+  template:
+    src: dolweb_settings.py.j2
+    dest: ~/www/dolweb/local_settings.py
+    mode: 0444
+
+- name: www | Install dolweb set up
+  sudo: yes
+  sudo_user: www
+  copy:
+    src: dolweb_setup.sh
+    dest: ~/www/dolweb_setup
+    mode: 0544
+
+- name: Create media area
+  sudo: yes
+  sudo_user: www
+  file:
+    path: ~/www/media/{{ item }}
+    state: directory
+  with_items:
+    - user
+    - static
+
+- name: www | Prepare dolweb
+  sudo: yes
+  sudo_user: www
+  command: "~/www/dolweb_setup"
+  args:
+    chdir: ~/www
+    creates: "~/www/static/index.html"
+
+##
+## WEB
+##
+- name: www | Install gunicorn starter
+  sudo: yes
+  sudo_user: www
+  copy:
+    src: gunicorn_start.sh
+    dest: ~/www/gunicorn_start
+    mode: 0544
+
+- name: www | Install gunicorn configuration file
+  sudo: yes
+  sudo_user: www
+  template:
+    src: gunicorn.conf.py.j2
+    dest: ~/www/gunicorn.conf.py
+    mode: 0444
+
+- name: www | Install the supervisor configuration file
+  template:
+    src: supervisor.www.conf.j2
+    dest: /etc/supervisor/conf.d/www.conf
+    mode: 0444
+  notify: restart supervisor
+
+- name: www | Enable nginx proxy
+  template:
+    src: www.nginx.j2
+    dest: /etc/nginx/services/www.nginx
+    mode: 0444
+  notify: restart nginx
+

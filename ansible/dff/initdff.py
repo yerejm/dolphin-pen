@@ -1,11 +1,16 @@
 import json
 import requests
 import os
+import os.path
 
 dffs = requests.get('https://fifoci.dolphin-emu.org/dff').json()
 for dff in dffs:
-    url = 'https://fifoci.dolphin-emu.org/' + dff['url']
-    os.system('wget -c %s' % (url))
+    filename = dff['url'].split('/')[-1]
+    if os.path.isfile(filename):
+        print("%s already exists. Skipping..." % (filename))
+    else:
+        url = 'https://fifoci.dolphin-emu.org' + dff['url']
+        os.system('wget -c %s' % (url))
 
 sql = open('dff.sql', 'w')
 sql.write("begin;\n")

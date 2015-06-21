@@ -34,6 +34,19 @@
   args:
     creates: /home/central/central.py
 
+- name: central | Disable modules
+  sudo: yes
+  sudo_user: central
+  lineinfile:
+    dest: "/home/central/{{ item }}.py"
+    state: present
+    insertafter: '^def\s*start\(\)'
+    line: '    return'
+    backup: yes
+  with_items:
+    - gcodepoller
+    - github
+
 ##
 ## PIP DEPENDENCIES
 ##

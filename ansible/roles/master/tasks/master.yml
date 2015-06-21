@@ -25,3 +25,6 @@
 - include: fifoci.yml tags=fifoci
 - include: changes.yml tags=changes
 
+# Force handlers so the web sites are accessible
+- meta: flush_handlers
+

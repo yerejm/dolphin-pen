@@ -1,12 +1,7 @@
 ---
-- name: restart nginx
+- name: restart postgresql
   service:
-    name: nginx
-    state: restarted
-
-- name: restart supervisor
-  service:
-    name: supervisor
+    name: postgresql
     state: restarted
 
 - name: restart fifoci supervisor
@@ -19,8 +14,20 @@
     name: central
     state: restarted
 
-- name: restart postgresql
+- name: restart supervisor
   service:
-    name: postgresql
+    name: supervisor
+    state: restarted
+
+- name: restart buildbot
+  service:
+    name: buildmaster
+    state: restarted
+    enabled: yes
+    pattern: "--python=buildbot.tac"
+
+- name: restart nginx
+  service:
+    name: nginx
     state: restarted
 

@@ -1,0 +1,20 @@
+---
+# no support for handlers in windows yet
+# - name: restart windows buildbot
+#   win_service:
+#     name: BuildBot
+#     start_mode: auto
+#     state: restarted
+#
+- name: restart debian buildbot
+  service:
+    name: buildslave
+    enabled: yes
+    pattern: /usr/bin/buildslave
+    state: restarted
+
+# Ignore errors in case the master is not yet started
+- name: restart darwin buildbot
+  shell: "nohup nice /usr/local/bin/buildslave restart"
+  ignore_errors: True
+

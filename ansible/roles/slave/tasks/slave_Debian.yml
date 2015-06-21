@@ -149,11 +149,5 @@
     dest: /etc/default/buildslave
     backup: yes
     mode: 0644
-
-- name: Start buildslave
-  service:
-    name: buildslave
-    enabled: yes
-    pattern: /usr/bin/buildslave
-    state: restarted
+  notify: restart debian buildbot
 

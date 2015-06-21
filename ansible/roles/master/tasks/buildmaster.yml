@@ -225,13 +225,7 @@
     dest: /etc/default/buildmaster
     backup: yes
     mode: 0444
-
-- name: buildbot | Start buildmaster
-  service:
-    name: buildmaster
-    state: restarted
-    enabled: yes
-    pattern: "--python=buildbot.tac"
+  notify: restart buildbot
 
 ##
 ## WEB

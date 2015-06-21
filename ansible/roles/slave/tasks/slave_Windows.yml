@@ -94,28 +94,6 @@
   raw: "copy c:\\vagrant\\ansible\\roles\\slave\\files\\storesymbols.bat c:\\buildbot\\storesymbols.bat"
   when: not buildbot_area.stat.exists
 
-- name: Create build slave
-  raw: "buildslave create-slave c:\\{{ buildbot_username }} {{ buildmaster_host }}:{{ buildmaster_port }} {{ slave_username }} {{ slave_password }}"
-
-# Adding the service does not grant the logon privilege. This must be done
-# explicitly.
-- name: Install logon as service privilege utility
-  raw: "copy c:\\vagrant\\ansible\\roles\\slave\\files\\lsa_add_logon_as_svc.ps1 c:\\tmp"
-
-- name: Allow buildbot service logon
-  raw: "powershell c:\\tmp\\lsa_add_logon_as_svc.ps1 {{ ansible_ssh_user }}"
-
-# The user should be the unprivileged user but since the user being used is the
-# "root" user, the logon as details are for that user.
-- name: Create buildbot service
-  raw: "c:\\python27\\python.exe c:\\python27\\scripts\\buildbot_service.py --user .\\{{ ansible_ssh_user }} --password {{ ansible_ssh_pass }} --startup auto install"
-
-- name: Set buildbot service registry entries (1)
-  raw: "powershell New-Item -path Registry::HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\Buildbot\\Parameters"
-
-- name: Set buildbot service registry entries (2)
-  raw: "powershell New-ItemProperty -path Registry::HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\Buildbot\\Parameters -Name directories -PropertyType String -Value C:\\{{ buildbot_username }}"
-
 ##
 ## SYMBOLSTORE
 ##
@@ -154,9 +132,35 @@
 ##
 ## BUILDBOT
 ##
+- name: Create build slave
+  raw: "buildslave create-slave c:\\{{ buildbot_username }} {{ buildmaster_host }}:{{ buildmaster_port }} {{ slave_username }} {{ slave_password }}"
+
+# Adding the service does not grant the logon privilege. This must be done
+# explicitly.
+- name: Install logon as service privilege utility
+  raw: "copy c:\\vagrant\\ansible\\roles\\slave\\files\\lsa_add_logon_as_svc.ps1 c:\\tmp"
+
+- name: Allow buildbot service logon
+  raw: "powershell c:\\tmp\\lsa_add_logon_as_svc.ps1 {{ ansible_ssh_user }}"
+
+# The user should be the unprivileged user but since the user being used is the
+# "root" user, the logon as details are for that user.
+- name: Create buildbot service
+  raw: "c:\\python27\\python.exe c:\\python27\\scripts\\buildbot_service.py --user .\\{{ ansible_ssh_user }} --password {{ ansible_ssh_pass }} --startup auto install"
+  notify: restart windows buildbot
+
+- name: Set buildbot service registry entries (1)
+  raw: "powershell New-Item -path Registry::HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\Buildbot\\Parameters"
+
+- name: Set buildbot service registry entries (2)
+  raw: "powershell New-ItemProperty -path Registry::HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\Buildbot\\Parameters -Name directories -PropertyType String -Value C:\\{{ buildbot_username }}"
+
+##
+## BUILDBOT
+##
 - name: Start build slave
   win_service:
     name: BuildBot
     start_mode: auto
-    state: started
+    state: restarted
 

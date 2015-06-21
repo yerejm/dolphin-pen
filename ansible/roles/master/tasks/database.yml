@@ -26,11 +26,9 @@
   with_items:
     - 127.0.0.1/32
     - ::1/128
+  notify: restart postgresql
 
-# Restart has to happen immediately for provisioning since handlers happen at
-# the end.
-- name: database | restart
-  service:
-    name: postgresql
-    state: restarted
+# Restart has to happen immediately for further provisioning or else handlers
+# happen at the end.
+- meta: flush_handlers
 

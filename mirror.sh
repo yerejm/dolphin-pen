@@ -44,12 +44,6 @@ start_daemons() {
         --pid-file="${GIT_PID}" \
         --export-all
     echo "listening on $(hostname):9418"
-
-    echo "HG: "
-    hg serve --cwd "${MIRROR_DIR}/SDL" \
-        --daemon \
-        --pid-file="${HG_PID}" \
-        --quiet
 }
 
 mirror() {
@@ -58,7 +52,6 @@ mirror() {
     for gitrepo in ${GIT_REPOSITORIES}; do
         git clone --mirror "${gitrepo}" || true
     done
-    hg clone http://hg.libsdl.org/SDL "${MIRROR_DIR}/SDL" || true
 }
 
 update_clones() {
@@ -67,10 +60,6 @@ update_clones() {
         cd "${MIRROR_DIR}/$(basename ${gitrepo}).git"
         git fetch -p origin
     done
-
-    echo "Updating SDL"
-    cd "${MIRROR_DIR}/SDL"
-    hg pull && hg update
 
     cd "${BASE}"
 }

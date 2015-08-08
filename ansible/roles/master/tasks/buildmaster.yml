@@ -197,6 +197,7 @@
   copy:
     content: "{{ buildslaves_passwords | to_nice_json }}"
     dest: ~/buildslaves-passwords.json
+  notify: restart buildbot
 
 - name: buildbot | Build users password file
   sudo: yes
@@ -204,6 +205,7 @@
   copy:
     content: "{{ buildmaster_users_passwords | to_nice_json }}"
     dest: ~/users-passwords.json
+  notify: restart buildbot
 
 - name: buildbot | Build changesource password file
   sudo: yes
@@ -211,6 +213,7 @@
   copy:
     content: "{{ changesource_password }}"
     dest: ~/changesource-password.txt
+  notify: restart buildbot
 
 - name: buildbot | Build webauth password file
   sudo: yes
@@ -218,6 +221,7 @@
   copy:
     content: "{{ webauth_password }}"
     dest: ~/webauth-password.txt
+  notify: restart buildbot
 
 - name: buildbot | Enable buildmaster init.d
   template:

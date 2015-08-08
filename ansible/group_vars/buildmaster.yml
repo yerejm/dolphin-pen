@@ -21,14 +21,15 @@ buildmaster_users_passwords:
 # These users are hardcoded into the build master configuration.
 # The passwords can change.
 buildslaves_passwords:
-  ubuntu: ubuntu
-  debian: debian
-  osx: osx
   windows: windows
+  osx: osx
+  debian: debian
+  ubuntu: ubuntu
   arch64: arch64
-  odroid: odroid
+  freebsd: freebsd
   ec2-ubu64-nv: ec2-ubu64-nv
   ec2-win64-nv: ec2-win64-nv
+  ec2-ubu64-indexer: ec2-ubu64-indexer
 
 # Buildbot user name under which the build master is created.
 buildbot_username: buildbot

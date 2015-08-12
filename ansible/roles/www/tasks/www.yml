@@ -1,11 +1,5 @@
 ---
-- name: install irc server
-  apt:
-    pkg: "{{ item }}"
-    state: present
-  with_items:
-    - charybdis
-
+- include: ircd.yml tags=ircd
 - include: database.yml tags=database
 - include: nginx.yml tags=nginx
 - include: dolweb.yml tags=dolweb

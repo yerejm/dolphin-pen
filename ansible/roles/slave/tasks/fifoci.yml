@@ -1,23 +1,5 @@
 ---
 ##
-## SSL
-##
-- name: fifoci | Install frontend ssl certificate
-  copy:
-    src: tmp/ssl/master.crt
-    dest: /usr/local/share/ca-certificates/master.crt
-    mode: 0444
-  tags:
-    - ssl
-
-- name: fifoci | Update ca-certificates
-  command: update-ca-certificates
-  args:
-    creates: /etc/ssl/certs/master.pem
-  tags:
-    - ssl
-
-##
 ## USER
 ##
 - name: fifoci | Add fifoci user
@@ -56,10 +38,6 @@
 ##
 ## APT DEPENDENCIES
 ##
-- name: fifoci | Add ffmpeg PPA
-  apt_repository:
-    repo: 'ppa:kirillshkrogalev/ffmpeg-next'
-
 - name: fifoci | Install fifoci runner dependencies
   apt:
     pkg: "{{ item }}"
@@ -79,6 +57,29 @@
     executable: pip3
     requirements: /home/fifoci/fifoci/requirements.txt
     state: present
+
+##
+## SSL
+##
+- name: fifoci | Stage frontend ssl certificate
+  copy:
+    src: tmp/ssl/dolphin-emu.crt
+    dest: ~/dolphin-emu.crt
+    mode: 0444
+  tags:
+    - ssl
+
+- name: fifoci | Backup python requests ca-certificates
+  command: cp /usr/local/lib/python3.4/dist-packages/requests/cacert.pem ~/cacert.pem.orig
+  args:
+    creates: ~/cacert.pem.orig
+  tags:
+    - ssl
+
+- name: fifoci | Add fifoci.dev to python requests ca-certificates
+  shell: cat ~/cacert.pem.orig ~/dolphin-emu.crt > /usr/local/lib/python3.4/dist-packages/requests/cacert.pem
+  tags:
+    - ssl
 
 ##
 ## DEPLOY

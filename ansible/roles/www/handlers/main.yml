@@ -19,3 +19,8 @@
     name: nginx
     state: restarted
 
+- name: restart ircd
+  service:
+    name: inspircd
+    state: restarted
+

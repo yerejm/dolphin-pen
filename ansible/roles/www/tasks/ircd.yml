@@ -1,0 +1,14 @@
+---
+- name: ircd | install irc server
+  apt:
+    pkg: "{{ item }}"
+    state: present
+  with_items:
+    - inspircd
+
+- name: ircd | Install ircd configuration
+  copy:
+    src: inspircd.conf
+    dest: /etc/inspircd/inspircd.conf
+  notify: restart ircd
+

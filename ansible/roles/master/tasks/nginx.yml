@@ -57,7 +57,7 @@
 - name: nginx | Get ssl certificate for slave deployment
   fetch:
     src: "/etc/nginx/ssl/dolphin-emu.pem"
-    dest: "tmp/ssl/{{ ansible_hostname }}.crt"
+    dest: "tmp/ssl/dolphin-emu.crt"
     flat: yes
     fail_on_missing: yes
     validate_checksum: yes

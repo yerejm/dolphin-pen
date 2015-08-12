@@ -17,5 +17,5 @@ debian_release: jessie
 
 ubuntu_mirror: http://us.archive.ubuntu.com/ubuntu/
 ubuntu_security_mirror: http://security.ubuntu.com/ubuntu
-ubuntu_release: utopic
+ubuntu_release: vivid
 

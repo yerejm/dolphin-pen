@@ -74,7 +74,7 @@ Vagrant.configure("2") do |config|
     :master => {
       :ip => '172.118.70.40',
       :provisioner => [:linux, :ram1g],
-      :box => 'ubuntu1410',
+      :box => 'ubuntu1504',
       :primary => true,
       :ports => { 8010 => 8010, 8443 => 443, 8888 => 80 },
     },
@@ -82,7 +82,7 @@ Vagrant.configure("2") do |config|
     :ububuild => {
       :ip => '172.118.70.41',
       :provisioner => [:linux, :ram2g],
-      :box => 'ubuntu1410',
+      :box => 'ubuntu1504',
     },
     # debian build slave
     :debbuild => {
@@ -106,13 +106,13 @@ Vagrant.configure("2") do |config|
     :dffbuild => {
       :ip => '172.118.70.45',
       :provisioner => [:linux, :ram2g, :enable_3d],
-      :box => 'ubuntu1410',
+      :box => 'ubuntu1504',
     },
     # www
     :www => {
       :ip => '172.118.70.46',
       :provisioner => [:linux, :ram1g],
-      :box => 'ubuntu1410',
+      :box => 'ubuntu1504',
     },
   }
 

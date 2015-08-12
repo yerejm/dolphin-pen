@@ -50,16 +50,11 @@
     - virtualenv
     - supervisor
     - libmysqlclient-dev # dolweb's requirements need it although it is not used
+    - python-pip
 
 ##
 ## PIP DEPENDENCIES
 ##
-# Ubuntu's pip package is too old
-- name: Install pip via easy_install
-  easy_install:
-    name: pip
-#   state: latest
-
 - name: www | Install www dependencies (pip requirements)
   sudo: yes
   sudo_user: www

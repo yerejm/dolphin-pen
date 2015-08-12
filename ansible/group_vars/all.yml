@@ -11,12 +11,6 @@ sadm_repository: https://github.com/dolphin-emu/sadm
 # e.g. https://github.com/dolphin-emu/fifoci
 fifoci_repository: https://github.com/dolphin-emu/fifoci
 
-# Repository location of SDL. Current SDL packages available to debian-based
-# distributions have a bug that causes dolphin to fail. For these systems, SDL
-# is installed from source.
-# e.g. http://hg.libsdl.org/SDL
-sdl_repository: http://hg.libsdl.org/SDL
-
 # Repository location of Qt as used by dolphin.
 # e.g. https://github.com/dolphin-emu/ext-win-qt
 ext_win_qt_repository: https://github.com/dolphin-emu/ext-win-qt

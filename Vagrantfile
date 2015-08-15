@@ -72,45 +72,44 @@ Vagrant.configure("2") do |config|
   servers = {
     # master
     :master => {
-      :ip => '172.118.70.40',
+      :ip => '172.30.70.40',
       :provisioner => [:linux, :ram1g],
       :box => 'ubuntu1504',
       :primary => true,
-      :ports => { 8010 => 8010, 8443 => 443, 8888 => 80 },
     },
     # ubuntu build slave
     :ububuild => {
-      :ip => '172.118.70.41',
+      :ip => '172.30.70.41',
       :provisioner => [:linux, :ram2g],
       :box => 'ubuntu1504',
     },
     # debian build slave
     :debbuild => {
-      :ip => '172.118.70.42',
+      :ip => '172.30.70.42',
       :provisioner => [:linux, :ram2g],
       :box => 'debian81',
     },
     # windows build slave
     :winbuild => {
-      :ip => '172.118.70.43',
+      :ip => '172.30.70.43',
       :provisioner => [:windows, :ram2g, :enable_3d],
       :box => 'eval-win81x64-enterprise'
     },
     # osx build slave
     :osxbuild  => {
-      :ip => '172.118.70.44',
+      :ip => '172.30.70.44',
       :provisioner => [:osx, :ram2g, :enable_3d],
       :box => 'osx1010'
     },
     # fifoci build slave
     :dffbuild => {
-      :ip => '172.118.70.45',
+      :ip => '172.30.70.45',
       :provisioner => [:linux, :ram2g, :enable_3d],
       :box => 'ubuntu1504',
     },
     # www
     :www => {
-      :ip => '172.118.70.46',
+      :ip => '172.30.70.46',
       :provisioner => [:linux, :ram1g],
       :box => 'ubuntu1504',
     },

@@ -1,12 +1,12 @@
 # The local network
-172.118.70.40 buildbot.dev central.dev changes.dev dl.dev fifoci.dev
-172.118.70.40  master
-172.118.70.41  ububuild
-172.118.70.42  debbuild
-172.118.70.43  winbuild
-172.118.70.44  osxbuild
-172.118.70.45  dffbuild
-172.118.70.46  www www.dev
+172.30.70.40 buildbot.dev central.dev changes.dev dl.dev fifoci.dev
+172.30.70.40  master
+172.30.70.41  ububuild
+172.30.70.42  debbuild
+172.30.70.43  winbuild
+172.30.70.44  osxbuild
+172.30.70.45  dffbuild
+172.30.70.46  www www.dev
 
 #
 # Don't go outside the local network!

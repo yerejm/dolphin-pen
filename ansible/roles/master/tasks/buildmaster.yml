@@ -66,11 +66,17 @@
 ## SSL & SEND_BUILD
 ##
 # Certificate from www is required for send_build
+# If www has not been provisioned, keep going (i.e. defer error to runtime).
+- name: buildbot | Check for www ssl certificate
+  local_action: stat path=tmp/ssl/www.crt
+  register: www_crt
+
 - name: buildbot | Install www ssl certificate
   copy:
     src: tmp/ssl/www.crt
     dest: /usr/local/share/ca-certificates/www.crt
     mode: 0444
+  when: www_crt.stat.exists
   tags:
     - ssl
 

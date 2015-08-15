@@ -1,0 +1,54 @@
+#!/bin/sh
+#
+# PROVIDE: buildslave
+# REQUIRE: NETWORKING
+# REQUIRE: DAEMON
+# REQUIRE: LOGIN
+# KEYWORD: shutdown
+#
+# Add the following lines to /etc/rc.conf to enable buildslave:
+#
+# buildslave_enable="YES"
+#
+
+. /etc/rc.subr
+
+name=buildslave
+rcvar=buildslave_enable
+
+load_rc_config $name
+
+: ${buildslave_enable="NO"}
+: ${buildslave_user="{{ buildbot_username }}"}
+: ${buildslave_directory="/home/{{ buildbot_username }}"}
+
+command_interpreter="/usr/local/bin/python2.7"
+command="/usr/local/bin/${name}"
+command_args="${buildslave_directory}"
+pidfile="${buildslave_directory}/twistd.pid"
+
+buildslave_cmd() {
+    /usr/bin/su "${buildslave_user}" -c "${command} ${1} ${command_args}"
+}
+buildslave_start() {
+    if [ -z "$(check_pidfile "${pidfile}" "${command}" "${command_interpreter}")" ]; then
+        buildslave_cmd "start"
+    fi
+}
+buildslave_stop() {
+    if [ -n "$(check_pidfile "${pidfile}" "${command}" "${command_interpreter}")" ]; then
+        buildslave_cmd "stop"
+        rm -f "${pidfile}"
+    fi
+}
+buildslave_restart() {
+    buildslave_cmd "restart"
+}
+
+start_cmd="buildslave_start"
+stop_cmd="buildslave_stop"
+restart_cmd="buildslave_restart"
+
+PATH="${PATH}:/usr/local/bin"
+run_rc_command "$1"
+

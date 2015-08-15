@@ -1,4 +1,4 @@
-# mm
+# dolphin-pen
 
 ## What?
 
@@ -15,6 +15,7 @@ project's [build infrastructure](https://dolphin-emu.org/blog/2015/01/25/making-
   * Debian 8.1
   * OS X 10.10
   * Windows 8.1
+  * FreeBSD 10.2
 * The host has created ssh keys.
 * Python 3 has been installed.
 
@@ -53,7 +54,7 @@ To boot only the master server:
 
 To boot the master and www servers:
 
-    boot.sh master,www
+    boot.sh master www
 
 ### provision.sh
 
@@ -100,6 +101,7 @@ The virtual machines created are:
 * master - Buildbot master, central server, fifoci front end
 * ububuild - Ubuntu buildbot slave
 * debbuild - Debian buildbot slave
+* bsdbuild - FreeBSD buildbot slave
 * osxbuild - OS X buildbot slave
 * winbuild - Windows buildbot slave
 * dffbuild - fifoci buildbot slave
@@ -110,7 +112,7 @@ build process.
 * Changes are detected by polling the dolphin repository and submitted to the
   buildbot master (master).
 * Builds are dispatched to the build slaves (master -> ububuild, debbuild,
-  osxbuild, winbuild).
+  osxbuild, winbuild, bsdbuild).
 * Successful builds are packaged on the build slave and uploaded to the build
   master (slaves -> master).
 * Successful builds update the web server with links to the builds (master ->

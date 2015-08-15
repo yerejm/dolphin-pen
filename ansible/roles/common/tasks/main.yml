@@ -2,6 +2,9 @@
 - include: common_Debian.yml tags=common,debian
   when: ansible_os_family == 'Debian'
 
+- include: common_FreeBSD.yml tags=common,freebsd
+  when: ansible_os_family == 'FreeBSD'
+
 - include: common_Darwin.yml tags=common,darwin
   when: ansible_os_family == 'Darwin'
 

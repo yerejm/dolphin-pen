@@ -15,6 +15,14 @@
     pattern: /usr/bin/buildslave
   when: ansible_system == 'Linux' and ansible_hostname not in groups['buildmaster']
 
+- name: FreeBSD buildslave service state change
+  service:
+    name: buildslave
+    state: "{{ buildbot_state }}{{ 'ped' if buildbot_state == 'stop' else 'ed' }}"
+    enabled: yes
+    pattern: /usr/local/bin/buildslave
+  when: ansible_system == 'FreeBSD' and ansible_hostname not in groups['buildmaster']
+
 - name: OSX buildslave service state change
   shell: "nohup nice /usr/local/bin/buildslave {{ buildbot_state }}"
   when: ansible_system == 'Darwin'

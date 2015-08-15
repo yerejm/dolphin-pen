@@ -6,6 +6,7 @@
 # not the exit code. Unfortunately, the exit code from the process is used by
 # service module instead. Of note is that ignoring the error was not required in
 # before the introduction of systemd.
+# For FreeBSD, the same applies. Exit code used instead of the pattern.
 # For Windows, there is no support for handlers.
 ---
 # no support for handlers in windows yet
@@ -26,5 +27,13 @@
 # Ignore errors in case the master is not yet started
 - name: restart darwin buildbot
   shell: "nohup nice /usr/local/bin/buildslave restart"
+  ignore_errors: yes
+
+- name: restart freebsd buildbot
+  service:
+    name: buildslave
+    enabled: yes
+    pattern: /usr/local/bin/buildslave
+    state: restarted
   ignore_errors: yes
 

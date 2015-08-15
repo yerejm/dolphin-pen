@@ -13,6 +13,7 @@ debbuild
 winbuild
 osxbuild
 dffbuild
+bsdbuild
 
 [unix]
 master
@@ -20,6 +21,7 @@ ububuild
 debbuild
 osxbuild
 dffbuild
+bsdbuild
 www
 
 [windows]

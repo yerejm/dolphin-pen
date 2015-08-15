@@ -3,46 +3,26 @@
   local_action: wait_for port=22 host="{{ inventory_hostname }}" search_regex=OpenSSH
 
 ##
-## APT
+## PKG
 ##
-- name: Set up mirror
-  template:
-    src: etc_apt_sources.list.{{ ansible_distribution }}.j2
-    dest: /etc/apt/sources.list
-    backup: yes
-
-- name: Update apt cache
-  apt:
-    update_cache: yes
-
-- name: Upgrade all safe packages
-  apt:
-    upgrade: safe
-
 - name: Install base packages
-  apt:
-    pkg: "{{ item }}"
+  pkgng:
+    name: "{{ item }}"
     state: present
   with_items:
-    - apt-transport-https
     - sudo
     - vim
     - git
     - ntp
-
-- name: Install unattended upgrades
-  apt:
-    pkg: unattended-upgrades
-    state: present
 
 ##
 ## NTP
 ##
 - name: Configure ntp
   template:
-    src: ntp.conf.Debian.j2
+    src: ntp.conf.FreeBSD.j2
     dest: /etc/ntp.conf
-  notify: restart ntp
+  notify: restart ntpd
 
 ##
 ## SECURITY

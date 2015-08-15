@@ -1,11 +1,21 @@
 ---
+# debian/ubuntu
 - name: restart ntp
   service:
     name: ntp
     state: restarted
+    enabled: yes
+
+# freebsd
+- name: restart ntpd
+  service:
+    name: ntpd
+    state: restarted
+    enabled: yes
 
 - name: restart ssh
   service:
     name: ssh
     state: restarted
+    enabled: yes
 

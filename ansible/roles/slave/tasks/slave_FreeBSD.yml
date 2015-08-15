@@ -1,0 +1,87 @@
+---
+##
+## USER
+##
+- name: Add buildbot user
+  user:
+    name: "{{ buildbot_username }}"
+    home: "/home/{{ buildbot_username }}"
+    shell: /bin/sh
+    state: present
+
+- name: Add public key to login as buildbot
+  authorized_key:
+    user: "{{ buildbot_username }}"
+    key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+- name: Add github to known_hosts
+  sudo: yes
+  sudo_user: "{{ buildbot_username }}"
+  lineinfile:
+    create: yes
+    dest: ~/.ssh/known_hosts
+    line: "{{ lookup('pipe', 'ssh-keyscan -t rsa github.com') }}"
+    regexp: "^github\\.com"
+    state: present
+
+##
+## COMMON PKG
+##
+- name: Install common build dependencies
+  pkgng:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - cmake
+    - git
+    - wx30-gtk2
+    - ffmpeg
+    - sdl2
+    - miniupnpc
+    - pkgconf
+
+##
+## BUILDBOT
+##
+- name: Install buildbot-slave
+  pkgng:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - buildbot-slave
+
+- name: Install buildslave rc
+  template:
+    src: usr_local_etc_rc.d_buildslave.j2
+    dest: /usr/local/etc/rc.d/buildslave
+    backup: yes
+    mode: 0544
+
+# sudo user appears to have different usage in FreeBSD compared to linux
+# (debian/ubuntu). The full path to the buildbot work directory is required as
+# it appears relateive paths including . or ~ are expanded before the sudo
+# command is executed.
+- name: Create build slave
+  sudo: yes
+  sudo_user: "{{ buildbot_username }}"
+  shell: "buildslave create-slave /home/{{ buildbot_username }} {{ buildmaster_host }}:{{ buildmaster_port }} {{ slave_username }} {{ slave_password }}"
+  args:
+    creates: info/admin
+  notify: restart freebsd buildbot
+
+- name: Update slave host information
+  sudo: yes
+  sudo_user: "{{ buildbot_username }}"
+  template:
+    src: buildbot_info_host.j2
+    dest: "/home/{{ buildbot_username }}/info/host"
+  notify: restart freebsd buildbot
+
+- name: Update slave admin information
+  sudo: yes
+  sudo_user: "{{ buildbot_username }}"
+  template:
+    src: buildbot_info_admin.j2
+    dest: "/home/{{ buildbot_username }}/info/admin"
+  notify: restart freebsd buildbot
+

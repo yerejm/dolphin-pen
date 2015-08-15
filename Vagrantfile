@@ -53,6 +53,16 @@ def linux(cfg)
   enable_root_ssh(cfg)
 end
 
+def bsd(cfg)
+  cfg.vm.synced_folder ".", "/vagrant", :disabled => true
+  cfg.ssh.shell = "sh"
+  cfg.vm.provider "virtualbox" do |v|
+    v.customize ['modifyvm', :id, '--hwvirtex', "on"]
+  end
+  enable_vagrant_ssh(cfg)
+  enable_root_ssh(cfg)
+end
+
 def windows(cfg)
   # The default vagrant share is necessary while ansible's windows support for
   # copy and template is lacking.
@@ -113,10 +123,20 @@ Vagrant.configure("2") do |config|
       :provisioner => [:linux, :ram1g],
       :box => 'ubuntu1504',
     },
+    # freebsd build slave
+    :bsdbuild => {
+      :ip => '172.30.70.47',
+      :provisioner => [:bsd, :ram2g],
+      :box => 'freebsd102',
+      :autostart => false
+    },
   }
 
   servers.each do |server_name, server_details|
-    config.vm.define(server_name, primary: server_details.has_key?(:primary)) do |cfg|
+    config.vm.define(server_name,
+                     primary: server_details[:primary] || false,
+                     autostart: server_details[:autostart] || false
+                    ) do |cfg|
       cfg.vm.box = server_details[:box]
       cfg.vm.host_name = server_name.to_s
       cfg.vm.network(:private_network, ip: server_details[:ip])

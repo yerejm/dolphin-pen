@@ -2,6 +2,9 @@
 - include: slave_Debian.yml tags=slave,buildbot,debian
   when: ansible_hostname.lower() in groups['buildslaves'] and ansible_os_family == 'Debian'
 
+- include: slave_FreeBSD.yml tags=slave,buildbot,freebsd
+  when: ansible_hostname.lower() in groups['buildslaves'] and ansible_os_family == 'FreeBSD'
+
 - include: slave_Darwin.yml tags=slave,buildbot,darwin
   when: ansible_hostname.lower() in groups['buildslaves'] and ansible_os_family == 'Darwin'
 

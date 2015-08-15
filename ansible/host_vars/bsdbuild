@@ -1,0 +1,9 @@
+---
+ansible_python_interpreter: /usr/local/bin/python2.7
+
+slave_username: freebsd
+slave_password: freebsd
+
+buildbot_info_host: freebsd buildslave
+buildbot_info_admin: freebsd@bsdbuild.dev
+

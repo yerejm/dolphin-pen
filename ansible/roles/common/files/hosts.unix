@@ -7,6 +7,7 @@
 172.30.70.44  osxbuild
 172.30.70.45  dffbuild
 172.30.70.46  www www.dev
+172.30.70.47  bsdbuild
 
 #
 # Don't go outside the local network!

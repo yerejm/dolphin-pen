@@ -1,3 +1,12 @@
+# buildslave start failures are ignored because the most common failure is that
+# the master has not yet started.
+# For OSX, the buildbot start currently is dumb.
+# For Debian/Ubuntu, when the pattern is present, success or failure should be
+# determined with respect to whether a process matching that pattern exists and
+# not the exit code. Unfortunately, the exit code from the process is used by
+# service module instead. Of note is that ignoring the error was not required in
+# before the introduction of systemd.
+# For Windows, there is no support for handlers.
 ---
 # no support for handlers in windows yet
 # - name: restart windows buildbot
@@ -5,16 +14,17 @@
 #     name: BuildBot
 #     start_mode: auto
 #     state: restarted
-#
+
 - name: restart debian buildbot
   service:
     name: buildslave
     enabled: yes
     pattern: /usr/bin/buildslave
     state: restarted
+  ignore_errors: yes
 
 # Ignore errors in case the master is not yet started
 - name: restart darwin buildbot
   shell: "nohup nice /usr/local/bin/buildslave restart"
-  ignore_errors: True
+  ignore_errors: yes
 

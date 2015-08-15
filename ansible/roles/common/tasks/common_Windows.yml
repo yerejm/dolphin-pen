@@ -11,15 +11,15 @@
 # turn off windows store tile
 - name: Create PushNotification registry entry
   raw: "powershell New-Item -path Registry::HKEY_CURRENT_USER\\Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\PushNotifications"
-  ignore_errors: True
+  ignore_errors: yes
 
 - name: Set tile PushNotification disabled
   raw: "powershell New-ItemProperty -path Registry::HKEY_CURRENT_USER\\Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\PushNotifications -Name NoTileApplicationNotification -PropertyType DWord -Value 0"
-  ignore_errors: True
+  ignore_errors: yes
 
 - name: Delete metro app caches
   raw: "rm -rf c:\\users\\{{ ansible_ssh_user }}\\appdata\\local\\packages"
-  ignore_errors: True
+  ignore_errors: yes
 
 ##
 ## Stop services

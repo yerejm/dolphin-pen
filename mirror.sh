@@ -4,7 +4,6 @@ CMD="$1"
 
 set -eu
 set -o pipefail
-set -x
 
 BASE=$(pwd)
 DOLPHIN_BASE_URL=https://github.com/dolphin-emu
@@ -38,12 +37,11 @@ stop_daemons() {
 }
 
 start_daemons() {
-    echo "GIT: "
     git daemon --base-path="${MIRROR_DIR}" \
         --detach \
         --pid-file="${GIT_PID}" \
         --export-all
-    echo "listening on $(hostname):9418"
+    echo "Git listening on $(hostname):9418"
 }
 
 mirror() {

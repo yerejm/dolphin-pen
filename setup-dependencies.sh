@@ -1,29 +1,29 @@
 #!/bin/sh
-echo "Installing vagrant-cachier plugin"
 vagrant plugin list | grep vagrant-cachier >/dev/null 2>&1
 if [ "$?" != "0" ]; then
+  echo "Installing vagrant-cachier plugin"
   vagrant plugin install vagrant-cachier
 fi
 
-echo "Installing vagrant-hostsupdater plugin"
 vagrant plugin list | grep vagrant-hostsupdater >/dev/null 2>&1
 if [ "$?" != "0" ]; then
+  echo "Installing vagrant-hostsupdater plugin"
   vagrant plugin install vagrant-hostsupdater
 fi
 
-echo "Updating /etc/hosts"
 grep buildbot.dev /etc/hosts >/dev/null 2>&1
 if [ "$?" != "0" ]; then
+  echo "Updating /etc/hosts"
   echo "
 172.30.70.40  buildbot.dev fifoci.dev changes.dev central.dev dl.dev
 172.30.70.46  www.dev
 " | sudo tee -a /etc/hosts
 fi
 
-echo "Updating ~/.ssh/config"
 grep '*build' "${HOME}/.ssh/config" >/dev/null 2>&1
 if [ "$?" != "0" ]; then
-  sudo echo "
+  echo "Updating ~/.ssh/config"
+  echo "
 # vagrant virtual machine range
 Host 172.30.70.* master *build www
 StrictHostKeyChecking no
@@ -33,10 +33,19 @@ LogLevel ERROR
 IdentityFile ~/.ssh/id_rsa" >> "${HOME}/.ssh/config"
 fi
 
-echo "Creating repository mirrors"
-sh mirror.sh create
+if [ ! -d "mirror" ]; then
+  echo "Creating repository mirrors"
+  sh mirror.sh create
+  sh mirror.sh start
+fi
 
 if [ ! -f "ansible/vars/secrets.yml" ]; then
-  echo "A secrets file should now be created."
+  echo "Creating ansible/vars/secrets.yml is recommended."
 fi
+
+if [ ! -f "ansible/dff/dff.sql" ]; then
+  echo "Priming the ansible/dff area is recommended."
+fi
+
+echo "Ready to go."
 

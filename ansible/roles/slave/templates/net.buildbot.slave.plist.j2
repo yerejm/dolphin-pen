@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>StandardOutPath</key>
+	<string>twistd.log</string>
+	<key>StandardErrorPath</key>
+	<string>twistd-err.log</string>
+	<key>GroupName</key>
+	<string>daemon</string>
+	<key>KeepAlive</key>
+	<dict>
+		<key>SuccessfulExit</key>
+		<false/>
+	</dict>
+	<key>Label</key>
+	<string>net.buildbot.slave</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>twistd</string>
+		<string>--nodaemon</string>
+		<string>-y</string>
+		<string>./buildbot.tac</string>
+	</array>
+	<key>RunAtLoad</key>
+	<true/>
+	<key>UserName</key>
+  <string>{{ buildbot_username }}</string>
+	<key>WorkingDirectory</key>
+  <string>/Users/{{ buildbot_username }}</string>
+	<key>SessionCreate</key>
+	<true/>
+</dict>
+</plist>

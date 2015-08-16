@@ -23,10 +23,21 @@
     pattern: /usr/local/bin/buildslave
   when: ansible_system == 'FreeBSD' and ansible_hostname not in groups['buildmaster']
 
+# The service module does not support OSX
+# - name: OSX buildslave service state change
+#   service:
+#     name: net.buildbot.slave
+#     enabled: yes
+#     pattern: "buildbot.tac"
+#     state: restarted
+#   when: ansible_system == 'Darwin'
+#   ignore_errors: yes
+# So fake it.
+# (must sudo because osx is run as vagrant user)
 - name: OSX buildslave service state change
-  shell: "nohup nice /usr/local/bin/buildslave {{ buildbot_state }}"
+  sudo: yes
+  shell: "launchctl {{ 'un' if buildbot_state == 'stop' else '' }}load -w /Library/LaunchAgents/net.buildbot.slave.plist"
   when: ansible_system == 'Darwin'
-  ignore_errors: yes
 
 - name: Windows buildslave service state change
   win_service:

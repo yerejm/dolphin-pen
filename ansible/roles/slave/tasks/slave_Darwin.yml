@@ -77,14 +77,27 @@
 ##
 ## BUILDBOT
 ##
+- name: Install buildslave launch agent
+  sudo: yes
+  template:
+    src: net.buildbot.slave.plist.j2
+    dest: /Library/LaunchAgents/net.buildbot.slave.plist
+
 - name: Create build slave
   shell: "/usr/local/bin/buildslave create-slave . {{ buildmaster_host }}:{{ buildmaster_port }} {{ slave_username }} {{ slave_password }}"
   args:
     creates: buildbot.tac
   notify: restart darwin buildbot
 
+- name: Update slave host information
+  template:
+    src: buildbot_info_host.j2
+    dest: info/host
+  notify: restart darwin buildbot
+
 - name: Update slave admin information
   template:
     src: buildbot_info_admin.j2
     dest: info/admin
+  notify: restart darwin buildbot
 

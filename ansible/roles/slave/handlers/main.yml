@@ -22,12 +22,25 @@
     enabled: yes
     pattern: /usr/bin/buildslave
     state: restarted
+  when: ansible_os_family == 'Debian'
   ignore_errors: yes
 
-# Ignore errors in case the master is not yet started
+# The service module does not support OSX, but it if it did...
+# # On OSX, the service is run with the twistd command, and not the buildslave
+# # command.
+# # http://trac.buildbot.net/wiki/UsingLaunchd
+# - name: restart darwin buildbot
+#   service:
+#     name: net.buildbot.slave
+#     enabled: yes
+#     pattern: buildbot.tac
+#     state: restarted
+# Fake it.
+# (must sudo because osx is run as vagrant user)
 - name: restart darwin buildbot
-  shell: "nohup nice /usr/local/bin/buildslave restart"
-  ignore_errors: yes
+  sudo: yes
+  shell: launchctl unload -w /Library/LaunchAgents/net.buildbot.slave.plist && launchctl load -w /Library/LaunchAgents/net.buildbot.slave.plist
+  when: ansible_os_family == 'Darwin'
 
 - name: restart freebsd buildbot
   service:
@@ -35,5 +48,6 @@
     enabled: yes
     pattern: /usr/local/bin/buildslave
     state: restarted
+  when: ansible_os_family == 'FreeBSD'
   ignore_errors: yes
 

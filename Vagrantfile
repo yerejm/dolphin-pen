@@ -103,13 +103,13 @@ Vagrant.configure("2") do |config|
     :winbuild => {
       :ip => '172.30.70.43',
       :provisioner => [:windows, :ram2g, :enable_3d],
-      :box => 'eval-win81x64-enterprise'
+      :box => 'eval-win81x64-enterprise',
     },
     # osx build slave
     :osxbuild  => {
       :ip => '172.30.70.44',
       :provisioner => [:osx, :ram2g, :enable_3d],
-      :box => 'osx1010'
+      :box => 'osx1010',
     },
     # fifoci build slave
     :dffbuild => {
@@ -128,14 +128,14 @@ Vagrant.configure("2") do |config|
       :ip => '172.30.70.47',
       :provisioner => [:bsd, :ram2g],
       :box => 'freebsd102',
-      :autostart => false
     },
   }
 
   servers.each do |server_name, server_details|
     config.vm.define(server_name,
                      primary: server_details[:primary] || false,
-                     autostart: server_details[:autostart] || false
+                     autostart: server_details.has_key?(:autostart) ?
+                         server_details[:autostart] : true
                     ) do |cfg|
       cfg.vm.box = server_details[:box]
       cfg.vm.host_name = server_name.to_s

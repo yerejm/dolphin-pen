@@ -44,7 +44,6 @@
     line: '    return'
     backup: yes
   with_items:
-    - gcodepoller
     - github
 
 ##

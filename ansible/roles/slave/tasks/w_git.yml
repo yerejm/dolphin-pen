@@ -3,7 +3,7 @@
 
 - name: git | Installed?
   win_stat:
-    path: "C:\\Program Files (x86)\\Git"
+    path: "C:\\Program Files\\Git"
   register: app
 
 - name: git | Install
@@ -11,6 +11,6 @@
   when: not app.stat.exists
 
 - name: git | Add to path
-  raw: "powershell [Environment]::SetEnvironmentVariable('Path', $env:Path + ';C:\\Program Files (x86)\\Git\\bin', [EnvironmentVariableTarget]::Machine)"
+  raw: "powershell [Environment]::SetEnvironmentVariable('Path', $env:Path + ';C:\\Program Files\\Git\\bin', [EnvironmentVariableTarget]::Machine)"
   when: not app.stat.exists
 

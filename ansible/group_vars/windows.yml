@@ -18,10 +18,15 @@ git_url: https://github.com/git-for-windows/git/releases/download/v2.5.3.windows
 git_file: Git-2.5.3-64-bit.exe
 
 #
-# Where to get the visual studio (net) installer
+# Where to get the visual studio iso
 #
-vs_url: http://go.microsoft.com/?linkid=9863609
-vs_file: vs2013.4_ce_enu.iso
+# To choose a different compiler, override in hosts/vars
+# vs_url: http://go.microsoft.com/?linkid=9863609
+# vs_file: vs2013.4_ce_enu.iso
+# vs_version: 12.0
+vs_url: https://go.microsoft.com/fwlink/?LinkId=615448
+vs_file: vs2015.com_enu.iso
+vs_version: 14.0
 
 #
 # Where to get the 7zip binaries for windows

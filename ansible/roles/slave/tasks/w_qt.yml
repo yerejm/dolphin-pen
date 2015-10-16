@@ -5,6 +5,6 @@
   ignore_errors: yes
 
 - name: Add QTDIR
-  raw: "powershell [Environment]::SetEnvironmentVariable('QTDIR', 'C:\\Qt\\Qt5.4.0\\5.4\\msvc2013_64_opengl', [EnvironmentVariableTarget]::Machine)"
+  raw: "powershell [Environment]::SetEnvironmentVariable('QTDIR', 'C:\\Qt\\Qt5.5.0\\5.5\\msvc2015_64_opengl', [EnvironmentVariableTarget]::Machine)"
   ignore_errors: yes
 

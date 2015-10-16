@@ -47,6 +47,7 @@
     - libswscale-dev
     - libudev-dev
     - libevdev-dev
+    - ninja-build
 
 ##
 ## UBUNTU PKG

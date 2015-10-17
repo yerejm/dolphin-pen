@@ -39,6 +39,7 @@
     - sdl2
     - miniupnpc
     - pkgconf
+    - ninja
 
 ##
 ## BUILDBOT

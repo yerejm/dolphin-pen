@@ -12,7 +12,7 @@ project's [build infrastructure](https://dolphin-emu.org/blog/2015/01/25/making-
 * Vagrant and Virtualbox must already be installed.
 * Vagrant boxes must already be created (refer to Vagrantfile).
   * Ubuntu 15.04
-  * Debian 8.1
+  * Debian 8.2
   * OS X 10.10
   * Windows 8.1
   * FreeBSD 10.2

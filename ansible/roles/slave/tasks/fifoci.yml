@@ -48,6 +48,7 @@
     - xserver-xorg
     - xserver-xorg-core
     - ffmpeg
+    - imagemagick
 
 ##
 ## PIP DEPENDENCIES

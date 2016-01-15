@@ -17,35 +17,30 @@
 - include: w_7zip.yml
   vars:
     file: "{{ zip_file }}"
-    base_url: "{{ zip_url }}"
   tags: 7zip
 
 # dolphin dependency: repository
 - include: w_git.yml
   vars:
     file: "{{ git_file }}"
-    base_url: "{{ git_url }}"
   tags: git
 
 # buildbot dependency
 - include: w_python.yml
   vars:
     file: "{{ python_file }}"
-    base_url: "{{ python_url }}"
   tags: [python,buildbot]
 
 # buildbot dependency
 - include: w_pywin32.yml
   vars:
     file: "{{ pywin32_file }}"
-    base_url: "{{ pywin32_url }}"
   tags: [pywin32,buildbot]
 
 # dolphin dependency: compiler
 - include: w_visualstudio.yml
   vars:
     file: "{{ vs_file }}"
-    base_url: "{{ vs_url }}"
   tags: visualstudio
 
 # dolphin dependency: qt
@@ -56,7 +51,6 @@
 - include: w_wdk.yml
   vars:
     file: "{{ wdk_file }}"
-    base_url: "{{ wdk_url }}"
   tags: wdk
 
 ##

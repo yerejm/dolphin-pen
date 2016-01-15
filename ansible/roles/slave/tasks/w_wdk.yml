@@ -1,41 +1,19 @@
 ---
-# Get the installation files either from the cache or from an external source.
-# Cache it if it was fetched externally.
-- name: Is file cached?
-  win_stat:
-    path: "{{ cache_location }}/wdk"
-  register: file_cached
-
-- name: Copy cached file to download area
-  raw: "xcopy /y /e {{ cache_location }}\\wdk {{ download_location }}\\wdk\\"
-  when: file_cached.stat.exists
-
-- name: Is file downloaded?
-  win_stat:
-    path: "{{ download_location }}/wdk"
-  register: file_downloaded
-
-- name: Download file
-  win_get_url:
-    url: "{{ base_url }}/{{ file }}"
-    dest: "{{ download_location }}/{{ file }}"
-  when: not file_downloaded.stat.exists
-
-- name: Fetch installation files
-  raw: "{{ download_location }}\\{{ file }} /layout {{ download_location }}\\wdk"
-  when: not file_downloaded.stat.exists
-
-- name: Copy download file to cache
-  raw: "xcopy /y /e {{ download_location }}\\wdk {{ cache_location }}\\wdk\\"
-  when: not file_cached.stat.exists
-
 # Install application if not already installed
 - name: Is wdk installed?
   win_stat:
     path: "C:\\Program Files (x86)\\Windows Kits\\8.1\\Debuggers\\x64\\symstore.exe"
   register: app
 
+- name: Copy cached file to download area
+  raw: "xcopy /y /e {{ cache_location }}\\wdk {{ download_location }}\\wdk\\"
+  when: not app.stat.exists
+
 - name: Install wdk
   raw: "{{ download_location }}\\wdk\\{{ file }} /norestart /q /ceip off"
   when: not app.stat.exists
 
+- name: Delete local file
+  win_file:
+    path: "{{ download_location }}\\wdk\\"
+    state: absent

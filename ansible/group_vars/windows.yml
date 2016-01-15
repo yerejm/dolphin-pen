@@ -6,50 +6,30 @@ ansible_ssh_pass: vagrant
 ansible_ssh_port: 5985
 ansible_connection: winrm
 
-cache_location: 'c:\tmp\vagrant-cache'
-download_location: 'c:\tmp'
-
 etc_hosts_file: 'c:\windows\system32\drivers\etc\hosts'
 
-#
-# Where to get the git binaries for windows
-#
-git_url: https://github.com/git-for-windows/git/releases/download/v2.5.3.windows.1
+# Where the installation files are located remotely.
+cache_location: 'c:\tmp\vagrant-cache'
+
+# Where installation files are located locally.
+# Windows has problems installing certain file types from a network drive.
+download_location: 'c:\tmp'
+
+# Git for windows
 git_file: Git-2.5.3-64-bit.exe
 
-#
-# Where to get the visual studio iso
-#
-# To choose a different compiler, override in hosts/vars
-# vs_url: http://go.microsoft.com/?linkid=9863609
-# vs_file: vs2013.4_ce_enu.iso
-# vs_version: 12.0
-vs_url: https://go.microsoft.com/fwlink/?LinkId=615448
-vs_file: vs2015.com_enu.iso
+# Visual Studio ISO
+vs_file: vs2015.1.com_enu.iso
 vs_version: 14.0
 
-#
-# Where to get the 7zip binaries for windows
-#
-zip_url: http://www.7-zip.org/a
+# 7zip for windows
 zip_file: 7z920-x64.msi
 
-#
-# Where to get the python binaries for windows
-# This must be version 2 due to buildbot.
-#
-python_url: https://www.python.org/ftp/python/2.7.10
+# Python for windows. This must be version 2 due to buildbot.
 python_file: python-2.7.10.amd64.msi
 
-#
-# Where to get the python win32 extensions.
-#
-pywin32_url: http://liquidtelecom.dl.sourceforge.net/project/pywin32/pywin32/Build%20219
+# python win32 extensions.
 pywin32_file: pywin32-219.win-amd64-py2.7.exe
 
-#
-# Where to get the Windows Development Kit (net) installer.
-#
-wdk_url: http://download.microsoft.com/download/0/8/C/08C7497F-8551-4054-97DE-60C0E510D97A/wdk
+# Windows Development Kit
 wdk_file: wdksetup.exe
-

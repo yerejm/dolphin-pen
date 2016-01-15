@@ -1,10 +1,14 @@
 ---
-- include: windows_cache_download.yml
-
 - name: python | Installed?
   win_stat:
     path: "C:\\Python27"
   register: app
+
+- name: Download file
+  win_get_url:
+    url: "file://{{ cache_location }}\\{{ file }}"
+    dest: "{{ download_location }}\\{{ file }}"
+  when: not app.stat.exists
 
 - name: python | Install
   win_msi:
@@ -12,7 +16,20 @@
     state: present
   when: not app.stat.exists
 
-- name: python | Add to path
-  raw: "powershell [Environment]::SetEnvironmentVariable('Path', $env:Path + ';C:\\Python27;C:\\Python27\\Scripts', [EnvironmentVariableTarget]::Machine)"
-  when: not app.stat.exists
+- name: python | Revert secure https that doesn't use system certificates
+  win_copy:
+    src: files/sitecustomize.py
+    dest: c:/Python27/Lib/site-packages/sitecustomize.py
 
+- name: python | Delete local file
+  win_file:
+    path: "{{ download_location }}\\{{ file }}"
+    state: absent
+
+- include: win_path.yml
+  vars:
+    path: "{{ item }}"
+    level: machine
+  with_items:
+    - 'C:\Python27'
+    - 'C:\Python27\Scripts'

@@ -1,22 +1,29 @@
 ---
-- include: windows_cache_download.yml
-
 - name: visual studio | Installed?
   win_stat:
     path: "C:\\Program Files (x86)\\msbuild\\{{ vs_version }}\\bin"
   register: app
 
+- name: Download file
+  win_get_url:
+    url: "file://{{ cache_location }}\\{{ file }}"
+    dest: "{{ download_location }}\\{{ file }}"
+  when: not app.stat.exists
+
 - name: visual studio | Need to mount?
   win_stat:
     path: "d:\\vs_community.exe"
   register: mount
+  when: not app.stat.exists
 
 - name: visual studio | Mount ISO
   raw: "powershell mount-diskimage {{ download_location }}\\{{ file }}"
   when: not app.stat.exists and not mount.stat.exists
 
 - name: visual studio | Copy Unattended Deployment setup file to installer location
-  raw: "copy c:\\vagrant\\ansible\\roles\\slave\\files\\AdminDeployment{{ vs_version }}.xml c:\\tmp\\AdminDeployment.xml"
+  win_copy:
+    src: "files/AdminDeployment{{ vs_version }}.xml"
+    dest: c:/tmp/AdminDeployment.xml
   when: not app.stat.exists
 
 - name: visual studio | Install
@@ -32,8 +39,13 @@
   raw: "powershell dismount-diskimage {{ download_location }}\\{{ file }}"
   when: mount.stat.exists
 
-# build master calls msbuild.  It does not use nmake.
-- name: visual studio | Add msbuild to path
-  raw: "powershell [Environment]::SetEnvironmentVariable('Path', $env:Path + ';C:\\Program Files (x86)\\MSBuild\\{{ vs_version }}\\Bin', [EnvironmentVariableTarget]::Machine)"
-  when: not app.stat.exists
+- name: visual studio | Delete local file
+  win_file:
+    path: "{{ download_location }}\\{{ file }}"
+    state: absent
 
+# build master calls msbuild.  It does not use nmake.
+- include: win_path.yml
+  vars:
+    path: 'C:\Program Files (x86)\MSBuild\{{ vs_version }}\Bin'
+    level: machine

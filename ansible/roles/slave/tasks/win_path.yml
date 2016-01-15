@@ -1,0 +1,23 @@
+---
+- name: New path exists?
+  win_stat:
+    path: "{{ path }}"
+  register: a
+
+- name: Get current path
+  raw: $Env:Path
+  register: current_path
+  when: a.stat.exists
+
+- name: Examining current path
+  set_fact:
+    paths: "{{ current_path.stdout.strip().split(';') }}"
+  when: a.stat.exists
+
+- name: Update path
+  win_environment:
+    name: Path
+    value: "{{ (paths + [path]) | join(';') }}"
+    state: present
+    level: "{{ level }}"
+  when: a.stat.exists and path not in paths

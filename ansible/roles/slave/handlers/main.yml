@@ -38,7 +38,7 @@
 # Fake it.
 # (must sudo because osx is run as vagrant user)
 - name: restart darwin buildbot
-  sudo: yes
+  become: yes
   shell: launchctl unload -w /Library/LaunchAgents/net.buildbot.slave.plist && launchctl load -w /Library/LaunchAgents/net.buildbot.slave.plist
   when: ansible_os_family == 'Darwin'
 

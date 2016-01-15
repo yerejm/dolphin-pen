@@ -15,8 +15,8 @@
     key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
 
 - name: fifoci | Add github to known_hosts
-  sudo: yes
-  sudo_user: fifoci
+  become: yes
+  become_user: fifoci
   lineinfile:
     dest: ~/.ssh/known_hosts
     create: yes
@@ -28,8 +28,8 @@
 ## CLONE
 ##
 - name: fifoci | Clone fifoci
-  sudo: yes
-  sudo_user: fifoci
+  become: yes
+  become_user: fifoci
   git:
     repo: "{{ fifoci_repository }}"
     dest: fifoci
@@ -88,8 +88,8 @@
 
 # Needed for runner execution by the build master
 - name: fifoci | Link python into fifoci home
-  sudo: yes
-  sudo_user: fifoci
+  become: yes
+  become_user: fifoci
   file:
     src: "/usr/bin/{{ item }}3"
     dest: "~/{{ item }}"
@@ -109,8 +109,8 @@
 ## DFF
 ##
 - name: fifoci | Create media (dff) area
-  sudo: yes
-  sudo_user: fifoci
+  become: yes
+  become_user: fifoci
   file:
     path: ~/dff
     state: directory
@@ -119,8 +119,8 @@
 # front end, multiple fifoci slave runners on the same machine may end up in
 # contention because they read from the same dff directory.
 - name: fifoci | Copy dff files (needed for tests)
-  sudo: yes
-  sudo_user: fifoci
+  become: yes
+  become_user: fifoci
   copy:
     src: dff/
     dest: ~/dff

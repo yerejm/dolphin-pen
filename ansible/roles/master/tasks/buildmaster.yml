@@ -50,8 +50,8 @@
 ## DEPLOY
 ##
 - name: buildbot | Create bin directory
-  sudo: yes
-  sudo_user: "{{ buildbot_username }}"
+  become: yes
+  become_user: "{{ buildbot_username }}"
   file:
     path: ~/bin
     state: directory
@@ -118,23 +118,23 @@
 ## POSTGRESQL
 ##
 - name: buildbot | create buildbot database user
-  sudo: yes
-  sudo_user: postgres
+  become: yes
+  become_user: postgres
   postgresql_user:
     name: "{{ buildbot_username }}"
     password: "{{ buildbot_username }}"
 
 - name: buildbot | Create buildbot database
-  sudo: yes
-  sudo_user: postgres
+  become: yes
+  become_user: postgres
   postgresql_db:
     owner: "{{ buildbot_username }}"
     name: "{{ buildbot_username }}"
     state: present
 
 - name: buildbot | Grant database access
-  sudo: yes
-  sudo_user: postgres
+  become: yes
+  become_user: postgres
   postgresql_privs:
     db: "{{ buildbot_username }}"
     privs: ALL
@@ -145,8 +145,8 @@
 ## BUILDBOT
 ##
 - name: buildbot | Create build master
-  sudo: yes
-  sudo_user: "{{ buildbot_username }}"
+  become: yes
+  become_user: "{{ buildbot_username }}"
   command: "buildbot create-master --db postgresql://buildbot@localhost/buildbot"
   args:
     creates: buildbot.tac
@@ -155,8 +155,8 @@
 # It can cause changes that should be added to the build queue to go missing.
 # http://trac.buildbot.net/ticket/2423
 - name: buildbot | Workaround buildbot race condition
-  sudo: yes
-  sudo_user: "{{ buildbot_username }}"
+  become: yes
+  become_user: "{{ buildbot_username }}"
   shell: psql -c "alter table buildsets drop constraint buildsets_sourcestampid_fkey" && touch ~/.buildbot-race
   args:
     creates: ~/.buildbot-race
@@ -198,32 +198,32 @@
 # Do not parameterise the password file creation. The passwords will print to
 # stdout in the ansible output.
 - name: buildbot | Build buildslave password file
-  sudo: yes
-  sudo_user: "{{ buildbot_username }}"
+  become: yes
+  become_user: "{{ buildbot_username }}"
   copy:
     content: "{{ buildslaves_passwords | to_nice_json }}"
     dest: ~/buildslaves-passwords.json
   notify: restart buildbot
 
 - name: buildbot | Build users password file
-  sudo: yes
-  sudo_user: "{{ buildbot_username }}"
+  become: yes
+  become_user: "{{ buildbot_username }}"
   copy:
     content: "{{ buildmaster_users_passwords | to_nice_json }}"
     dest: ~/users-passwords.json
   notify: restart buildbot
 
 - name: buildbot | Build changesource password file
-  sudo: yes
-  sudo_user: "{{ buildbot_username }}"
+  become: yes
+  become_user: "{{ buildbot_username }}"
   copy:
     content: "{{ changesource_password }}"
     dest: ~/changesource-password.txt
   notify: restart buildbot
 
 - name: buildbot | Build webauth password file
-  sudo: yes
-  sudo_user: "{{ buildbot_username }}"
+  become: yes
+  become_user: "{{ buildbot_username }}"
   copy:
     content: "{{ webauth_password }}"
     dest: ~/webauth-password.txt

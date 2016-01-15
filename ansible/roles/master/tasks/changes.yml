@@ -15,8 +15,8 @@
     key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
 
 - name: changes | Add github to known_hosts
-  sudo: yes
-  sudo_user: changes
+  become: yes
+  become_user: changes
   lineinfile:
     dest: ~/.ssh/known_hosts
     create: yes
@@ -33,8 +33,8 @@
     creates: /home/changes/gen-pages
 
 - name: changes | Replace wiki.dolphin-emu.org
-  sudo: yes
-  sudo_user: changes
+  become: yes
+  become_user: changes
   replace:
     dest: "/home/changes/update-wiki"
     regexp: 'dolphin-emu\.org'
@@ -42,8 +42,8 @@
     backup: yes
 
 - name: changes | Replace number of revisions to check
-  sudo: yes
-  sudo_user: changes
+  become: yes
+  become_user: changes
   replace:
     dest: "/home/changes/gen-rev-infos"
     regexp: '-n 100'
@@ -51,8 +51,8 @@
     backup: yes
 
 - name: changes | Update configuration
-  sudo: yes
-  sudo_user: changes
+  become: yes
+  become_user: changes
   template:
     src: changes.config.vars.j2
     dest: ~/config.vars
@@ -69,8 +69,8 @@
 # There is no need to clone the submodules since only the dolphin changes are of
 # interest.
 - name: changes | Create dolphin (non-recursive) clone on which changes operates
-  sudo: yes
-  sudo_user: changes
+  become: yes
+  become_user: changes
   git:
     repo: "{{ dolphin_repository }}"
     dest: "{{ changes_dolphin_location }}"

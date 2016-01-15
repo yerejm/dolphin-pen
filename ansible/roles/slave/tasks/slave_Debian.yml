@@ -15,8 +15,8 @@
     key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
 
 - name: Add github to known_hosts
-  sudo: yes
-  sudo_user: "{{ buildbot_username }}"
+  become: yes
+  become_user: "{{ buildbot_username }}"
   lineinfile:
     create: yes
     dest: ~/.ssh/known_hosts
@@ -103,22 +103,22 @@
     - buildbot-slave
 
 - name: Create build slave
-  sudo: yes
-  sudo_user: "{{ buildbot_username }}"
+  become: yes
+  become_user: "{{ buildbot_username }}"
   shell: "buildslave create-slave . {{ buildmaster_host }}:{{ buildmaster_port }} {{ slave_username }} {{ slave_password }}"
   args:
     creates: info/admin
 
 - name: Update slave host information
-  sudo: yes
-  sudo_user: "{{ buildbot_username }}"
+  become: yes
+  become_user: "{{ buildbot_username }}"
   template:
     src: buildbot_info_host.j2
     dest: info/host
 
 - name: Update slave admin information
-  sudo: yes
-  sudo_user: "{{ buildbot_username }}"
+  become: yes
+  become_user: "{{ buildbot_username }}"
   template:
     src: buildbot_info_admin.j2
     dest: info/admin

@@ -35,7 +35,7 @@
 # So fake it.
 # (must sudo because osx is run as vagrant user)
 - name: OSX buildslave service state change
-  sudo: yes
+  become: yes
   shell: "launchctl {{ 'un' if buildbot_state == 'stop' else '' }}load -w /Library/LaunchAgents/net.buildbot.slave.plist"
   when: ansible_system == 'Darwin'
 

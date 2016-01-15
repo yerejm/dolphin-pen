@@ -15,8 +15,8 @@
     key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
 
 - name: www | Add github to known_hosts
-  sudo: yes
-  sudo_user: www
+  become: yes
+  become_user: www
   lineinfile:
     dest: ~/.ssh/known_hosts
     create: yes
@@ -28,8 +28,8 @@
 ## CLONE
 ##
 - name: www | Clone www
-  sudo: yes
-  sudo_user: www
+  become: yes
+  become_user: www
   git:
     repo: "{{ www_repository }}"
     dest: www
@@ -56,16 +56,16 @@
 ## PIP DEPENDENCIES
 ##
 - name: www | Install www dependencies (pip requirements)
-  sudo: yes
-  sudo_user: www
+  become: yes
+  become_user: www
   pip:
     virtualenv: /home/www
     requirements: /home/www/www/requirements.txt
     state: present
 
 - name: www | Install python packages (pip)
-  sudo: yes
-  sudo_user: www
+  become: yes
+  become_user: www
   pip:
     virtualenv: /home/www
     name: "{{ item }}"
@@ -81,30 +81,30 @@
 # Hack to get around need to be able to insert or update into www database
 # This is not very idempotent
 - name: www | Delete www database
-  sudo: yes
-  sudo_user: postgres
+  become: yes
+  become_user: postgres
   postgresql_db:
     name: www
     state: absent
 
 - name: www | create www user
-  sudo: yes
-  sudo_user: postgres
+  become: yes
+  become_user: postgres
   postgresql_user:
     name: www
     password: www
 
 - name: www | Create www database
-  sudo: yes
-  sudo_user: postgres
+  become: yes
+  become_user: postgres
   postgresql_db:
     owner: www
     name: www
     state: present
 
 - name: www | Grant database access
-  sudo: yes
-  sudo_user: postgres
+  become: yes
+  become_user: postgres
   postgresql_privs:
     db: www
     privs: ALL
@@ -115,24 +115,24 @@
 ## DJANGO
 ##
 - name: www | Install settings
-  sudo: yes
-  sudo_user: www
+  become: yes
+  become_user: www
   template:
     src: dolweb_settings.py.j2
     dest: ~/www/dolweb/local_settings.py
     mode: 0444
 
 - name: www | Install dolweb set up
-  sudo: yes
-  sudo_user: www
+  become: yes
+  become_user: www
   copy:
     src: dolweb_setup.sh
     dest: ~/www/dolweb_setup
     mode: 0544
 
 - name: Create media area
-  sudo: yes
-  sudo_user: www
+  become: yes
+  become_user: www
   file:
     path: ~/www/media/{{ item }}
     state: directory
@@ -141,8 +141,8 @@
     - static
 
 - name: www | Prepare dolweb
-  sudo: yes
-  sudo_user: www
+  become: yes
+  become_user: www
   command: "~/www/dolweb_setup"
   args:
     chdir: ~/www
@@ -152,16 +152,16 @@
 ## WEB
 ##
 - name: www | Install gunicorn starter
-  sudo: yes
-  sudo_user: www
+  become: yes
+  become_user: www
   copy:
     src: gunicorn_start.sh
     dest: ~/www/gunicorn_start
     mode: 0544
 
 - name: www | Install gunicorn configuration file
-  sudo: yes
-  sudo_user: www
+  become: yes
+  become_user: www
   template:
     src: gunicorn.conf.py.j2
     dest: ~/www/gunicorn.conf.py

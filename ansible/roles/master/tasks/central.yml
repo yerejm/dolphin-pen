@@ -35,8 +35,8 @@
     creates: /home/central/central.py
 
 - name: central | Disable modules
-  sudo: yes
-  sudo_user: central
+  become: yes
+  become_user: central
   lineinfile:
     dest: "/home/central/{{ item }}.py"
     state: present
@@ -58,8 +58,8 @@
 ## WEB
 ##
 - name: central | Install configuration file
-  sudo: yes
-  sudo_user: central
+  become: yes
+  become_user: central
   template:
     src: central_config.yml.j2
     dest: ~/config.yml

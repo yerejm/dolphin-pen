@@ -17,13 +17,20 @@
     accept_hostkey: "{{ 'yes' if testing is defined else 'no' }}"
     force: yes
 
-- include: database.yml tags=database
-- include: nginx.yml tags=nginx
-- include: buildmaster.yml tags=buildbot
-- include: central.yml tags=central
-- include: dl.yml tags=dl
-- include: fifoci.yml tags=fifoci
-- include: changes.yml tags=changes
+- include: database.yml
+  tags: database
+- include: nginx.yml
+  tags: nginx
+- include: buildmaster.yml
+  tags: buildbot
+- include: central.yml
+  tags: central
+- include: dl.yml
+  tags: dl
+- include: fifoci.yml
+  tags: fifoci
+- include: changes.yml
+  tags: changes
 
 # Force handlers so the web sites are accessible
 - meta: flush_handlers

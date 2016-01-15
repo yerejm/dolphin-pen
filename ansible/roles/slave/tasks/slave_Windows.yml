@@ -18,49 +18,46 @@
   vars:
     file: "{{ zip_file }}"
     base_url: "{{ zip_url }}"
-    tags: 7zip
+  tags: 7zip
 
 # dolphin dependency: repository
 - include: w_git.yml
   vars:
     file: "{{ git_file }}"
     base_url: "{{ git_url }}"
-    tags: git
+  tags: git
 
 # buildbot dependency
 - include: w_python.yml
   vars:
     file: "{{ python_file }}"
     base_url: "{{ python_url }}"
-    tags:
-      - python
-      - buildbot
+  tags: [python,buildbot]
 
 # buildbot dependency
 - include: w_pywin32.yml
   vars:
     file: "{{ pywin32_file }}"
     base_url: "{{ pywin32_url }}"
-    tags:
-      - pywin32
-      - buildbot
+  tags: [pywin32,buildbot]
 
 # dolphin dependency: compiler
 - include: w_visualstudio.yml
   vars:
     file: "{{ vs_file }}"
     base_url: "{{ vs_url }}"
-    tags: visualstudio
+  tags: visualstudio
 
 # dolphin dependency: qt
-- include: w_qt.yml tags=qt
+- include: w_qt.yml
+  tags: qt
 
 # dolphin dependency: symstore
 - include: w_wdk.yml
   vars:
     file: "{{ wdk_file }}"
     base_url: "{{ wdk_url }}"
-    tags: wdk
+  tags: wdk
 
 ##
 ## PIP DEPENDENCIES
@@ -72,27 +69,25 @@
 ##
 ## BUILDBOT DEPLOY
 ##
-# Without the ability to change users in windows, this makes tasks harder than
-# they should be to create. Given the incompleteness of features on windows,
-# the vagrant user is the buildbot user.
-# - name: Create buildbot user
-#   win_user:
-#     name: "{{ buildbot_username }}"
-#     password: "{{ buildbot_username }}"
-#     state: present
-
-- name: Is buildbot area present?
-  win_stat:
-    path: "c:\\{{ buildbot_username }}"
-  register: buildbot_area
+- name: Create buildbot user
+  win_user:
+    name: "{{ buildbot_username }}"
+    password: "{{ buildbot_username }}"
+    password_never_expires: no
+    state: present
+  tags: buildbot
 
 - name: Create buildbot area
-  raw: "mkdir c:\\{{ buildbot_username }}"
-  when: not buildbot_area.stat.exists
+  win_file:
+    path: "c:/{{ buildbot_username }}/"
+    state: directory
+  tags: buildbot
 
 - name: Install buildbot symbol store utility
-  raw: "copy c:\\vagrant\\ansible\\roles\\slave\\files\\storesymbols.bat c:\\buildbot\\storesymbols.bat"
-  when: not buildbot_area.stat.exists
+  win_copy:
+    src: files/storesymbols.bat
+    dest: c:/buildbot/storesymbols.bat
+  tags: buildbot
 
 ##
 ## SYMBOLSTORE
@@ -110,50 +105,60 @@
 # machines, the limitations of Windows makes this impossible to truly automate
 # anyway. Since there is no need for remote access to the symbol store as any
 # Windows development would be done locally, this is not a great loss.
-- name: Is symbol area present?
-  win_stat:
-    path: "c:\\symbols"
-  register: symbol_area
-
 - name: Create symbol store folder
-  raw: "mkdir c:\\symbols"
-  when: not symbol_area.stat.exists
+  win_file:
+    path: c:/symbols/
+    state: directory
+  tags: buildbot
 
 - name: Create local symbol store folder
-  raw: "mkdir c:\\localsymbols"
-  when: not symbol_area.stat.exists
+  win_file:
+    path: c:/localsymbols/
+    state: directory
+  tags: buildbot
 
 # https://randomascii.wordpress.com/2013/03/09/symbols-the-microsoft-way/
 # https://msdn.microsoft.com/en-us/library/windows/hardware/ff537994%28v=vs.85%29.aspx
 - name: Add symbol store to path
-  raw: powershell [Environment]::SetEnvironmentVariable('_NT_SYMBOL_PATH', 'srv*c:\localsymbols*c:\symbols*https://msdl.microsoft.com/download/symbols', [EnvironmentVariableTarget]::Machine)
-  when: not symbol_area.stat.exists
+  win_environment:
+    name: _NT_SYMBOL_PATH
+    value: 'srv*c:\localsymbols*c:\symbols*https://msdl.microsoft.com/download/symbols'
+    level: machine
+  tags: buildbot
 
 ##
 ## BUILDBOT
 ##
 - name: Create build slave
   raw: "buildslave create-slave c:\\{{ buildbot_username }} {{ buildmaster_host }}:{{ buildmaster_port }} {{ slave_username }} {{ slave_password }}"
+  tags: buildbot
 
 # Adding the service does not grant the logon privilege. This must be done
 # explicitly.
 - name: Install logon as service privilege utility
-  raw: "copy c:\\vagrant\\ansible\\roles\\slave\\files\\lsa_add_logon_as_svc.ps1 c:\\tmp"
+  win_copy:
+    src: files/lsa_add_logon_as_svc.ps1
+    dest: c:/tmp/lsa_add_logon_as_svc.ps1
+  tags: buildbot
 
 - name: Allow buildbot service logon
   raw: "powershell c:\\tmp\\lsa_add_logon_as_svc.ps1 {{ ansible_ssh_user }}"
+  tags: buildbot
 
 # The user should be the unprivileged user but since the user being used is the
 # "root" user, the logon as details are for that user.
 - name: Create buildbot service
   raw: "c:\\python27\\python.exe c:\\python27\\scripts\\buildbot_service.py --user .\\{{ ansible_ssh_user }} --password {{ ansible_ssh_pass }} --startup auto install"
   notify: restart windows buildbot
+  tags: buildbot
 
-- name: Set buildbot service registry entries (1)
-  raw: "powershell New-Item -path Registry::HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\Buildbot\\Parameters"
-
-- name: Set buildbot service registry entries (2)
-  raw: "powershell New-ItemProperty -path Registry::HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\Buildbot\\Parameters -Name directories -PropertyType String -Value C:\\{{ buildbot_username }}"
+- name: Set buildbot service registry
+  win_regedit:
+    key: HKLM:\SYSTEM\CurrentControlSet\services\Buildbot\Parameters
+    data: "C:\\{{ buildbot_username }}"
+    value: directories
+    datatype: string
+  tags: buildbot
 
 ##
 ## BUILDBOT
@@ -164,3 +169,16 @@
     start_mode: auto
     state: restarted
 
+#
+# Finalisation
+# The windows base box is created without autologon. This is to remind the
+# overeager not to logon until provisioning is complete due to the path changes
+# that occur.
+#
+- name: Enable autologon
+  win_regedit:
+    key: HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon
+    data: 1
+    value: AutoAdminLogon
+    datatype: dword
+  tags: autologon

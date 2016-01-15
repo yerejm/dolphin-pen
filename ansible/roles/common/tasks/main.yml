@@ -1,14 +1,18 @@
 ---
-- include: common_Debian.yml tags=common,debian
+- include: common_Debian.yml
+  tags: [common,debian]
   when: ansible_os_family == 'Debian'
 
-- include: common_FreeBSD.yml tags=common,freebsd
+- include: common_FreeBSD.yml
+  tags: [common,freebsd]
   when: ansible_os_family == 'FreeBSD'
 
-- include: common_Darwin.yml tags=common,darwin
+- include: common_Darwin.yml
+  tags: [common,darwin]
   when: ansible_os_family == 'Darwin'
 
-- include: common_Windows.yml tags=common,windows
+- include: common_Windows.yml
+  tags: [common,windows]
   when: ansible_os_family == 'Windows'
 
 ##

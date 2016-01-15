@@ -1,6 +1,10 @@
 ---
-- include: ircd.yml tags=ircd
-- include: database.yml tags=database
-- include: nginx.yml tags=nginx
-- include: dolweb.yml tags=dolweb
+- include: ircd.yml
+  tags: ircd
+- include: database.yml
+  tags: database
+- include: nginx.yml
+  tags: nginx
+- include: dolweb.yml
+  tags: dolweb
 

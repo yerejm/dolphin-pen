@@ -30,6 +30,9 @@ buildslaves_passwords:
   ec2-ubu64-nv: ec2-ubu64-nv
   ec2-win64-nv: ec2-win64-nv
   ec2-ubu64-indexer: ec2-ubu64-indexer
+  ec2-ubu64-nouveau: ec2-ubu64-nouveua
+  delroth-nuc: delroth-nuc
+  delroth-vm-ubuntu-radeon: delroth-vm-ubuntu-radeon
 
 # Buildbot user name under which the build master is created.
 buildbot_username: buildbot

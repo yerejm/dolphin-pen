@@ -4,7 +4,8 @@
   raw: "git clone {{ ext_win_qt_repository }} C:\\Qt"
   ignore_errors: yes
 
-- name: Add QTDIR
-  raw: "powershell [Environment]::SetEnvironmentVariable('QTDIR', 'C:\\Qt\\Qt5.5.0\\5.5\\msvc2015_64_opengl', [EnvironmentVariableTarget]::Machine)"
-  ignore_errors: yes
-
+- name: Add QTDIR path
+  win_environment:
+    name: QTDIR
+    value: 'C:\Qt\Qt5.5.0\5.5\msvc2015_64_opengl'
+    level: machine

@@ -11,15 +11,12 @@
   when: not app.stat.exists
 
 - name: git | Install
-  raw: "{{ download_location }}\\{{ file }} /SILENT"
+  win_package:
+    name: git
+    path: "{{ download_location }}\\{{ file }}"
+    product_id: "Git_is1"
+    arguments: "/SILENT"
   when: not app.stat.exists
-# - name: git | Install
-#   win_package:
-#     name: git
-#     path: "{{ download_location }}\\{{ file }}"
-#     product_id: ???
-#     arguments: "/SILENT"
-#   when: not app.stat.exists
 
 - name: git | Delete local file
   win_file:

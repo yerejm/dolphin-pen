@@ -26,17 +26,17 @@
     dest: c:/tmp/AdminDeployment.xml
   when: not app.stat.exists
 
-- name: visual studio | Install
-  raw: "d:\\vs_community.exe /silent /norestart /norefresh /adminfile c:\\tmp\\AdminDeployment.xml /l c:\\tmp\\vslog.txt"
-  when: not app.stat.exists
-
 # - name: visual studio | Install
-#   win_package:
-#     name: Visual Studio
-#     path: "d:\\vs_community.exe"
-#     product_id: ???
-#     arguments: "/silent /norestart /norefresh /adminfile c:\\tmp\\AdminDeployment.xml /l c:\\tmp\\vslog.txt"
+#   raw: "d:\\vs_community.exe /silent /norestart /norefresh /adminfile c:\\tmp\\AdminDeployment.xml /l c:\\tmp\\vslog.txt"
 #   when: not app.stat.exists
+
+- name: visual studio | Install
+  win_package:
+    name: Visual Studio
+    path: "d:\\vs_community.exe"
+    product_id: "{fcaa9dba-9438-48b6-ad91-4e9b4cc7084a}"
+    arguments: "/silent /norestart /norefresh /adminfile c:\\tmp\\AdminDeployment.xml /l c:\\tmp\\vslog.txt"
+  when: not app.stat.exists
 
 - name: visual studio | Need to dismount?
   win_stat:

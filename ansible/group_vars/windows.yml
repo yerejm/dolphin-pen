@@ -16,17 +16,17 @@ cache_location: 'c:\tmp\vagrant-cache'
 download_location: 'c:\tmp'
 
 # Git for windows
-git_file: Git-2.5.3-64-bit.exe
+git_file: Git-2.7.0-64-bit.exe
 
 # Visual Studio ISO
 vs_file: vs2015.1.com_enu.iso
 vs_version: 14.0
 
 # 7zip for windows
-zip_file: 7z920-x64.msi
+zip_file: 7z1514-x64.msi
 
 # Python for windows. This must be version 2 due to buildbot.
-python_file: python-2.7.10.amd64.msi
+python_file: python-2.7.11.amd64.msi
 
 # python win32 extensions.
 pywin32_file: pywin32-219.win-amd64-py2.7.exe

@@ -12,16 +12,13 @@
     creates: "{{ download_location }}\\wdk\\{{ file }}"
   when: not app.stat.exists
 
-- name: Install wdk
-  raw: "{{ download_location }}\\wdk\\{{ file }} /norestart /q /ceip off"
+- name: wdk | Install
+  win_package:
+    name: WDK
+    path: "{{ download_location }}\\wdk\\{{ file }}"
+    product_id: "{aba88724-37eb-4f03-b83b-45199c5a7cf5}"
+    arguments: "/norestart /q /ceip off"
   when: not app.stat.exists
-# - name: wdk | Install
-#   win_package:
-#     name: WDK
-#     path: "{{ download_location }}\\wdk\\{{ file }}"
-#     product_id: ???
-#     arguments: "/norestart /q /ceip off"
-#   when: not app.stat.exists
 
 - name: Delete local file
   win_file:

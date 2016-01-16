@@ -9,7 +9,6 @@ BASE=$(pwd)
 DOLPHIN_BASE_URL=https://github.com/dolphin-emu
 MIRROR_DIR="${BASE}/mirror"
 GIT_PID="${MIRROR_DIR}/git-daemon.pid"
-HG_PID="${MIRROR_DIR}/hg-daemon.pid"
 GIT_REPOSITORIES="\
     ${DOLPHIN_BASE_URL}/dolphin \
     ${DOLPHIN_BASE_URL}/ext-win-qt \
@@ -28,20 +27,18 @@ check_mirror_dir() {
 }
 
 stop_daemons() {
-    for pid in "$GIT_PID" "$HG_PID"; do
-        if [ -e "$pid" ]; then
-            kill "$(cat "$pid")"
-            rm -f "$pid"
-        fi
-    done
+    if [ -e "$GIT_PID" ]; then
+        kill "$(cat "$GIT_PID")" || true
+        rm -f "$GIT_PID"
+    fi && echo "Git daemon stopped listening on $(hostname):9418"
 }
 
 start_daemons() {
     git daemon --base-path="${MIRROR_DIR}" \
         --detach \
         --pid-file="${GIT_PID}" \
-        --export-all
-    echo "Git listening on $(hostname):9418"
+        --export-all \
+    && echo "Git daemon started listening on $(hostname):9418"
 }
 
 mirror() {
@@ -95,7 +92,10 @@ case "$CMD" in
         fi
         ;;
     update)
+        check_mirror_dir
+        stop_daemons
         update_clones
+        start_daemons
         ;;
     *)
         echo "Unknown command ${CMD}"

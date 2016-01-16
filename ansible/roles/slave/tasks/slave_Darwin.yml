@@ -73,31 +73,56 @@
   pip:
     executable: /usr/local/bin/pip
     name: buildbot-slave
+  tags: buildbot
 
 ##
 ## BUILDBOT
 ##
+- name: Set buildbot path
+  set_fact:
+    buildbot_path: /build
+
+- name: Create buildbot area
+  become: yes
+  file:
+    path: "{{ buildbot_path }}/"
+    state: directory
+    owner: "{{ buildbot_username }}"
+    group: "{{ buildbot_username }}"
+  tags: buildbot
+
+- name: Create codesign
+  copy:
+    src: files/codesign.sh
+    dest: "{{ buildbot_path }}/codesign.sh"
+    mode: 0755
+  tags: buildbot
+
+- name: Create build slave
+  shell: "/usr/local/bin/buildslave create-slave {{ buildbot_path }} {{ buildmaster_host }}:{{ buildmaster_port }} {{ slave_username }} {{ slave_password }}"
+  args:
+    creates: "{{ buildbot_path }}/buildbot.tac"
+  notify: restart darwin buildbot
+  tags: buildbot
+
+- name: Update slave host information
+  template:
+    src: buildbot_info_host.j2
+    dest: "{{ buildbot_path }}/info/host"
+  notify: restart darwin buildbot
+  tags: buildbot
+
+- name: Update slave admin information
+  template:
+    src: buildbot_info_admin.j2
+    dest: "{{ buildbot_path }}/info/admin"
+  tags: buildbot
+
 - name: Install buildslave launch agent
   become: yes
   template:
     src: net.buildbot.slave.plist.j2
     dest: /Library/LaunchAgents/net.buildbot.slave.plist
-
-- name: Create build slave
-  shell: "/usr/local/bin/buildslave create-slave . {{ buildmaster_host }}:{{ buildmaster_port }} {{ slave_username }} {{ slave_password }}"
-  args:
-    creates: buildbot.tac
-  notify: restart darwin buildbot
-
-- name: Update slave host information
-  template:
-    src: buildbot_info_host.j2
-    dest: info/host
-  notify: restart darwin buildbot
-
-- name: Update slave admin information
-  template:
-    src: buildbot_info_admin.j2
-    dest: info/admin
+  tags: buildbot
   notify: restart darwin buildbot
 

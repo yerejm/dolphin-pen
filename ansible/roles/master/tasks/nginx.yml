@@ -36,16 +36,14 @@
     state: link
 
 - name: nginx | Create nginx services area
-  command: mkdir /etc/nginx/services
-  args:
-    creates: /etc/nginx/services
+  file:
+    path: /etc/nginx/services
+    state: directory
 
 - name: nginx | Create nginx SSL area
   file:
     path: /etc/nginx/ssl
-    mode: 0755
     state: directory
-    recurse: yes
 
 # The name of the certificate and key comes from sadm/nginx/ngix.conf.
 - name: nginx | Create Self-Signed SSL certificate

@@ -1,14 +1,3 @@
-# Ansible does not have windows versions of copy, so copying from the vagrant
-# default share is necessary as is the requirement that windows can must be
-# treated as a vagrant virtual machine.
-# This also means that templates are impossible at this time.
-# Instead, there are many raw commands. Even dealing with idempotency is
-# difficult with the current level of windows support.
-#
-# "script" has an option "creates=" that should be used to determine if the task
-# is complete when some thing is created on the file system, but it uses the
-# stat module internally which is not supported on windows. On windows, the stat
-# alternative win_stat has to be explicitly used instead.
 ---
 ##
 ## BUILD DEPS
@@ -43,7 +32,7 @@
     file: "{{ vs_file }}"
   tags: visualstudio
 
-# dolphin dependency: qt
+# dolphin dependency: qt - must come after git
 - include: w_qt.yml
   tags: qt
 
@@ -71,9 +60,13 @@
     state: present
   tags: buildbot
 
+- name: Set buildbot path
+  set_fact:
+    buildbot_path: "c:\\{{ buildbot_username }}\\Slaves\\dolphin"
+
 - name: Create buildbot area
   win_file:
-    path: "c:/{{ buildbot_username }}/"
+    path: "{{ buildbot_path }}\\"
     state: directory
   tags: buildbot
 
@@ -124,7 +117,7 @@
 ## BUILDBOT
 ##
 - name: Create build slave
-  raw: "buildslave create-slave c:\\{{ buildbot_username }} {{ buildmaster_host }}:{{ buildmaster_port }} {{ slave_username }} {{ slave_password }}"
+  raw: "buildslave create-slave {{ buildbot_path }} {{ buildmaster_host }}:{{ buildmaster_port }} {{ slave_username }} {{ slave_password }}"
   tags: buildbot
 
 # Adding the service does not grant the logon privilege. This must be done
@@ -149,7 +142,7 @@
 - name: Set buildbot service registry
   win_regedit:
     key: HKLM:\SYSTEM\CurrentControlSet\services\Buildbot\Parameters
-    data: "C:\\{{ buildbot_username }}"
+    data: "{{ buildbot_path }}"
     value: directories
     datatype: string
   tags: buildbot

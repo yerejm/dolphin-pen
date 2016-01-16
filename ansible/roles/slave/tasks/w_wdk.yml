@@ -5,15 +5,26 @@
     path: "C:\\Program Files (x86)\\Windows Kits\\8.1\\Debuggers\\x64\\symstore.exe"
   register: app
 
-- name: Copy cached file to download area
-  raw: "xcopy /y /e {{ cache_location }}\\wdk {{ download_location }}\\wdk\\"
+- name: Extract WDK
+  win_unzip:
+    src: "{{ cache_location }}\\WDK.zip"
+    dest: "{{ download_location }}"
+    creates: "{{ download_location }}\\wdk\\{{ file }}"
   when: not app.stat.exists
 
 - name: Install wdk
   raw: "{{ download_location }}\\wdk\\{{ file }} /norestart /q /ceip off"
   when: not app.stat.exists
+# - name: wdk | Install
+#   win_package:
+#     name: WDK
+#     path: "{{ download_location }}\\wdk\\{{ file }}"
+#     product_id: ???
+#     arguments: "/norestart /q /ceip off"
+#   when: not app.stat.exists
 
 - name: Delete local file
   win_file:
     path: "{{ download_location }}\\wdk\\"
     state: absent
+  when: not app.stat.exists

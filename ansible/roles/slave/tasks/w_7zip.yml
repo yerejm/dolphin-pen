@@ -20,6 +20,7 @@
   win_file:
     path: "{{ download_location }}\\{{ file }}"
     state: absent
+  when: not app.stat.exists
 
 - include: win_path.yml
   vars:

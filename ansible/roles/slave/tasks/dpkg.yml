@@ -15,7 +15,9 @@
     mode: 0755
     state: file
 
-- name: dpkg | Create template archive for buildbot
+# Ansible emits a warning about using unarchive rather than tar.
+# It is wrong. This task creates an archive; it is not unarchiving one.
+- name: dpkg | Create template archive for buildbot (ignore any warning)
   become: yes
   become_user: "{{ buildbot_username }}"
   shell: "tar czf dolphin-debian.tar.gz debian/"

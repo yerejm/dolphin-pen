@@ -1,5 +1,6 @@
 ---
 ansible_python_interpreter: /usr/local/bin/python2.7
+ansible_shell_type: csh
 
 slave_username: freebsd
 slave_password: freebsd

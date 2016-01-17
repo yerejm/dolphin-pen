@@ -114,7 +114,7 @@ Vagrant.configure("2") do |config|
     # fifoci build slave
     :dffbuild => {
       :ip => '172.30.70.45',
-      :provisioner => [:linux, :ram2g, :enable_3d],
+      :provisioner => [:linux, :ram4g, :enable_3d],
       :box => 'ubuntu1504',
     },
     # www

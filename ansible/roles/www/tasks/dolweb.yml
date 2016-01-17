@@ -32,9 +32,11 @@
   become_user: www
   git:
     repo: "{{ www_repository }}"
+    version: stable
     dest: www
     accept_hostkey: "{{ 'yes' if testing is defined else 'no' }}"
     force: yes
+  notify: restart supervisor
 
 ##
 ## APT DEPENDENCIES

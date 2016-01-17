@@ -118,11 +118,12 @@
     dest: "{{ buildbot_path }}/info/admin"
   tags: buildbot
 
+# uses buildbot_path and buildbot_username
 - name: Install buildslave launch agent
   become: yes
   template:
     src: net.buildbot.slave.plist.j2
     dest: /Library/LaunchAgents/net.buildbot.slave.plist
-  tags: buildbot
   notify: restart darwin buildbot
+  tags: buildbot
 

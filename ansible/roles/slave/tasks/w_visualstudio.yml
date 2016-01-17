@@ -26,10 +26,6 @@
     dest: c:/tmp/AdminDeployment.xml
   when: not app.stat.exists
 
-# - name: visual studio | Install
-#   raw: "d:\\vs_community.exe /silent /norestart /norefresh /adminfile c:\\tmp\\AdminDeployment.xml /l c:\\tmp\\vslog.txt"
-#   when: not app.stat.exists
-
 - name: visual studio | Install
   win_package:
     name: Visual Studio

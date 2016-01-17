@@ -34,6 +34,7 @@
     repo: "{{ fifoci_repository }}"
     dest: fifoci
     accept_hostkey: "{{ 'yes' if testing is defined else 'no' }}"
+    depth: 1
 
 ##
 ## APT DEPENDENCIES

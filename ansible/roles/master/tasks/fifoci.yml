@@ -37,6 +37,7 @@
     dest: fifoci
     accept_hostkey: "{{ 'yes' if testing is defined else 'no' }}"
     force: yes
+    depth: 1
 
 ##
 ## APT DEPENDENCIES

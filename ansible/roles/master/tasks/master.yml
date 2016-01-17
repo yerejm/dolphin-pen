@@ -16,6 +16,7 @@
     dest: sadm
     accept_hostkey: "{{ 'yes' if testing is defined else 'no' }}"
     force: yes
+    depth: 1
 
 - include: database.yml
   tags: database

@@ -76,6 +76,7 @@
     dest: "{{ changes_dolphin_location }}"
     accept_hostkey: "{{ 'yes' if testing is defined else 'no' }}"
     recursive: no
+    depth: 1
 
 ##
 ## CRON

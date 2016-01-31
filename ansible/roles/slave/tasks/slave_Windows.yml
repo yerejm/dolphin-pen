@@ -73,7 +73,7 @@
 - name: Install buildbot symbol store utility
   win_copy:
     src: files/storesymbols.bat
-    dest: c:/buildbot/storesymbols.bat
+    dest: "{{ buildbot_path  }}\\storesymbols.bat"
   tags: buildbot
 
 ##

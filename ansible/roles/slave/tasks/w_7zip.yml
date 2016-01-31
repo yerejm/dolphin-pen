@@ -4,26 +4,9 @@
     path: "C:\\Program Files\\7-Zip"
   register: app
 
-- name: Download file
-  win_get_url:
-    url: "file://{{ cache_location }}\\{{ file }}"
-    dest: "{{ download_location }}\\{{ file }}"
-  when: not app.stat.exists
-
 - name: 7zip | Install
   win_msi:
     path: "{{ download_location }}\\{{ file }}"
     state: present
   when: not app.stat.exists
-
-- name: 7zip | Delete local file
-  win_file:
-    path: "{{ download_location }}\\{{ file }}"
-    state: absent
-  when: not app.stat.exists
-
-- include: win_path.yml
-  vars:
-    path: 'C:\Program Files\7-Zip'
-    level: machine
 

@@ -4,12 +4,6 @@
     path: "C:\\Program Files\\Git"
   register: app
 
-- name: Download file
-  win_get_url:
-    url: "file://{{ cache_location }}\\{{ file }}"
-    dest: "{{ download_location }}\\{{ file }}"
-  when: not app.stat.exists
-
 - name: git | Install
   win_package:
     name: git
@@ -17,14 +11,3 @@
     product_id: "Git_is1"
     arguments: "/SILENT"
   when: not app.stat.exists
-
-- name: git | Delete local file
-  win_file:
-    path: "{{ download_location }}\\{{ file }}"
-    state: absent
-  when: not app.stat.exists
-
-- include: win_path.yml
-  vars:
-    path: 'C:\Program Files\Git\bin'
-    level: machine

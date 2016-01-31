@@ -2,17 +2,17 @@
 ##
 ## BUILD DEPS
 ##
-# dolphin dependency: packaging
-- include: w_7zip.yml
-  vars:
-    file: "{{ zip_file }}"
-  tags: 7zip
-
-# dolphin dependency: repository
-- include: w_git.yml
-  vars:
-    file: "{{ git_file }}"
-  tags: git
+- name: Download install files
+  win_get_url:
+    url: "file://{{ cache_location }}\\{{ item }}"
+    dest: "{{ download_location }}\\{{ item }}"
+  with_items:
+    - "{{ python_file }}"
+    - "{{ pywin32_file }}"
+    - "{{ git_file }}"
+    - "{{ zip_file }}"
+    - "{{ vs_file }}"
+    - WDK.zip
 
 # buildbot dependency
 - include: w_python.yml
@@ -26,21 +26,58 @@
     file: "{{ pywin32_file }}"
   tags: [pywin32,buildbot]
 
+# dolphin dependency: repository
+- include: w_git.yml
+  vars:
+    file: "{{ git_file }}"
+  tags: git
+
+# dolphin dependency: packaging
+- include: w_7zip.yml
+  vars:
+    file: "{{ zip_file }}"
+  tags: 7zip
+
 # dolphin dependency: compiler
 - include: w_visualstudio.yml
   vars:
     file: "{{ vs_file }}"
   tags: visualstudio
 
-# dolphin dependency: qt - must come after git
-- include: w_qt.yml
-  tags: qt
-
 # dolphin dependency: symstore
 - include: w_wdk.yml
   vars:
     file: "{{ wdk_file }}"
   tags: wdk
+
+# dolphin dependency: qt - must come after git
+- include: w_qt.yml
+  tags: qt
+
+- include: win_path.yml
+  vars:
+    path: "{{ item }}"
+    level: machine
+  with_items:
+    - 'C:\Python27'
+    - 'C:\Python27\Scripts'
+    - 'C:\Program Files\Git\bin'
+    - 'C:\Program Files (x86)\CMake\bin'
+    - 'C:\Program Files\7-Zip'
+    - 'C:\Program Files (x86)\MSBuild\{{ vs_version }}\Bin'
+
+- name: windows | Delete install files
+  win_file:
+    path: "{{ download_location }}\\{{ item }}"
+    state: absent
+  with_items:
+    - "{{ python_file }}"
+    - "{{ pywin32_file }}"
+    - "{{ git_file }}"
+    - "{{ zip_file }}"
+    - "{{ vs_file }}"
+    - WDK.zip
+    - "wdk\\"
 
 ##
 ## PIP DEPENDENCIES
@@ -70,12 +107,6 @@
     state: directory
   tags: buildbot
 
-- name: Install buildbot symbol store utility
-  win_copy:
-    src: files/storesymbols.bat
-    dest: "{{ buildbot_path  }}\\storesymbols.bat"
-  tags: buildbot
-
 ##
 ## SYMBOLSTORE
 ##
@@ -92,16 +123,19 @@
 # machines, the limitations of Windows makes this impossible to truly automate
 # anyway. Since there is no need for remote access to the symbol store as any
 # Windows development would be done locally, this is not a great loss.
-- name: Create symbol store folder
-  win_file:
-    path: c:/symbols/
-    state: directory
+- name: Install buildbot symbol store utility
+  win_copy:
+    src: files/storesymbols.bat
+    dest: "{{ buildbot_path  }}\\storesymbols.bat"
   tags: buildbot
 
-- name: Create local symbol store folder
+- name: Create symbol store folders
   win_file:
-    path: c:/localsymbols/
+    path: "{{ item }}"
     state: directory
+  with_items:
+    - c:/symbols/
+    - c:/localsymbols/
   tags: buildbot
 
 # https://randomascii.wordpress.com/2013/03/09/symbols-the-microsoft-way/
@@ -129,13 +163,13 @@
   tags: buildbot
 
 - name: Allow buildbot service logon
-  raw: "powershell c:\\tmp\\lsa_add_logon_as_svc.ps1 {{ ansible_ssh_user }}"
+  raw: "powershell c:\\tmp\\lsa_add_logon_as_svc.ps1 {{ buildbot_username }}"
   tags: buildbot
 
 # The user should be the unprivileged user but since the user being used is the
 # "root" user, the logon as details are for that user.
 - name: Create buildbot service
-  raw: "c:\\python27\\python.exe c:\\python27\\scripts\\buildbot_service.py --user .\\{{ ansible_ssh_user }} --password {{ ansible_ssh_pass }} --startup auto install"
+  raw: "c:\\python27\\python.exe c:\\python27\\scripts\\buildbot_service.py --user .\\{{ buildbot_username }} --password {{ buildbot_username }} --startup auto install"
   notify: restart windows buildbot
   tags: buildbot
 

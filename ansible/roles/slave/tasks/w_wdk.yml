@@ -7,7 +7,7 @@
 
 - name: Extract WDK
   win_unzip:
-    src: "{{ cache_location }}\\WDK.zip"
+    src: "{{ download_location }}\\WDK.zip"
     dest: "{{ download_location }}"
     creates: "{{ download_location }}\\wdk\\{{ file }}"
   when: not app.stat.exists
@@ -18,10 +18,4 @@
     path: "{{ download_location }}\\wdk\\{{ file }}"
     product_id: "{aba88724-37eb-4f03-b83b-45199c5a7cf5}"
     arguments: "/norestart /q /ceip off"
-  when: not app.stat.exists
-
-- name: Delete local file
-  win_file:
-    path: "{{ download_location }}\\wdk\\"
-    state: absent
   when: not app.stat.exists

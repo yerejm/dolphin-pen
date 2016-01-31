@@ -4,12 +4,6 @@
     path: "C:\\Program Files (x86)\\msbuild\\{{ vs_version }}\\bin"
   register: app
 
-- name: Download file
-  win_get_url:
-    url: "file://{{ cache_location }}\\{{ file }}"
-    dest: "{{ download_location }}\\{{ file }}"
-  when: not app.stat.exists
-
 - name: visual studio | Need to mount?
   win_stat:
     path: "d:\\vs_community.exe"
@@ -20,19 +14,14 @@
   raw: "powershell mount-diskimage {{ download_location }}\\{{ file }}"
   when: not app.stat.exists and not mount.stat.exists
 
-- name: visual studio | Copy Unattended Deployment setup file to installer location
-  win_copy:
-    src: "files/AdminDeployment{{ vs_version }}.xml"
-    dest: c:/tmp/AdminDeployment.xml
-  when: not app.stat.exists
-
 - name: visual studio | Install
   win_package:
     name: Visual Studio
     path: "d:\\vs_community.exe"
     product_id: "{fcaa9dba-9438-48b6-ad91-4e9b4cc7084a}"
-    arguments: "/silent /norestart /norefresh /adminfile c:\\tmp\\AdminDeployment.xml /l c:\\tmp\\vslog.txt"
+    arguments: "/silent /norestart /norefresh /InstallSelectableItems NativeLanguageSupport_VC /l c:\\tmp\\vs\\log.txt"
   when: not app.stat.exists
+  ignore_errors: true
 
 - name: visual studio | Need to dismount?
   win_stat:
@@ -43,14 +32,20 @@
   raw: "powershell dismount-diskimage {{ download_location }}\\{{ file }}"
   when: mount.stat.exists
 
-- name: visual studio | Delete local file
-  win_file:
-    path: "{{ download_location }}\\{{ file }}"
-    state: absent
-  when: not app.stat.exists or mount.stat.exists
+- name: restart machine
+  raw: 'shutdown /r /t 2 /f /d p:4:1 /c "Ansible Shutdown for Visual Studio"'
+  async: 0
+  poll: 0
+  ignore_errors: true
 
-# build master calls msbuild.  It does not use nmake.
-- include: win_path.yml
-  vars:
-    path: 'C:\Program Files (x86)\MSBuild\{{ vs_version }}\Bin'
-    level: machine
+- name: waiting for server to come back
+  local_action: wait_for host={{ inventory_hostname }} port={{ ansible_ssh_port }} state=started delay=120
+  become: false
+
+- name: wait for vagrant mount
+  win_stat:
+      path: "c:\\tmp\\vagrant-cache"
+  register: mount
+  until: mount.stat.exists
+  retries: 10
+  delay: 6

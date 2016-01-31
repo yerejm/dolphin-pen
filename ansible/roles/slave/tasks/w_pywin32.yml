@@ -4,19 +4,7 @@
     path: "C:\\python27\\scripts\\pywin32_postinstall.py"
   register: app
 
-- name: Download file
-  win_get_url:
-    url: "file://{{ cache_location }}\\{{ file }}"
-    dest: "{{ download_location }}\\{{ file }}"
-  when: not app.stat.exists
-
 - name: pywin32 | Install
   raw: "c:\\python27\\scripts\\easy_install {{ download_location }}\\{{ file }}"
-  when: not app.stat.exists
-
-- name: pywin32 | Delete local file
-  win_file:
-    path: "{{ download_location }}\\{{ file }}"
-    state: absent
   when: not app.stat.exists
 

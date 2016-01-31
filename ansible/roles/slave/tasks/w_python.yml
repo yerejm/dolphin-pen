@@ -4,12 +4,6 @@
     path: "C:\\Python27"
   register: app
 
-- name: Download file
-  win_get_url:
-    url: "file://{{ cache_location }}\\{{ file }}"
-    dest: "{{ download_location }}\\{{ file }}"
-  when: not app.stat.exists
-
 - name: python | Install
   win_msi:
     path: "{{ download_location }}\\{{ file }}"
@@ -21,16 +15,3 @@
     src: files/sitecustomize.py
     dest: c:/Python27/Lib/site-packages/sitecustomize.py
 
-- name: python | Delete local file
-  win_file:
-    path: "{{ download_location }}\\{{ file }}"
-    state: absent
-  when: not app.stat.exists
-
-- include: win_path.yml
-  vars:
-    path: "{{ item }}"
-    level: machine
-  with_items:
-    - 'C:\Python27'
-    - 'C:\Python27\Scripts'
